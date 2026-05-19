@@ -5,6 +5,7 @@
         <div class="logo">砾石阅读</div>
         <nav class="nav">
           <router-link to="/">首页</router-link>
+          <router-link to="/market">交易区</router-link>
           <router-link to="/category/文学">文学</router-link>
           <router-link to="/category/科幻">科幻</router-link>
           <router-link to="/category/玄幻">玄幻</router-link>
@@ -20,6 +21,7 @@
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item command="bookshelf">我的书架</el-dropdown-item>
+                  <el-dropdown-item command="author">作家中心</el-dropdown-item>
                   <el-dropdown-item command="profile">个人中心</el-dropdown-item>
                   <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item>
                 </el-dropdown-menu>
@@ -145,6 +147,9 @@ const handleCommand = (command) => {
   switch (command) {
     case 'bookshelf':
       router.push('/bookshelf')
+      break
+    case 'author':
+      router.push('/author')
       break
     case 'profile':
       router.push('/user/profile')

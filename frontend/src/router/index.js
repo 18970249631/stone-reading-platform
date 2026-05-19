@@ -57,6 +57,22 @@ const routes = [
     name: 'Admin',
     component: () => import('@/views/admin/Admin.vue'),
     meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/market',
+    name: 'Market',
+    component: () => import('@/views/MarketHome.vue')
+  },
+  {
+    path: '/market/:id',
+    name: 'MarketDetail',
+    component: () => import('@/views/MarketDetail.vue')
+  },
+  {
+    path: '/author',
+    name: 'AuthorCenter',
+    component: () => import('@/views/AuthorCenter.vue'),
+    meta: { requiresAuth: true }
   }
 ]
 
