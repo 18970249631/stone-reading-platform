@@ -35,6 +35,7 @@
             padding: 8px 16px;
             border-radius: 20px;
             transition: background 0.3s;
+            cursor: pointer;
         }
         .nav a:hover, .nav a.active {
             background: rgba(255,255,255,0.2);
@@ -275,11 +276,11 @@
     <div class="header">
         <h1>📚 砾石阅读</h1>
         <nav class="nav">
-            <a href="#" class="active" onclick="showTab('home')">首页</a>
-            <a href="#" onclick="showTab('bookshelf')">书架</a>
-            <a href="#" onclick="showTab('market')">交易区</a>
-            <a href="#" onclick="showTab('admin')">管理后台</a>
-            <a href="#" onclick="showLogin()">登录</a>
+            <a class="active" onclick="showTab('home')">首页</a>
+            <a onclick="showTab('bookshelf')">书架</a>
+            <a onclick="showTab('market')">交易区</a>
+            <a onclick="showTab('admin')">管理后台</a>
+            <a onclick="showLogin()">登录</a>
         </nav>
     </div>
 
