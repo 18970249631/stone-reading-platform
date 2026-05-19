@@ -22,7 +22,7 @@
           </el-menu-item>
           <el-menu-item index="stats">
             <el-icon><trend-charts /></el-icon>
-            <span>数据统计</span>
+            <span>数据大屏</span>
           </el-menu-item>
         </el-menu>
       </el-aside>
@@ -100,30 +100,127 @@
         </div>
 
         <div v-if="activeTab === 'stats'" class="stats-section">
-          <h3>📊 数据统计</h3>
+          <h3>📊 数据大屏</h3>
+          
           <el-row :gutter="20" class="stats-cards">
             <el-col :span="6">
-              <el-card shadow="hover">
-                <div class="stat-value">12,345</div>
-                <div class="stat-label">注册用户</div>
+              <el-card shadow="hover" class="stat-card">
+                <div class="stat-icon users-icon">👥</div>
+                <div class="stat-content">
+                  <div class="stat-value">{{ dashboard.totalUsers || 0 }}</div>
+                  <div class="stat-label">总用户数</div>
+                </div>
               </el-card>
             </el-col>
             <el-col :span="6">
-              <el-card shadow="hover">
-                <div class="stat-value">890</div>
-                <div class="stat-label">书籍数量</div>
+              <el-card shadow="hover" class="stat-card">
+                <div class="stat-icon books-icon">📚</div>
+                <div class="stat-content">
+                  <div class="stat-value">{{ dashboard.totalBooks || 0 }}</div>
+                  <div class="stat-label">书籍数量</div>
+                </div>
               </el-card>
             </el-col>
             <el-col :span="6">
-              <el-card shadow="hover">
-                <div class="stat-value">¥56,789</div>
-                <div class="stat-label">今日流水</div>
+              <el-card shadow="hover" class="stat-card">
+                <div class="stat-icon revenue-icon">💰</div>
+                <div class="stat-content">
+                  <div class="stat-value">¥{{ dashboard.todayRevenue || '0.00' }}</div>
+                  <div class="stat-label">今日流水</div>
+                </div>
               </el-card>
             </el-col>
             <el-col :span="6">
-              <el-card shadow="hover">
-                <div class="stat-value">123</div>
-                <div class="stat-label">待审核</div>
+              <el-card shadow="hover" class="stat-card">
+                <div class="stat-icon review-icon">🔍</div>
+                <div class="stat-content">
+                  <div class="stat-value">{{ dashboard.pendingReviews || 0 }}</div>
+                  <div class="stat-label">待审核</div>
+                </div>
+              </el-card>
+            </el-col>
+          </el-row>
+
+          <el-row :gutter="20" class="charts-row">
+            <el-col :span="12">
+              <el-card title="用户分布" shadow="hover">
+                <div class="chart-container">
+                  <el-progress type="circle" :percentage="userStats.vipPercent || 0" :size="120" />
+                  <div class="progress-info">
+                    <div class="progress-item">
+                      <span class="vip">VIP用户</span>
+                      <span>{{ userStats.vip || 0 }}</span>
+                    </div>
+                    <div class="progress-item">
+                      <span class="author">作家</span>
+                      <span>{{ userStats.authors || 0 }}</span>
+                    </div>
+                    <div class="progress-item">
+                      <span class="normal">普通用户</span>
+                      <span>{{ userStats.normal || 0 }}</span>
+                    </div>
+                  </div>
+                </div>
+              </el-card>
+            </el-col>
+            <el-col :span="12">
+              <el-card title="书籍统计" shadow="hover">
+                <div class="chart-container">
+                  <el-progress type="circle" :percentage="bookStats.freePercent || 0" :size="120" />
+                  <div class="progress-info">
+                    <div class="progress-item">
+                      <span class="free">免费书</span>
+                      <span>{{ bookStats.free || 0 }}</span>
+                    </div>
+                    <div class="progress-item">
+                      <span class="paid">付费书</span>
+                      <span>{{ bookStats.paid || 0 }}</span>
+                    </div>
+                    <div class="progress-item">
+                      <span class="total">总字数</span>
+                      <span>{{ formatWords(bookStats.totalWords) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </el-card>
+            </el-col>
+          </el-row>
+
+          <el-row :gutter="20" class="charts-row">
+            <el-col :span="12">
+              <el-card title="审核统计" shadow="hover">
+                <div class="review-stats">
+                  <div class="review-item pass">
+                    <div class="review-value">{{ reviewStats.pass || 0 }}</div>
+                    <div class="review-label">通过</div>
+                  </div>
+                  <div class="review-item reject">
+                    <div class="review-value">{{ reviewStats.reject || 0 }}</div>
+                    <div class="review-label">拒绝</div>
+                  </div>
+                  <div class="review-item pending">
+                    <div class="review-value">{{ reviewStats.pending || 0 }}</div>
+                    <div class="review-label">待审核</div>
+                  </div>
+                </div>
+              </el-card>
+            </el-col>
+            <el-col :span="12">
+              <el-card title="收益统计" shadow="hover">
+                <div class="revenue-stats">
+                  <div class="revenue-item">
+                    <div class="revenue-label">总收入</div>
+                    <div class="revenue-value">¥{{ revenueStats.totalRevenue || '0.00' }}</div>
+                  </div>
+                  <div class="revenue-item">
+                    <div class="revenue-label">平台收入</div>
+                    <div class="revenue-value">¥{{ revenueStats.platformFee || '0.00' }}</div>
+                  </div>
+                  <div class="revenue-item">
+                    <div class="revenue-label">订单数</div>
+                    <div class="revenue-value">{{ revenueStats.orderCount || 0 }}</div>
+                  </div>
+                </div>
               </el-card>
             </el-col>
           </el-row>
@@ -133,32 +230,80 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-import { DocumentCheck, User, Notebook, ShoppingCart, TrendCharts } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
-
-const activeTab = ref('review')
+<script setup>import { ref, onMounted } from 'vue';
+import { DocumentCheck, User, Notebook, ShoppingCart, TrendCharts } from '@element-plus/icons-vue';
+import { ElMessage } from 'element-plus';
+import * as statsApi from '../api/stats';
+const activeTab = ref('stats');
 const reviewFilter = ref({
-  contentType: '',
-  status: ''
-})
-const reviewPage = ref(1)
-const pageSize = ref(10)
-const reviewTotal = ref(0)
+ contentType: '',
+ status: ''
+});
+const reviewPage = ref(1);
+const pageSize = ref(10);
+const reviewTotal = ref(0);
 const reviewRecords = ref([
-  { id: 1, contentType: 'BOOK', contentId: 101, reviewLevel: 1, createdAt: '2024-01-15 10:30', reviewResult: null },
-  { id: 2, contentType: 'CHAPTER', contentId: 202, reviewLevel: 2, createdAt: '2024-01-15 11:20', reviewResult: null },
-  { id: 3, contentType: 'SCRIPT', contentId: 303, reviewLevel: 1, createdAt: '2024-01-15 12:10', reviewResult: null }
-])
-
+ { id: 1, contentType: 'BOOK', contentId: 101, reviewLevel: 1, createdAt: '2024-01-15 10:30', reviewResult: null },
+ { id: 2, contentType: 'CHAPTER', contentId: 202, reviewLevel: 2, createdAt: '2024-01-15 11:20', reviewResult: null },
+ { id: 3, contentType: 'SCRIPT', contentId: 303, reviewLevel: 1, createdAt: '2024-01-15 12:10', reviewResult: null }
+]);
+const dashboard = ref({});
+const userStats = ref({});
+const bookStats = ref({});
+const revenueStats = ref({});
+const reviewStats = ref({});
 const handleTabSelect = (key) => {
-  activeTab.value = key
-}
-
+ activeTab.value = key;
+ if (key === 'stats') {
+ loadStats();
+ }
+};
 const handleReview = (record, result) => {
-  ElMessage.success(result === 'PASS' ? '内容已通过审核' : '内容已拒绝')
-}
+ ElMessage.success(result === 'PASS' ? '内容已通过审核' : '内容已拒绝');
+};
+const loadStats = async () => {
+ try {
+ const [dashboardRes, userRes, bookRes, revenueRes, reviewRes] = await Promise.all([
+ statsApi.getDashboardStats(),
+ statsApi.getUserStats(),
+ statsApi.getBookStats(),
+ statsApi.getRevenueStats('month'),
+ statsApi.getReviewStats()
+ ]);
+ if (dashboardRes.success) {
+ dashboard.value = dashboardRes.data;
+ }
+ if (userRes.success) {
+ userStats.value = userRes.data;
+ const total = userStats.value.total || 1;
+ userStats.value.vipPercent = Math.round((userStats.value.vip || 0) / total * 100);
+ }
+ if (bookRes.success) {
+ bookStats.value = bookRes.data;
+ const total = (bookStats.value.free || 0) + (bookStats.value.paid || 0);
+ bookStats.value.freePercent = total > 0 ? Math.round((bookStats.value.free || 0) / total * 100) : 0;
+ }
+ if (revenueRes.success) {
+ revenueStats.value = revenueRes.data;
+ }
+ if (reviewRes.success) {
+ reviewStats.value = reviewRes.data;
+ }
+ }
+ catch (e) {
+ console.error('加载统计数据失败', e);
+ }
+};
+const formatWords = (words) => {
+ if (!words)
+ return '0';
+ if (words >= 10000)
+ return (words / 10000).toFixed(1) + '万';
+ return words;
+};
+onMounted(() => {
+ loadStats();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -199,17 +344,97 @@ const handleReview = (record, result) => {
     }
     
     .stats-cards {
-      margin-top: 30px;
+      margin-bottom: 20px;
       
-      .stat-value {
-        font-size: 32px;
-        font-weight: bold;
-        color: #409eff;
+      .stat-card {
+        display: flex;
+        align-items: center;
+        padding: 20px;
+        
+        .stat-icon {
+          font-size: 48px;
+          margin-right: 20px;
+        }
+        
+        .stat-content {
+          .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #409eff;
+          }
+          
+          .stat-label {
+            color: #909399;
+            margin-top: 4px;
+          }
+        }
+      }
+    }
+    
+    .charts-row {
+      margin-bottom: 20px;
+      
+      .chart-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 30px;
+        
+        .progress-info {
+          .progress-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+            margin-bottom: 10px;
+            
+            .vip { color: #409eff; }
+            .author { color: #67c23a; }
+            .normal { color: #909399; }
+            .free { color: #67c23a; }
+            .paid { color: #f56c6c; }
+            .total { color: #409eff; }
+          }
+        }
       }
       
-      .stat-label {
-        color: #909399;
-        margin-top: 8px;
+      .review-stats {
+        display: flex;
+        justify-content: space-around;
+        
+        .review-item {
+          text-align: center;
+          
+          .review-value {
+            font-size: 36px;
+            font-weight: bold;
+          }
+          
+          .review-label {
+            color: #909399;
+            margin-top: 8px;
+          }
+          
+          &.pass .review-value { color: #67c23a; }
+          &.reject .review-value { color: #f56c6c; }
+          &.pending .review-value { color: #e6a23c; }
+        }
+      }
+      
+      .revenue-stats {
+        .revenue-item {
+          margin-bottom: 20px;
+          
+          .revenue-label {
+            color: #909399;
+            margin-bottom: 4px;
+          }
+          
+          .revenue-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #409eff;
+          }
+        }
       }
     }
   }
