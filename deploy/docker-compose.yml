@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: stone-reading-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root123456
+      MYSQL_DATABASE: stone_reading
+      MYSQL_USER: reader
+      MYSQL_PASSWORD: reader123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - stone-network
+
+  redis:
+    image: redis:6.2
+    container_name: stone-reading-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - stone-network
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: stone-reading-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/stone_reading
+      SPRING_DATASOURCE_USERNAME: reader
+      SPRING_DATASOURCE_PASSWORD: reader123
+      SPRING_REDIS_HOST: redis
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - stone-network
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: stone-reading-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - stone-network
+
+volumes:
+  mysql-data:
+  redis-data:
+
+networks:
+  stone-network:
+    driver: bridge
