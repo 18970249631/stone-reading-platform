@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代码之美 - 书易创</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #1a1a1a;
+            min-height: 100vh;
+        }
+        
+        /* 阅读器头部 */
+        .reader-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: #0d0d0d;
+            border-bottom: 1px solid #2a2a2a;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .reader-back {
+            width: 40px;
+            height: 40px;
+            background: #2a2a2a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .reader-back:hover {
+            background: #3a3a3a;
+        }
+        
+        .reader-header-center {
+            text-align: center;
+        }
+        
+        .reader-book-title {
+            font-size: 16px;
+            color: #fff;
+            font-weight: 500;
+        }
+        
+        .reader-chapter {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .reader-header-right {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .reader-action {
+            width: 40px;
+            height: 40px;
+            background: #2a2a2a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .reader-action:hover {
+            background: #3a3a3a;
+        }
+        
+        /* 阅读内容区域 */
+        .reader-content-area {
+            min-height: calc(100vh - 140px);
+            padding: 40px 80px;
+        }
+        
+        .reader-content {
+            max-width: 700px;
+            margin: 0 auto;
+            color: #ccc;
+            font-size: 17px;
+            line-height: 2.2;
+            text-align: justify;
+        }
+        
+        .reader-content p {
+            margin-bottom: 30px;
+            text-indent: 2em;
+        }
+        
+        .reader-content h2 {
+            font-size: 22px;
+            color: #fff;
+            margin: 50px 0 25px;
+            font-weight: 600;
+        }
+        
+        /* 阅读器底部 */
+        .reader-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: #0d0d0d;
+            border-top: 1px solid #2a2a2a;
+            position: sticky;
+            bottom: 0;
+        }
+        
+        .reader-progress-bar {
+            flex: 1;
+            height: 4px;
+            background: #2a2a2a;
+            border-radius: 2px;
+            margin: 0 30px;
+            cursor: pointer;
+        }
+        
+        .reader-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+        
+        .reader-page-info {
+            font-size: 13px;
+            color: #666;
+            min-width: 80px;
+            text-align: right;
+        }
+        
+        /* 右侧浮动菜单 */
+        .reader-menu {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .reader-menu-item {
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .reader-menu-item:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.1);
+        }
+        
+        /* 日间模式 */
+        .day-mode {
+            background: #f5f5f5;
+        }
+        
+        .day-mode .reader-header,
+        .day-mode .reader-footer {
+            background: #fff;
+            border-color: #e0e0e0;
+        }
+        
+        .day-mode .reader-back,
+        .day-mode .reader-action {
+            background: #f0f0f0;
+        }
+        
+        .day-mode .reader-back:hover,
+        .day-mode .reader-action:hover {
+            background: #e0e0e0;
+        }
+        
+        .day-mode .reader-book-title {
+            color: #333;
+        }
+        
+        .day-mode .reader-content {
+            color: #333;
+        }
+        
+        .day-mode .reader-content h2 {
+            color: #667eea;
+        }
+        
+        .day-mode .reader-progress-bar {
+            background: #e0e0e0;
+        }
+        
+        .day-mode .reader-menu-item {
+            background: rgba(0,0,0,0.1);
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .reader-header, .reader-footer {
+                padding: 12px 20px;
+            }
+            .reader-content-area {
+                padding: 20px;
+            }
+            .reader-menu {
+                right: 15px;
+            }
+            .reader-progress-bar {
+                margin: 0 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 阅读器头部 -->
+    <div class="reader-header">
+        <div class="reader-back" onclick="goBack()">
+            <span style="color: #fff; font-size: 16px;">←</span>
+        </div>
+        <div class="reader-header-center">
+            <div class="reader-book-title">代码之美</div>
+            <div class="reader-chapter" id="readerChapter">第一章 代码的艺术</div>
+        </div>
+        <div class="reader-header-right">
+            <div class="reader-action" onclick="toggleFavorite()">
+                <span style="color: #fff; font-size: 16px;">⭐</span>
+            </div>
+            <div class="reader-action" onclick="showMore()">
+                <span style="color: #fff; font-size: 16px;">...</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 阅读内容区域 -->
+    <div class="reader-content-area" id="readerContentArea">
+        <div class="reader-content" id="readerContent">
+            <h2>第一章：代码的艺术</h2>
+            <p>在计算机科学的浩瀚海洋中，代码不仅仅是一种工具，更是一种艺术形式。优秀的代码如同一幅精美的画卷，让阅读者赏心悦目；如同一首优美的诗篇，让维护者心旷神怡。</p>
+            <p>代码之美，在于它的简洁、优雅和高效。一行好的代码，应该能够清晰地表达程序员的意图，让其他开发者能够快速理解其功能和逻辑。代码的美感来自于结构的清晰、命名的恰当、逻辑的严谨。</p>
+            
+            <h2>第二章：简洁之道</h2>
+            <p>简洁是代码美的第一要素。一个优秀的程序员应该追求用最少的代码实现最强大的功能。简洁的代码不仅易于理解，更易于维护和扩展。</p>
+            <p>简洁并不意味着简单。简洁是在保证功能完整性的前提下，去除冗余和不必要的复杂性。一个简洁的解决方案往往比一个复杂的解决方案更难实现，因为它需要更深的理解和更高的技巧。</p>
+            
+            <h2>第三章：命名的艺术</h2>
+            <p>变量、函数和类的命名是代码可读性的关键。一个好的名字应该能够准确地表达其含义，让读者能够望文生义。命名应该遵循一致的风格和规范，避免使用缩写和模糊的名称。</p>
+            <p>好的命名就像好的标题，能够快速传达代码的核心意图。在团队开发中，一致的命名规范能够极大地提高协作效率和代码质量。</p>
+            
+            <h2>第四章：架构之美</h2>
+            <p>代码的美感也体现在整体架构上。一个良好的架构应该具有清晰的层次结构和职责划分。模块之间应该低耦合、高内聚，便于独立开发和测试。</p>
+            <p>优秀的架构设计能够让代码具有良好的可扩展性和可维护性。它不仅满足当前的需求，更为未来的发展留下足够的空间。</p>
+            
+            <h2>第五章：测试与优雅</h2>
+            <p>代码的优雅还体现在测试的完整性上。一个好的代码库应该配有完善的测试用例，确保每一个功能都能够按照预期工作。测试不仅是验证功能的手段，更是文档的一种形式。</p>
+            <p>测试驱动开发(TDD)是一种让代码更加优雅的方法论。通过先写测试再实现功能，我们能够确保代码的每一部分都经过验证，从而提高整体的可靠性和质量。</p>
+            
+            <h2>结语：追求卓越</h2>
+            <p>代码之美是一种追求，一种态度。作为程序员，我们应该不断地追求代码的完美，不断地提升自己的技艺。每一行代码都是我们的作品，应该值得我们用心去雕琢。</p>
+            <p>让我们一起，用代码书写美好的未来，用技术创造更美好的世界。</p>
+        </div>
+    </div>
+    
+    <!-- 阅读器底部 -->
+    <div class="reader-footer">
+        <button class="reader-action" style="width: auto; padding: 0 20px; border-radius: 20px;" onclick="prevChapter()">
+            <span style="color: #fff; font-size: 14px;">上一章</span>
+        </button>
+        <div class="reader-progress-bar" onclick="jumpToProgress(event)">
+            <div class="reader-progress" id="readerProgress"></div>
+        </div>
+        <div class="reader-page-info" id="readerPageInfo">1 / 6</div>
+        <button class="reader-action" style="width: auto; padding: 0 20px; border-radius: 20px;" onclick="nextChapter()">
+            <span style="color: #fff; font-size: 14px;">下一章</span>
+        </button>
+    </div>
+    
+    <!-- 右侧菜单 -->
+    <div class="reader-menu">
+        <div class="reader-menu-item" onclick="showContents()">
+            <span style="color: #fff; font-size: 18px;">☰</span>
+        </div>
+        <div class="reader-menu-item" onclick="adjustFontSize(1)">
+            <span style="color: #fff; font-size: 18px;">A+</span>
+        </div>
+        <div class="reader-menu-item" onclick="adjustFontSize(-1)">
+            <span style="color: #fff; font-size: 16px;">A-</span>
+        </div>
+        <div class="reader-menu-item" onclick="toggleNightMode()">
+            <span style="color: #fff; font-size: 18px;" id="nightIcon">🌙</span>
+        </div>
+    </div>
+    
+    <script>
+        let currentChapter = 1;
+        let totalChapters = 6;
+        let currentFontSize = 17;
+        let isNightMode = true;
+        
+        const chapters = [
+            "第一章 代码的艺术",
+            "第二章 简洁之道", 
+            "第三章 命名的艺术",
+            "第四章 架构之美",
+            "第五章 测试与优雅",
+            "结语：追求卓越"
+        ];
+        
+        function goBack() {
+            window.history.back();
+        }
+        
+        function toggleFavorite() {
+            alert('已加入书架！');
+        }
+        
+        function showMore() {
+            alert('更多选项功能开发中...');
+        }
+        
+        function nextChapter() {
+            if (currentChapter < totalChapters) {
+                currentChapter++;
+                updateReaderProgress();
+                scrollToTop();
+            }
+        }
+        
+        function prevChapter() {
+            if (currentChapter > 1) {
+                currentChapter--;
+                updateReaderProgress();
+                scrollToTop();
+            }
+        }
+        
+        function updateReaderProgress() {
+            const progress = (currentChapter / totalChapters) * 100;
+            document.getElementById('readerProgress').style.width = progress + '%';
+            document.getElementById('readerPageInfo').textContent = currentChapter + ' / ' + totalChapters;
+            document.getElementById('readerChapter').textContent = chapters[currentChapter - 1];
+        }
+        
+        function scrollToTop() {
+            document.getElementById('readerContentArea').scrollTop = 0;
+        }
+        
+        function adjustFontSize(delta) {
+            const content = document.getElementById('readerContent');
+            currentFontSize = Math.max(14, Math.min(24, currentFontSize + delta));
+            content.style.fontSize = currentFontSize + 'px';
+        }
+        
+        function toggleNightMode() {
+            const body = document.body;
+            const icon = document.getElementById('nightIcon');
+            
+            if (isNightMode) {
+                body.classList.add('day-mode');
+                icon.textContent = '☀️';
+            } else {
+                body.classList.remove('day-mode');
+                icon.textContent = '🌙';
+            }
+            isNightMode = !isNightMode;
+        }
+        
+        function jumpToProgress(event) {
+            const bar = event.currentTarget;
+            const rect = bar.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const percentage = x / rect.width;
+            currentChapter = Math.max(1, Math.min(totalChapters, Math.ceil(percentage * totalChapters)));
+            updateReaderProgress();
+            scrollToTop();
+        }
+        
+        function showContents() {
+            alert('章节列表功能开发中...');
+        }
+        
+        updateReaderProgress();
+    </script>
+</body>
+</html>

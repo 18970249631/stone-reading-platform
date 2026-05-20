@@ -371,6 +371,10 @@
             cursor: pointer;
         }
         
+        .book-card-link {
+            text-decoration: none;
+        }
+        
         .book-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
@@ -502,6 +506,10 @@
         
         .ranking-item:last-child {
             border-bottom: none;
+        }
+        
+        .ranking-link {
+            text-decoration: none;
         }
         
         .ranking-item:hover {
@@ -1065,110 +1073,126 @@
                 <a href="#">查看更多 ></a>
             </div>
             <div class="books-grid">
-                <div class="book-card" onclick="showReader()">
-                    <div class="book-cover">
-                        <img src="https://picsum.photos/200/300?random=1" alt="书籍封面">
-                    </div>
-                    <div class="book-info">
-                        <div class="book-title">代码之美</div>
-                        <div class="book-author">作者：技术大师</div>
-                        <div class="book-price">
-                            <span class="price-current">¥49.9</span>
-                            <span class="price-original">¥79.00</span>
+                <a href="reader.html" class="book-card-link">
+                    <div class="book-card">
+                        <div class="book-cover">
+                            <img src="https://picsum.photos/200/300?random=1" alt="书籍封面">
+                        </div>
+                        <div class="book-info">
+                            <div class="book-title">代码之美</div>
+                            <div class="book-author">作者：技术大师</div>
+                            <div class="book-price">
+                                <span class="price-current">¥49.9</span>
+                                <span class="price-original">¥79.00</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="book-card" onclick="showReader()">
-                    <div class="book-cover">
-                        <img src="https://picsum.photos/200/300?random=2" alt="书籍封面">
-                    </div>
-                    <div class="book-info">
-                        <div class="book-title">编程艺术</div>
-                        <div class="book-author">作者：编程专家</div>
-                        <div class="book-price">
-                            <span class="price-current">¥59.9</span>
-                            <span class="price-original">¥89.00</span>
+                </a>
+                <a href="reader.html" class="book-card-link">
+                    <div class="book-card">
+                        <div class="book-cover">
+                            <img src="https://picsum.photos/200/300?random=2" alt="书籍封面">
+                        </div>
+                        <div class="book-info">
+                            <div class="book-title">编程艺术</div>
+                            <div class="book-author">作者：编程专家</div>
+                            <div class="book-price">
+                                <span class="price-current">¥59.9</span>
+                                <span class="price-original">¥89.00</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="book-card" onclick="showReader()">
-                    <div class="book-cover">
-                        <img src="https://picsum.photos/200/300?random=3" alt="书籍封面">
-                    </div>
-                    <div class="book-info">
-                        <div class="book-title">算法导论</div>
+                </a>
+                <a href="reader.html" class="book-card-link">
+                    <div class="book-card">
+                        <div class="book-cover">
+                            <img src="https://picsum.photos/200/300?random=3" alt="书籍封面">
+                        </div>
+                        <div class="book-info">
+                            <div class="book-title">算法导论</div>
                         <div class="book-author">作者：算法大师</div>
                         <div class="book-price">
                             <span class="price-current">¥69.9</span>
                             <span class="price-original">¥99.00</span>
                         </div>
                     </div>
-                </div>
-                <div class="book-card" onclick="showReader()">
-                    <div class="book-cover">
-                        <img src="https://picsum.photos/200/300?random=4" alt="书籍封面">
                     </div>
-                    <div class="book-info">
-                        <div class="book-title">设计模式</div>
-                        <div class="book-author">作者：架构师</div>
-                        <div class="book-price">
-                            <span class="price-current">¥45.9</span>
-                            <span class="price-original">¥68.00</span>
+                </a>
+                <a href="reader.html" class="book-card-link">
+                    <div class="book-card">
+                        <div class="book-cover">
+                            <img src="https://picsum.photos/200/300?random=4" alt="书籍封面">
+                        </div>
+                        <div class="book-info">
+                            <div class="book-title">设计模式</div>
+                            <div class="book-author">作者：架构师</div>
+                            <div class="book-price">
+                                <span class="price-current">¥45.9</span>
+                                <span class="price-original">¥68.00</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="book-card" onclick="showReader()">
-                    <div class="book-cover">
-                        <img src="https://picsum.photos/200/300?random=5" alt="书籍封面">
-                    </div>
-                    <div class="book-info">
-                        <div class="book-title">深入理解计算机系统</div>
-                        <div class="book-author">作者：计算机专家</div>
-                        <div class="book-price">
-                            <span class="price-current">¥89.9</span>
-                            <span class="price-original">¥128.00</span>
+                </a>
+                <a href="reader.html" class="book-card-link">
+                    <div class="book-card">
+                        <div class="book-cover">
+                            <img src="https://picsum.photos/200/300?random=5" alt="书籍封面">
+                        </div>
+                        <div class="book-info">
+                            <div class="book-title">深入理解计算机系统</div>
+                            <div class="book-author">作者：计算机专家</div>
+                            <div class="book-price">
+                                <span class="price-current">¥89.9</span>
+                                <span class="price-original">¥128.00</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="book-card" onclick="showReader()">
-                    <div class="book-cover">
-                        <img src="https://picsum.photos/200/300?random=6" alt="书籍封面">
-                    </div>
-                    <div class="book-info">
-                        <div class="book-title">Python编程从入门到精通</div>
-                        <div class="book-author">作者：Python大师</div>
-                        <div class="book-price">
-                            <span class="price-current">¥39.9</span>
-                            <span class="price-original">¥59.00</span>
+                </a>
+                <a href="reader.html" class="book-card-link">
+                    <div class="book-card">
+                        <div class="book-cover">
+                            <img src="https://picsum.photos/200/300?random=6" alt="书籍封面">
+                        </div>
+                        <div class="book-info">
+                            <div class="book-title">Python编程从入门到精通</div>
+                            <div class="book-author">作者：Python大师</div>
+                            <div class="book-price">
+                                <span class="price-current">¥39.9</span>
+                                <span class="price-original">¥59.00</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="book-card" onclick="showReader()">
-                    <div class="book-cover">
-                        <img src="https://picsum.photos/200/300?random=7" alt="书籍封面">
-                    </div>
-                    <div class="book-info">
-                        <div class="book-title">数据结构与算法</div>
-                        <div class="book-author">作者：数据专家</div>
-                        <div class="book-price">
-                            <span class="price-current">¥55.9</span>
-                            <span class="price-original">¥78.00</span>
+                </a>
+                <a href="reader.html" class="book-card-link">
+                    <div class="book-card">
+                        <div class="book-cover">
+                            <img src="https://picsum.photos/200/300?random=7" alt="书籍封面">
+                        </div>
+                        <div class="book-info">
+                            <div class="book-title">数据结构与算法</div>
+                            <div class="book-author">作者：数据专家</div>
+                            <div class="book-price">
+                                <span class="price-current">¥55.9</span>
+                                <span class="price-original">¥78.00</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="book-card" onclick="showReader()">
-                    <div class="book-cover">
-                        <img src="https://picsum.photos/200/300?random=8" alt="书籍封面">
-                    </div>
-                    <div class="book-info">
-                        <div class="book-title">人工智能入门</div>
-                        <div class="book-author">作者：AI专家</div>
-                        <div class="book-price">
-                            <span class="price-current">¥79.9</span>
-                            <span class="price-original">¥108.00</span>
+                </a>
+                <a href="reader.html" class="book-card-link">
+                    <div class="book-card">
+                        <div class="book-cover">
+                            <img src="https://picsum.photos/200/300?random=8" alt="书籍封面">
+                        </div>
+                        <div class="book-info">
+                            <div class="book-title">人工智能入门</div>
+                            <div class="book-author">作者：AI专家</div>
+                            <div class="book-price">
+                                <span class="price-current">¥79.9</span>
+                                <span class="price-original">¥108.00</span>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         </section>
         
@@ -1192,51 +1216,61 @@
                     <h3>🔥 畅销榜</h3>
                 </div>
                 <ul class="ranking-list">
-                    <li class="ranking-item" onclick="showReader()">
-                        <div class="ranking-rank top3">1</div>
-                        <div class="ranking-cover">📖</div>
-                        <div class="ranking-info">
-                            <div class="ranking-title">代码之美</div>
-                            <div class="ranking-author">技术大师</div>
-                            <div class="ranking-price">¥49.9</div>
-                        </div>
-                    </li>
-                    <li class="ranking-item" onclick="showReader()">
-                        <div class="ranking-rank top3">2</div>
-                        <div class="ranking-cover">📕</div>
-                        <div class="ranking-info">
-                            <div class="ranking-title">编程艺术</div>
-                            <div class="ranking-author">编程专家</div>
-                            <div class="ranking-price">¥59.9</div>
-                        </div>
-                    </li>
-                    <li class="ranking-item" onclick="showReader()">
-                        <div class="ranking-rank top3">3</div>
-                        <div class="ranking-cover">📗</div>
-                        <div class="ranking-info">
-                            <div class="ranking-title">算法导论</div>
-                            <div class="ranking-author">算法大师</div>
-                            <div class="ranking-price">¥69.9</div>
-                        </div>
-                    </li>
-                    <li class="ranking-item" onclick="showReader()">
-                        <div class="ranking-rank">4</div>
-                        <div class="ranking-cover">📘</div>
-                        <div class="ranking-info">
-                            <div class="ranking-title">设计模式</div>
-                            <div class="ranking-author">架构师</div>
-                            <div class="ranking-price">¥45.9</div>
-                        </div>
-                    </li>
-                    <li class="ranking-item" onclick="showReader()">
-                        <div class="ranking-rank">5</div>
-                        <div class="ranking-cover">📙</div>
-                        <div class="ranking-info">
-                            <div class="ranking-title">深入理解计算机系统</div>
-                            <div class="ranking-author">计算机专家</div>
-                            <div class="ranking-price">¥89.9</div>
-                        </div>
-                    </li>
+                    <a href="reader.html" class="ranking-link">
+                        <li class="ranking-item">
+                            <div class="ranking-rank top3">1</div>
+                            <div class="ranking-cover">📖</div>
+                            <div class="ranking-info">
+                                <div class="ranking-title">代码之美</div>
+                                <div class="ranking-author">技术大师</div>
+                                <div class="ranking-price">¥49.9</div>
+                            </div>
+                        </li>
+                    </a>
+                    <a href="reader.html" class="ranking-link">
+                        <li class="ranking-item">
+                            <div class="ranking-rank top3">2</div>
+                            <div class="ranking-cover">📕</div>
+                            <div class="ranking-info">
+                                <div class="ranking-title">编程艺术</div>
+                                <div class="ranking-author">编程专家</div>
+                                <div class="ranking-price">¥59.9</div>
+                            </div>
+                        </li>
+                    </a>
+                    <a href="reader.html" class="ranking-link">
+                        <li class="ranking-item">
+                            <div class="ranking-rank top3">3</div>
+                            <div class="ranking-cover">📗</div>
+                            <div class="ranking-info">
+                                <div class="ranking-title">算法导论</div>
+                                <div class="ranking-author">算法大师</div>
+                                <div class="ranking-price">¥69.9</div>
+                            </div>
+                        </li>
+                    </a>
+                    <a href="reader.html" class="ranking-link">
+                        <li class="ranking-item">
+                            <div class="ranking-rank">4</div>
+                            <div class="ranking-cover">📘</div>
+                            <div class="ranking-info">
+                                <div class="ranking-title">设计模式</div>
+                                <div class="ranking-author">架构师</div>
+                                <div class="ranking-price">¥45.9</div>
+                            </div>
+                        </li>
+                    </a>
+                    <a href="reader.html" class="ranking-link">
+                        <li class="ranking-item">
+                            <div class="ranking-rank">5</div>
+                            <div class="ranking-cover">📙</div>
+                            <div class="ranking-info">
+                                <div class="ranking-title">深入理解计算机系统</div>
+                                <div class="ranking-author">计算机专家</div>
+                                <div class="ranking-price">¥89.9</div>
+                            </div>
+                        </li>
+                    </a>
                 </ul>
             </div>
         </section>
@@ -1331,161 +1365,7 @@
         </div>
     </div>
     
-    <!-- 微信读书风格阅读器 -->
-    <div class="reader-modal" id="readerModal">
-        <div class="reader-header">
-            <div class="reader-back" onclick="closeReader()">
-                <span style="color: #fff; font-size: 16px;">←</span>
-            </div>
-            <div class="reader-header-center">
-                <div class="reader-book-title">代码之美</div>
-                <div class="reader-chapter" id="readerChapter">第一章 代码的艺术</div>
-            </div>
-            <div class="reader-header-right">
-                <div class="reader-action">
-                    <span style="color: #fff; font-size: 16px;">⭐</span>
-                </div>
-                <div class="reader-action">
-                    <span style="color: #fff; font-size: 16px;">...</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="reader-content-area" id="readerContentArea">
-            <div class="reader-content" id="readerContent">
-                <h2>第一章：代码的艺术</h2>
-                <p>在计算机科学的浩瀚海洋中，代码不仅仅是一种工具，更是一种艺术形式。优秀的代码如同一幅精美的画卷，让阅读者赏心悦目；如同一首优美的诗篇，让维护者心旷神怡。</p>
-                <p>代码之美，在于它的简洁、优雅和高效。一行好的代码，应该能够清晰地表达程序员的意图，让其他开发者能够快速理解其功能和逻辑。代码的美感来自于结构的清晰、命名的恰当、逻辑的严谨。</p>
-                <h2>第二章：简洁之道</h2>
-                <p>简洁是代码美的第一要素。一个优秀的程序员应该追求用最少的代码实现最强大的功能。简洁的代码不仅易于理解，更易于维护和扩展。</p>
-                <p>简洁并不意味着简单。简洁是在保证功能完整性的前提下，去除冗余和不必要的复杂性。一个简洁的解决方案往往比一个复杂的解决方案更难实现，因为它需要更深的理解和更高的技巧。</p>
-                <h2>第三章：命名的艺术</h2>
-                <p>变量、函数和类的命名是代码可读性的关键。一个好的名字应该能够准确地表达其含义，让读者能够望文生义。命名应该遵循一致的风格和规范，避免使用缩写和模糊的名称。</p>
-                <p>好的命名就像好的标题，能够快速传达代码的核心意图。在团队开发中，一致的命名规范能够极大地提高协作效率和代码质量。</p>
-                <h2>第四章：架构之美</h2>
-                <p>代码的美感也体现在整体架构上。一个良好的架构应该具有清晰的层次结构和职责划分。模块之间应该低耦合、高内聚，便于独立开发和测试。</p>
-                <p>优秀的架构设计能够让代码具有良好的可扩展性和可维护性。它不仅满足当前的需求，更为未来的发展留下足够的空间。</p>
-                <h2>第五章：测试与优雅</h2>
-                <p>代码的优雅还体现在测试的完整性上。一个好的代码库应该配有完善的测试用例，确保每一个功能都能够按照预期工作。测试不仅是验证功能的手段，更是文档的一种形式。</p>
-                <p>测试驱动开发(TDD)是一种让代码更加优雅的方法论。通过先写测试再实现功能，我们能够确保代码的每一部分都经过验证，从而提高整体的可靠性和质量。</p>
-                <h2>结语：追求卓越</h2>
-                <p>代码之美是一种追求，一种态度。作为程序员，我们应该不断地追求代码的完美，不断地提升自己的技艺。每一行代码都是我们的作品，应该值得我们用心去雕琢。</p>
-                <p>让我们一起，用代码书写美好的未来，用技术创造更美好的世界。</p>
-            </div>
-        </div>
-        
-        <div class="reader-footer">
-            <button class="reader-action" style="width: auto; padding: 0 20px; border-radius: 20px;" onclick="prevChapter()">
-                <span style="color: #fff; font-size: 14px;">上一章</span>
-            </button>
-            <div class="reader-progress-bar" onclick="jumpToProgress(event)">
-                <div class="reader-progress" id="readerProgress"></div>
-            </div>
-            <div class="reader-page-info" id="readerPageInfo">1 / 6</div>
-            <button class="reader-action" style="width: auto; padding: 0 20px; border-radius: 20px;" onclick="nextChapter()">
-                <span style="color: #fff; font-size: 14px;">下一章</span>
-            </button>
-        </div>
-        
-        <div class="reader-menu">
-            <div class="reader-menu-item" onclick="showContents()">
-                <span style="color: #fff; font-size: 18px;">☰</span>
-            </div>
-            <div class="reader-menu-item" onclick="adjustFontSize(1)">
-                <span style="color: #fff; font-size: 18px;">A+</span>
-            </div>
-            <div class="reader-menu-item" onclick="adjustFontSize(-1)">
-                <span style="color: #fff; font-size: 16px;">A-</span>
-            </div>
-            <div class="reader-menu-item" onclick="toggleNightMode()">
-                <span style="color: #fff; font-size: 18px;">🌙</span>
-            </div>
-        </div>
-    </div>
-    
     <script>
-        let currentChapter = 1;
-        let totalChapters = 6;
-        let currentFontSize = 17;
-        let isNightMode = true;
-        
-        const chapters = [
-            "第一章 代码的艺术",
-            "第二章 简洁之道", 
-            "第三章 命名的艺术",
-            "第四章 架构之美",
-            "第五章 测试与优雅",
-            "结语：追求卓越"
-        ];
-        
-        function showReader() {
-            document.getElementById('readerModal').style.display = 'block';
-            updateReaderProgress();
-        }
-        
-        function closeReader() {
-            document.getElementById('readerModal').style.display = 'none';
-        }
-        
-        function nextChapter() {
-            if (currentChapter < totalChapters) {
-                currentChapter++;
-                updateReaderProgress();
-                scrollToTop();
-            }
-        }
-        
-        function prevChapter() {
-            if (currentChapter > 1) {
-                currentChapter--;
-                updateReaderProgress();
-                scrollToTop();
-            }
-        }
-        
-        function updateReaderProgress() {
-            const progress = (currentChapter / totalChapters) * 100;
-            document.getElementById('readerProgress').style.width = progress + '%';
-            document.getElementById('readerPageInfo').textContent = currentChapter + ' / ' + totalChapters;
-            document.getElementById('readerChapter').textContent = chapters[currentChapter - 1];
-        }
-        
-        function scrollToTop() {
-            document.getElementById('readerContentArea').scrollTop = 0;
-        }
-        
-        function adjustFontSize(delta) {
-            const content = document.getElementById('readerContent');
-            currentFontSize = Math.max(14, Math.min(24, currentFontSize + delta));
-            content.style.fontSize = currentFontSize + 'px';
-        }
-        
-        function toggleNightMode() {
-            const modal = document.getElementById('readerModal');
-            if (isNightMode) {
-                modal.style.background = '#f5f5f5';
-                document.querySelector('.reader-content').style.color = '#333';
-            } else {
-                modal.style.background = '#1a1a1a';
-                document.querySelector('.reader-content').style.color = '#ccc';
-            }
-            isNightMode = !isNightMode;
-        }
-        
-        function jumpToProgress(event) {
-            const bar = event.currentTarget;
-            const rect = bar.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const percentage = x / rect.width;
-            currentChapter = Math.max(1, Math.min(totalChapters, Math.ceil(percentage * totalChapters)));
-            updateReaderProgress();
-            scrollToTop();
-        }
-        
-        function showContents() {
-            alert('章节列表功能开发中...');
-        }
-        
         function showLogin() {
             document.getElementById('loginModal').style.display = 'flex';
         }
