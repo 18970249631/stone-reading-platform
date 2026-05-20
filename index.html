@@ -355,22 +355,40 @@
         <main class="main-content">
             <div class="section-title"><h3>📊 管理后台</h3></div>
             <div class="admin-stats">
-                <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-info"><h4>总用户数</h4><div class="stat-number">1,234</div></div></div>
-                <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-info"><h4>书籍总数</h4><div class="stat-number">567</div></div></div>
-                <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-info"><h4>今日收入</h4><div class="stat-number">¥12,345</div></div></div>
-                <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-info"><h4>订单总数</h4><div class="stat-number">8,901</div></div></div>
+                <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-info"><h4>总用户数</h4><div class="stat-number" id="statUsers">1,234</div></div></div>
+                <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-info"><h4>书籍总数</h4><div class="stat-number" id="statBooks">567</div></div></div>
+                <div class="stat-card"><div class="stat-icon">�</div><div class="stat-info"><h4>评论总数</h4><div class="stat-number" id="statComments">2,345</div></div></div>
+                <div class="stat-card"><div class="stat-icon">�</div><div class="stat-info"><h4>今日收入</h4><div class="stat-number" id="statRevenue">¥12,345</div></div></div>
             </div>
-            <div class="admin-table">
-                <div class="admin-table-header"><h3>👥 用户管理</h3><button class="admin-table-btn" onclick="showNotification('✅ 添加用户功能开发中...')">+ 添加用户</button></div>
-                <table><thead><tr><th>ID</th><th>用户名</th><th>邮箱</th><th>角色</th><th>状态</th><th>注册时间</th><th>操作</th></tr></thead><tbody id="userTableBody"></tbody></table>
+            <div class="trade-tabs">
+                <button class="trade-tab active" onclick="switchAdminTab('users')">👥 用户管理</button>
+                <button class="trade-tab" onclick="switchAdminTab('books')">📚 书籍管理</button>
+                <button class="trade-tab" onclick="switchAdminTab('comments')">💬 评论管理</button>
+                <button class="trade-tab" onclick="switchAdminTab('orders')">💰 订单管理</button>
             </div>
-            <div class="admin-table">
-                <div class="admin-table-header"><h3>📚 书籍管理</h3><button class="admin-table-btn" onclick="showNotification('✅ 添加书籍功能开发中...')">+ 添加书籍</button></div>
-                <table><thead><tr><th>ID</th><th>书名</th><th>作者</th><th>分类</th><th>价格</th><th>状态</th><th>操作</th></tr></thead><tbody id="bookTableBody"></tbody></table>
+            <div id="admin-users" class="admin-content">
+                <div class="admin-table">
+                    <div class="admin-table-header"><h3>👥 用户管理</h3><button class="admin-table-btn" onclick="openAddUserModal()">+ 添加用户</button></div>
+                    <table><thead><tr><th>ID</th><th>用户名</th><th>邮箱</th><th>角色</th><th>状态</th><th>注册时间</th><th>操作</th></tr></thead><tbody id="userTableBody"></tbody></table>
+                </div>
             </div>
-            <div class="admin-table">
-                <div class="admin-table-header"><h3>💰 订单管理</h3></div>
-                <table><thead><tr><th>订单号</th><th>用户</th><th>商品</th><th>金额</th><th>状态</th><th>时间</th><th>操作</th></tr></thead><tbody id="orderTableBody"></tbody></table>
+            <div id="admin-books" class="admin-content" style="display:none;">
+                <div class="admin-table">
+                    <div class="admin-table-header"><h3>📚 书籍管理</h3><button class="admin-table-btn" onclick="openAddBookModal()">+ 添加书籍</button></div>
+                    <table><thead><tr><th>ID</th><th>书名</th><th>作者</th><th>分类</th><th>价格</th><th>状态</th><th>操作</th></tr></thead><tbody id="bookTableBody"></tbody></table>
+                </div>
+            </div>
+            <div id="admin-comments" class="admin-content" style="display:none;">
+                <div class="admin-table">
+                    <div class="admin-table-header"><h3>� 评论管理</h3></div>
+                    <table><thead><tr><th>ID</th><th>用户</th><th>书籍</th><th>评论内容</th><th>评分</th><th>时间</th><th>操作</th></tr></thead><tbody id="commentTableBody"></tbody></table>
+                </div>
+            </div>
+            <div id="admin-orders" class="admin-content" style="display:none;">
+                <div class="admin-table">
+                    <div class="admin-table-header"><h3>� 订单管理</h3></div>
+                    <table><thead><tr><th>订单号</th><th>用户</th><th>商品</th><th>金额</th><th>状态</th><th>时间</th><th>操作</th></tr></thead><tbody id="orderTableBody"></tbody></table>
+                </div>
             </div>
         </main>
     </div>
@@ -431,6 +449,58 @@
         </div>
     </div>
     
+    <div class="login-modal" id="addUserModal">
+        <div class="login-box">
+            <h3>👤 添加用户</h3>
+            <div class="form-group"><label>用户名</label><input type="text" id="newUsername" placeholder="请输入用户名"></div>
+            <div class="form-group"><label>邮箱</label><input type="email" id="newEmail" placeholder="请输入邮箱"></div>
+            <div class="form-group"><label>角色</label><select id="newRole"><option value="USER">普通用户</option><option value="VIP">VIP用户</option><option value="ADMIN">管理员</option><option value="AUTHOR">作家</option></select></div>
+            <div class="form-group"><label>状态</label><select id="newStatus"><option value="正常">正常</option><option value="禁用">禁用</option></select></div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="addUser()">保存</button>
+            <button class="btn btn-secondary" style="width: 100%; margin-top: 16px;" onclick="closeAddUserModal()">关闭</button>
+        </div>
+    </div>
+    
+    <div class="login-modal" id="addBookModal">
+        <div class="login-box">
+            <h3>📚 添加书籍</h3>
+            <div class="form-group"><label>书名</label><input type="text" id="newBookTitle" placeholder="请输入书名"></div>
+            <div class="form-group"><label>作者</label><input type="text" id="newBookAuthor" placeholder="请输入作者"></div>
+            <div class="form-group"><label>分类</label><select id="newBookCategory"><option value="文学小说">文学小说</option><option value="人文社科">人文社科</option><option value="经管励志">经管励志</option><option value="教育考试">教育考试</option><option value="少儿读物">少儿读物</option><option value="科技科普">科技科普</option><option value="生活健康">生活健康</option><option value="艺术设计">艺术设计</option></select></div>
+            <div class="form-group"><label>价格</label><input type="number" id="newBookPrice" placeholder="请输入价格" step="0.01"></div>
+            <div class="form-group"><label>状态</label><select id="newBookStatus"><option value="在售">在售</option><option value="下架">下架</option><option value="预售">预售</option></select></div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="addBook()">保存</button>
+            <button class="btn btn-secondary" style="width: 100%; margin-top: 16px;" onclick="closeAddBookModal()">关闭</button>
+        </div>
+    </div>
+    
+    <div class="login-modal" id="editUserModal">
+        <div class="login-box">
+            <h3>✏️ 编辑用户</h3>
+            <input type="hidden" id="editUserId">
+            <div class="form-group"><label>用户名</label><input type="text" id="editUsername" placeholder="请输入用户名"></div>
+            <div class="form-group"><label>邮箱</label><input type="email" id="editEmail" placeholder="请输入邮箱"></div>
+            <div class="form-group"><label>角色</label><select id="editRole"><option value="USER">普通用户</option><option value="VIP">VIP用户</option><option value="ADMIN">管理员</option><option value="AUTHOR">作家</option></select></div>
+            <div class="form-group"><label>状态</label><select id="editStatus"><option value="正常">正常</option><option value="禁用">禁用</option></select></div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="updateUser()">保存</button>
+            <button class="btn btn-secondary" style="width: 100%; margin-top: 16px;" onclick="closeEditUserModal()">关闭</button>
+        </div>
+    </div>
+    
+    <div class="login-modal" id="editBookModal">
+        <div class="login-box">
+            <h3>✏️ 编辑书籍</h3>
+            <input type="hidden" id="editBookId">
+            <div class="form-group"><label>书名</label><input type="text" id="editBookTitle" placeholder="请输入书名"></div>
+            <div class="form-group"><label>作者</label><input type="text" id="editBookAuthor" placeholder="请输入作者"></div>
+            <div class="form-group"><label>分类</label><select id="editBookCategory"><option value="文学小说">文学小说</option><option value="人文社科">人文社科</option><option value="经管励志">经管励志</option><option value="教育考试">教育考试</option><option value="少儿读物">少儿读物</option><option value="科技科普">科技科普</option><option value="生活健康">生活健康</option><option value="艺术设计">艺术设计</option></select></div>
+            <div class="form-group"><label>价格</label><input type="number" id="editBookPrice" placeholder="请输入价格" step="0.01"></div>
+            <div class="form-group"><label>状态</label><select id="editBookStatus"><option value="在售">在售</option><option value="下架">下架</option><option value="预售">预售</option></select></div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="updateBook()">保存</button>
+            <button class="btn btn-secondary" style="width: 100%; margin-top: 16px;" onclick="closeEditBookModal()">关闭</button>
+        </div>
+    </div>
+    
     <script>
         let currentUser = null;
         let cart = [];
@@ -441,18 +511,25 @@
             { id: 4, title: '设计模式', author: '架构师', progress: 90 },
             { id: 5, title: '深入理解计算机系统', author: '计算机专家', progress: 10 }
         ];
-        const users = [
+        let users = [
             { id: 1, username: 'testuser', email: 'test@example.com', role: 'USER', status: '正常', date: '2024-01-01' },
             { id: 2, username: 'vipuser', email: 'vip@example.com', role: 'VIP', status: '正常', date: '2024-01-15' },
             { id: 3, username: 'admin', email: 'admin@example.com', role: 'ADMIN', status: '正常', date: '2024-01-01' },
             { id: 4, username: 'author', email: 'author@example.com', role: 'AUTHOR', status: '正常', date: '2024-02-01' }
         ];
-        const books = [
-            { id: 1, title: '代码之美', author: '技术大师', category: '技术', price: 49.9, status: '在售' },
-            { id: 2, title: '编程艺术', author: '编程专家', category: '技术', price: 59.9, status: '在售' },
-            { id: 3, title: '算法导论', author: '算法大师', category: '技术', price: 69.9, status: '在售' }
+        let books = [
+            { id: 1, title: '代码之美', author: '技术大师', category: '科技科普', price: 49.9, status: '在售' },
+            { id: 2, title: '编程艺术', author: '编程专家', category: '科技科普', price: 59.9, status: '在售' },
+            { id: 3, title: '算法导论', author: '算法大师', category: '科技科普', price: 69.9, status: '在售' },
+            { id: 4, title: '设计模式', author: '架构师', category: '科技科普', price: 45.9, status: '在售' },
+            { id: 5, title: '深入理解计算机系统', author: '计算机专家', category: '科技科普', price: 89.9, status: '在售' }
         ];
-        const orders = [
+        let comments = [
+            { id: 1, user: 'testuser', book: '代码之美', content: '这本书写得非常好，强烈推荐！', rating: 5, date: '2024-01-20' },
+            { id: 2, user: 'vipuser', book: '编程艺术', content: '内容很精彩，值得一读', rating: 4, date: '2024-01-21' },
+            { id: 3, user: 'author', book: '算法导论', content: '经典之作，受益匪浅', rating: 5, date: '2024-01-22' }
+        ];
+        let orders = [
             { id: 'ORD2024001', user: 'testuser', item: '代码之美', amount: 49.9, status: '已完成', date: '2024-01-20' },
             { id: 'ORD2024002', user: 'vipuser', item: 'VIP年度会员', amount: 699, status: '已完成', date: '2024-01-21' },
             { id: 'ORD2024003', user: 'admin', item: 'Python课程', amount: 299, status: '处理中', date: '2024-01-22' }
@@ -513,10 +590,153 @@
         function checkout() { if (cart.length === 0) { showNotification('❌ 购物车是空的'); return; } const total = cart.reduce((sum, item) => sum + item.price, 0); showNotification('💰 支付成功！共计 ¥' + total.toFixed(2)); cart = []; renderCart(); }
         function switchTradeTab(tab) { document.querySelectorAll('.trade-tab').forEach(t => t.classList.remove('active')); event.target.classList.add('active'); document.querySelectorAll('.trade-grid').forEach(g => g.style.display = 'none'); document.getElementById('trade-' + tab).style.display = 'grid'; }
         
+        function switchAdminTab(tab) {
+            document.querySelectorAll('#page-admin .trade-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.admin-content').forEach(c => c.style.display = 'none');
+            document.getElementById('admin-' + tab).style.display = 'block';
+            renderAdminTables();
+        }
+        
         function renderAdminTables() {
-            document.getElementById('userTableBody').innerHTML = users.map(user => `<tr><td>${user.id}</td><td>${user.username}</td><td>${user.email}</td><td>${user.role}</td><td><span class="status-badge ${user.role === 'VIP' ? 'status-vip' : 'status-active'}">${user.status}</span></td><td>${user.date}</td><td><button class="action-btn-small action-btn-edit" onclick="showNotification('✏️ 编辑功能开发中...')">编辑</button><button class="action-btn-small action-btn-delete" onclick="showNotification('🗑️ 删除功能开发中...')">删除</button></td></tr>`).join('');
-            document.getElementById('bookTableBody').innerHTML = books.map(book => `<tr><td>${book.id}</td><td>${book.title}</td><td>${book.author}</td><td>${book.category}</td><td>¥${book.price}</td><td><span class="status-badge status-active">${book.status}</span></td><td><button class="action-btn-small action-btn-edit" onclick="showNotification('✏️ 编辑功能开发中...')">编辑</button><button class="action-btn-small action-btn-delete" onclick="showNotification('🗑️ 删除功能开发中...')">删除</button></td></tr>`).join('');
+            document.getElementById('statUsers').textContent = users.length;
+            document.getElementById('statBooks').textContent = books.length;
+            document.getElementById('statComments').textContent = comments.length;
+            document.getElementById('userTableBody').innerHTML = users.map(user => `<tr><td>${user.id}</td><td>${user.username}</td><td>${user.email}</td><td>${user.role}</td><td><span class="status-badge ${user.role === 'VIP' ? 'status-vip' : user.status === '禁用' ? 'status-pending' : 'status-active'}">${user.status}</span></td><td>${user.date}</td><td><button class="action-btn-small action-btn-edit" onclick="openEditUserModal(${user.id})">编辑</button><button class="action-btn-small action-btn-delete" onclick="deleteUser(${user.id})">删除</button></td></tr>`).join('');
+            document.getElementById('bookTableBody').innerHTML = books.map(book => `<tr><td>${book.id}</td><td>${book.title}</td><td>${book.author}</td><td>${book.category}</td><td>¥${book.price}</td><td><span class="status-badge ${book.status === '在售' ? 'status-active' : 'status-pending'}">${book.status}</span></td><td><button class="action-btn-small action-btn-edit" onclick="openEditBookModal(${book.id})">编辑</button><button class="action-btn-small action-btn-delete" onclick="deleteBook(${book.id})">删除</button></td></tr>`).join('');
+            document.getElementById('commentTableBody').innerHTML = comments.map(comment => `<tr><td>${comment.id}</td><td>${comment.user}</td><td>${comment.book}</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${comment.content}</td><td>${'⭐'.repeat(comment.rating)}</td><td>${comment.date}</td><td><button class="action-btn-small action-btn-delete" onclick="deleteComment(${comment.id})">删除</button></td></tr>`).join('');
             document.getElementById('orderTableBody').innerHTML = orders.map(order => `<tr><td>${order.id}</td><td>${order.user}</td><td>${order.item}</td><td>¥${order.amount}</td><td><span class="status-badge ${order.status === '处理中' ? 'status-pending' : 'status-active'}">${order.status}</span></td><td>${order.date}</td><td><button class="action-btn-small action-btn-edit" onclick="showNotification('✏️ 查看详情...')">查看</button></td></tr>`).join('');
+        }
+        
+        function openAddUserModal() { document.getElementById('addUserModal').style.display = 'flex'; }
+        function closeAddUserModal() { document.getElementById('addUserModal').style.display = 'none'; }
+        function openAddBookModal() { document.getElementById('addBookModal').style.display = 'flex'; }
+        function closeAddBookModal() { document.getElementById('addBookModal').style.display = 'none'; }
+        function openEditUserModal(id) {
+            const user = users.find(u => u.id === id);
+            if (user) {
+                document.getElementById('editUserId').value = user.id;
+                document.getElementById('editUsername').value = user.username;
+                document.getElementById('editEmail').value = user.email;
+                document.getElementById('editRole').value = user.role;
+                document.getElementById('editStatus').value = user.status;
+                document.getElementById('editUserModal').style.display = 'flex';
+            }
+        }
+        function closeEditUserModal() { document.getElementById('editUserModal').style.display = 'none'; }
+        function openEditBookModal(id) {
+            const book = books.find(b => b.id === id);
+            if (book) {
+                document.getElementById('editBookId').value = book.id;
+                document.getElementById('editBookTitle').value = book.title;
+                document.getElementById('editBookAuthor').value = book.author;
+                document.getElementById('editBookCategory').value = book.category;
+                document.getElementById('editBookPrice').value = book.price;
+                document.getElementById('editBookStatus').value = book.status;
+                document.getElementById('editBookModal').style.display = 'flex';
+            }
+        }
+        function closeEditBookModal() { document.getElementById('editBookModal').style.display = 'none'; }
+        
+        function addUser() {
+            const username = document.getElementById('newUsername').value;
+            const email = document.getElementById('newEmail').value;
+            const role = document.getElementById('newRole').value;
+            const status = document.getElementById('newStatus').value;
+            if (!username || !email) { showNotification('❌ 请填写完整信息'); return; }
+            const newUser = {
+                id: users.length + 1,
+                username: username,
+                email: email,
+                role: role,
+                status: status,
+                date: new Date().toISOString().split('T')[0]
+            };
+            users.push(newUser);
+            closeAddUserModal();
+            renderAdminTables();
+            showNotification('✅ 用户添加成功');
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newEmail').value = '';
+        }
+        
+        function updateUser() {
+            const id = parseInt(document.getElementById('editUserId').value);
+            const username = document.getElementById('editUsername').value;
+            const email = document.getElementById('editEmail').value;
+            const role = document.getElementById('editRole').value;
+            const status = document.getElementById('editStatus').value;
+            const index = users.findIndex(u => u.id === id);
+            if (index !== -1) {
+                users[index] = { ...users[index], username, email, role, status };
+                closeEditUserModal();
+                renderAdminTables();
+                showNotification('✅ 用户更新成功');
+            }
+        }
+        
+        function deleteUser(id) {
+            if (confirm('确定要删除这个用户吗？')) {
+                users = users.filter(u => u.id !== id);
+                renderAdminTables();
+                showNotification('✅ 用户删除成功');
+            }
+        }
+        
+        function addBook() {
+            const title = document.getElementById('newBookTitle').value;
+            const author = document.getElementById('newBookAuthor').value;
+            const category = document.getElementById('newBookCategory').value;
+            const price = parseFloat(document.getElementById('newBookPrice').value);
+            const status = document.getElementById('newBookStatus').value;
+            if (!title || !author || !price) { showNotification('❌ 请填写完整信息'); return; }
+            const newBook = {
+                id: books.length + 1,
+                title: title,
+                author: author,
+                category: category,
+                price: price,
+                status: status
+            };
+            books.push(newBook);
+            closeAddBookModal();
+            renderAdminTables();
+            showNotification('✅ 书籍添加成功');
+            document.getElementById('newBookTitle').value = '';
+            document.getElementById('newBookAuthor').value = '';
+            document.getElementById('newBookPrice').value = '';
+        }
+        
+        function updateBook() {
+            const id = parseInt(document.getElementById('editBookId').value);
+            const title = document.getElementById('editBookTitle').value;
+            const author = document.getElementById('editBookAuthor').value;
+            const category = document.getElementById('editBookCategory').value;
+            const price = parseFloat(document.getElementById('editBookPrice').value);
+            const status = document.getElementById('editBookStatus').value;
+            const index = books.findIndex(b => b.id === id);
+            if (index !== -1) {
+                books[index] = { ...books[index], title, author, category, price, status };
+                closeEditBookModal();
+                renderAdminTables();
+                showNotification('✅ 书籍更新成功');
+            }
+        }
+        
+        function deleteBook(id) {
+            if (confirm('确定要删除这本书吗？')) {
+                books = books.filter(b => b.id !== id);
+                renderAdminTables();
+                showNotification('✅ 书籍删除成功');
+            }
+        }
+        
+        function deleteComment(id) {
+            if (confirm('确定要删除这条评论吗？')) {
+                comments = comments.filter(c => c.id !== id);
+                renderAdminTables();
+                showNotification('✅ 评论删除成功');
+            }
         }
         
         function handleSearch() { const query = document.getElementById('searchInput').value; if (query) showNotification('🔍 正在搜索：' + query); }
