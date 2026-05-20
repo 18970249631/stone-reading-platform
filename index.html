@@ -221,9 +221,9 @@
             </div>
             <nav class="header-nav">
                 <a onclick="navigateTo('home')" class="active">图书</a>
-                <a onclick="navigateTo('home')">电子书</a>
-                <a onclick="navigateTo('home')">有声书</a>
-                <a onclick="navigateTo('home')">课程</a>
+                <a onclick="window.location.href='ebook.html'">电子书</a>
+                <a onclick="window.location.href='audiobook.html'">有声书</a>
+                <a onclick="window.location.href='course.html'">课程</a>
             </nav>
             <div class="header-actions">
                 <button class="action-btn action-btn-secondary" onclick="showLogin()">
@@ -240,7 +240,7 @@
         <ul>
             <li><a onclick="navigateTo('home')" class="active">首页</a></li>
             <li><a onclick="navigateTo('home')">图书</a></li>
-            <li><a onclick="navigateTo('home')">电子书</a></li>
+            <li><a onclick="window.location.href='ebook.html'">电子书</a></li>
             <li><a onclick="navigateTo('home')">新书上架</a></li>
             <li><a onclick="navigateTo('home')">畅销榜</a></li>
             <li><a onclick="navigateTo('trade')">交易区</a></li>
@@ -440,11 +440,23 @@
     <div class="login-modal" id="loginModal">
         <div class="login-box">
             <h3>🔐 登录书易创</h3>
-            <div class="form-group"><label>账号类型</label><select id="accountType"><option value="user">普通用户</option><option value="vip">VIP 用户</option><option value="admin">管理员</option><option value="author">作家</option></select></div>
-            <div class="form-group"><label>用户名</label><input type="text" id="username" placeholder="请输入用户名"></div>
-            <div class="form-group"><label>密码</label><input type="password" id="password" placeholder="请输入密码"></div>
+            <div class="form-group"><label>账号类型</label><select id="accountType" onchange="updateLoginForm()"><option value="user">普通用户</option><option value="vip">VIP 用户</option><option value="admin">管理员</option><option value="author">作家</option></select></div>
+            <div id="userLoginFields">
+                <div class="form-group"><label>手机号</label><input type="tel" id="phone" placeholder="请输入手机号"></div>
+                <div class="form-group">
+                    <label>验证码</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="verifyCode" placeholder="请输入验证码" style="flex: 1;">
+                        <button class="btn btn-secondary" onclick="sendVerifyCode()" id="sendCodeBtn">发送验证码</button>
+                    </div>
+                </div>
+            </div>
+            <div id="otherLoginFields" style="display: none;">
+                <div class="form-group"><label>用户名</label><input type="text" id="username" placeholder="请输入用户名"></div>
+                <div class="form-group"><label>密码</label><input type="password" id="password" placeholder="请输入密码"></div>
+            </div>
             <button class="btn btn-primary" style="width: 100%;" onclick="login()">登录</button>
-            <div class="test-accounts"><h4>🎯 测试账号</h4><p><strong>普通用户：</strong>testuser / test123</p><p><strong>VIP 用户：</strong>vipuser / test123</p><p><strong>管理员：</strong>admin / test123</p><p><strong>作家：</strong>author / test123</p></div>
+            <div class="test-accounts"><h4>🎯 测试账号</h4><p><strong>普通用户：</strong>手机号 13800138000 / 验证码 666666</p><p><strong>VIP 用户：</strong>vipuser / test123</p><p><strong>管理员：</strong>admin / test123</p><p><strong>作家：</strong>author / test123</p></div>
             <button class="btn btn-secondary" style="width: 100%; margin-top: 16px;" onclick="closeLogin()">关闭</button>
         </div>
     </div>
@@ -547,10 +559,59 @@
         function showLogin() { document.getElementById('loginModal').style.display = 'flex'; }
         function closeLogin() { document.getElementById('loginModal').style.display = 'none'; }
         
-        function login() {
-            const username = document.getElementById('username').value;
+        function updateLoginForm() {
             const type = document.getElementById('accountType').value;
-            if (!username) { showNotification('❌ 请输入用户名'); return; }
+            if (type === 'user') {
+                document.getElementById('userLoginFields').style.display = 'block';
+                document.getElementById('otherLoginFields').style.display = 'none';
+            } else {
+                document.getElementById('userLoginFields').style.display = 'none';
+                document.getElementById('otherLoginFields').style.display = 'block';
+                const accounts = { vip: { user: 'vipuser', pass: 'test123' }, admin: { user: 'admin', pass: 'test123' }, author: { user: 'author', pass: 'test123' } };
+                if (accounts[type]) {
+                    document.getElementById('username').value = accounts[type].user;
+                    document.getElementById('password').value = accounts[type].pass;
+                }
+            }
+        }
+        
+        let countdown = 0;
+        function sendVerifyCode() {
+            const phone = document.getElementById('phone').value;
+            if (!phone) { showNotification('❌ 请输入手机号'); return; }
+            if (!/^1[3-9]\d{9}$/.test(phone)) { showNotification('❌ 手机号格式不正确'); return; }
+            
+            showNotification('✅ 验证码已发送（测试验证码：666666）');
+            countdown = 60;
+            const btn = document.getElementById('sendCodeBtn');
+            btn.disabled = true;
+            const timer = setInterval(() => {
+                btn.textContent = countdown + 's';
+                countdown--;
+                if (countdown < 0) {
+                    clearInterval(timer);
+                    btn.textContent = '发送验证码';
+                    btn.disabled = false;
+                }
+            }, 1000);
+        }
+        
+        function login() {
+            const type = document.getElementById('accountType').value;
+            let username;
+            
+            if (type === 'user') {
+                const phone = document.getElementById('phone').value;
+                const code = document.getElementById('verifyCode').value;
+                if (!phone || !code) { showNotification('❌ 请填写完整信息'); return; }
+                if (code !== '666666') { showNotification('❌ 验证码错误'); return; }
+                username = phone;
+            } else {
+                username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                if (!username || !password) { showNotification('❌ 请填写完整信息'); return; }
+            }
+            
             currentUser = { username: username, type: type };
             document.getElementById('userName').textContent = username;
             document.getElementById('profileName').textContent = username;
@@ -750,12 +811,6 @@
             setTimeout(() => { notification.style.animation = 'slideIn 0.3s ease-out reverse'; setTimeout(() => notification.remove(), 300); }, 2000);
         }
         
-        document.getElementById('accountType').addEventListener('change', function() {
-            const type = this.value;
-            const accounts = { user: { user: 'testuser', pass: 'test123' }, vip: { user: 'vipuser', pass: 'test123' }, admin: { user: 'admin', pass: 'test123' }, author: { user: 'author', pass: 'test123' } };
-            document.getElementById('username').value = accounts[type].user;
-            document.getElementById('password').value = accounts[type].pass;
-        });
     </script>
 </body>
 </html>
