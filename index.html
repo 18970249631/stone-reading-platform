@@ -513,15 +513,19 @@
     </div>
     
     <script>
-        let currentUser = null;
-        let cart = [];
-        let shelfBooks = [
+        let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        let shelfBooks = JSON.parse(localStorage.getItem('shelfBooks') || '[]');
+        let savedShelf = [
             { id: 1, title: '代码之美', author: '技术大师', progress: 75 },
             { id: 2, title: '编程艺术', author: '编程专家', progress: 45 },
             { id: 3, title: '算法导论', author: '算法大师', progress: 20 },
             { id: 4, title: '设计模式', author: '架构师', progress: 90 },
             { id: 5, title: '深入理解计算机系统', author: '计算机专家', progress: 10 }
         ];
+        if (shelfBooks.length === 0) {
+            shelfBooks = [...savedShelf];
+        }
         let users = [
             { id: 1, username: 'testuser', email: 'test@example.com', role: 'USER', status: '正常', date: '2024-01-01' },
             { id: 2, username: 'vipuser', email: 'vip@example.com', role: 'VIP', status: '正常', date: '2024-01-15' },
@@ -612,31 +616,57 @@
             }
             
             currentUser = { username: username, type: type };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
             document.getElementById('userName').textContent = username;
             document.getElementById('profileName').textContent = username;
             document.getElementById('profileRole').textContent = getRoleName(type);
             document.getElementById('profileInputName').value = username;
             closeLogin();
+            updateCartCount();
             showNotification('🎉 登录成功！欢迎 ' + username);
         }
         
         function getRoleName(type) { return { user: '普通用户', vip: 'VIP会员', admin: '管理员', author: '作家' }[type] || '访客'; }
-        function handleLogout() { currentUser = null; document.getElementById('userName').textContent = '登录'; showNotification('👋 已退出登录'); navigateTo('home'); }
+        function handleLogout() { 
+            currentUser = null; 
+            localStorage.removeItem('currentUser');
+            document.getElementById('userName').textContent = '登录'; 
+            showNotification('👋 已退出登录'); 
+            navigateTo('home'); 
+        }
         
         function renderShelf() {
             const grid = document.getElementById('shelfGrid');
+            if (shelfBooks.length === 0) {
+                grid.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">书架是空的</div>';
+                return;
+            }
             grid.innerHTML = shelfBooks.map(book => `
                 <div class="shelf-card">
                     <div class="shelf-book-cover">📖<div class="shelf-progress"><div class="shelf-progress-bar" style="width: ${book.progress}%"></div></div></div>
-                    <div class="shelf-info"><h4>${book.title}</h4><p>作者：${book.author} | 进度：${book.progress}%</p><div class="shelf-actions"><button class="shelf-btn shelf-btn-primary" onclick="window.open('reader.html')">继续阅读</button><button class="shelf-btn shelf-btn-secondary" onclick="removeFromShelf(${book.id})">移除</button></div></div>
+                    <div class="shelf-info"><h4>${book.title}</h4><p>作者：${book.author || '未知'} | 进度：${book.progress}%</p><div class="shelf-actions"><button class="shelf-btn shelf-btn-primary" onclick="window.open('reader.html')">继续阅读</button><button class="shelf-btn shelf-btn-secondary" onclick="removeFromShelf(${book.id})">移除</button></div></div>
                 </div>
             `).join('');
         }
         
-        function removeFromShelf(id) { shelfBooks = shelfBooks.filter(book => book.id !== id); renderShelf(); showNotification('✅ 已从书架移除'); }
-        function addToShelf(book) { shelfBooks.unshift({ ...book, progress: 0 }); showNotification('✅ 已加入书架'); }
+        function removeFromShelf(id) { 
+            shelfBooks = shelfBooks.filter(book => book.id !== id); 
+            localStorage.setItem('shelfBooks', JSON.stringify(shelfBooks));
+            renderShelf(); 
+            showNotification('✅ 已从书架移除'); 
+        }
+        function addToShelf(book) { 
+            shelfBooks.unshift({ ...book, progress: 0 }); 
+            localStorage.setItem('shelfBooks', JSON.stringify(shelfBooks));
+            showNotification('✅ 已加入书架'); 
+        }
         
-        function addToCart(title, price) { cart.push({ title, price, id: Date.now() }); showNotification('🛒 已加入购物车：' + title); }
+        function addToCart(title, price) { 
+            cart.push({ title, price, id: Date.now() }); 
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            showNotification('🛒 已加入购物车：' + title); 
+        }
         
         function renderCart() {
             const list = document.getElementById('cartList');
@@ -646,8 +676,31 @@
             document.getElementById('cartTotal').textContent = '¥' + total.toFixed(2);
         }
         
-        function removeFromCart(id) { cart = cart.filter(item => item.id !== id); renderCart(); showNotification('✅ 已从购物车移除'); }
-        function checkout() { if (cart.length === 0) { showNotification('❌ 购物车是空的'); return; } const total = cart.reduce((sum, item) => sum + item.price, 0); showNotification('💰 支付成功！共计 ¥' + total.toFixed(2)); cart = []; renderCart(); }
+        function removeFromCart(id) { 
+            cart = cart.filter(item => item.id !== id); 
+            localStorage.setItem('cart', JSON.stringify(cart));
+            renderCart(); 
+            updateCartCount();
+            showNotification('✅ 已从购物车移除'); 
+        }
+        function checkout() { 
+            if (cart.length === 0) { showNotification('❌ 购物车是空的'); return; } 
+            const total = cart.reduce((sum, item) => sum + item.price, 0); 
+            showNotification('💰 支付成功！共计 ¥' + total.toFixed(2)); 
+            cart = []; 
+            localStorage.setItem('cart', JSON.stringify(cart));
+            renderCart(); 
+            updateCartCount();
+        }
+        
+        function updateCartCount() {
+            const cartButtons = document.querySelectorAll('.action-btn-primary');
+            cartButtons.forEach(btn => {
+                if (btn.innerHTML.includes('购物车')) {
+                    btn.innerHTML = `<span>🛒</span> 购物车 (${cart.length})`;
+                }
+            });
+        }
         function switchTradeTab(tab) { document.querySelectorAll('.trade-tab').forEach(t => t.classList.remove('active')); event.target.classList.add('active'); document.querySelectorAll('.trade-grid').forEach(g => g.style.display = 'none'); document.getElementById('trade-' + tab).style.display = 'grid'; }
         
         function switchAdminTab(tab) {
@@ -809,6 +862,18 @@
             document.body.appendChild(notification);
             setTimeout(() => { notification.style.animation = 'slideIn 0.3s ease-out reverse'; setTimeout(() => notification.remove(), 300); }, 2000);
         }
+        
+        function init() {
+            if (currentUser) {
+                document.getElementById('userName').textContent = currentUser.username;
+                document.getElementById('profileName').textContent = currentUser.username;
+                document.getElementById('profileRole').textContent = getRoleName(currentUser.type);
+                document.getElementById('profileInputName').value = currentUser.username;
+            }
+            updateCartCount();
+        }
+        
+        init();
         
     </script>
 </body>

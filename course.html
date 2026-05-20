@@ -277,6 +277,12 @@
     </footer>
     
     <script>
+        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        let shelfBooks = JSON.parse(localStorage.getItem('shelfBooks') || '[]');
+        let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        
+        updateCartCount();
+        
         function handleSearch() {
             const query = document.getElementById('searchInput').value;
             if (query) {
@@ -301,11 +307,37 @@
         }
         
         function addToCart(title, price) {
+            const item = {
+                id: Date.now(),
+                title: title,
+                price: price,
+                type: 'course'
+            };
+            cart.push(item);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
             showNotification('🛒 已加入购物车：' + title);
         }
         
         function addToShelf(title) {
+            const book = {
+                id: Date.now(),
+                title: title,
+                progress: 0,
+                type: 'course'
+            };
+            shelfBooks.push(book);
+            localStorage.setItem('shelfBooks', JSON.stringify(shelfBooks));
             showNotification('📚 已加入书架：' + title);
+        }
+        
+        function updateCartCount() {
+            const cartButtons = document.querySelectorAll('.action-btn-primary');
+            cartButtons.forEach(btn => {
+                if (btn.innerHTML.includes('购物车')) {
+                    btn.innerHTML = `<span>🛒</span> 购物车 (${cart.length})`;
+                }
+            });
         }
         
         function showNotification(message) {
