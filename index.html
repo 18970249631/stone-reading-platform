@@ -1121,11 +1121,11 @@
                         作者：技术大师
                     </div>
                     <div class="book-actions">
-                        <button class="btn btn-primary" onclick="event.stopPropagation(); showReader()">开始阅读</button>
-                        <button class="btn btn-secondary" onclick="event.stopPropagation(); addToShelf()">加入书架</button>
+                        <button class="btn btn-primary" onclick="showReader()">开始阅读</button>
+                        <button class="btn btn-secondary" onclick="addToShelf()">加入书架</button>
                     </div>
                 </div>
-                <div class="book-card" onclick="animateCard(this)">
+                <div class="book-card">
                     <div class="book-cover">
                         <div class="css-book">
                             <div class="css-book-pages"></div>
@@ -1144,11 +1144,11 @@
                         作者：编程专家
                     </div>
                     <div class="book-actions">
-                        <button class="btn btn-primary" onclick="event.stopPropagation(); showReader()">开始阅读</button>
-                        <button class="btn btn-secondary" onclick="event.stopPropagation(); addToShelf()">加入书架</button>
+                        <button class="btn btn-primary" onclick="showReader()">开始阅读</button>
+                        <button class="btn btn-secondary" onclick="addToShelf()">加入书架</button>
                     </div>
                 </div>
-                <div class="book-card" onclick="animateCard(this)">
+                <div class="book-card">
                     <div class="book-cover">
                         <div class="css-book">
                             <div class="css-book-pages"></div>
@@ -1167,11 +1167,11 @@
                         作者：算法大师
                     </div>
                     <div class="book-actions">
-                        <button class="btn btn-primary" onclick="event.stopPropagation(); showReader()">开始阅读</button>
-                        <button class="btn btn-secondary" onclick="event.stopPropagation(); addToShelf()">加入书架</button>
+                        <button class="btn btn-primary" onclick="showReader()">开始阅读</button>
+                        <button class="btn btn-secondary" onclick="addToShelf()">加入书架</button>
                     </div>
                 </div>
-                <div class="book-card" onclick="animateCard(this)">
+                <div class="book-card">
                     <div class="book-cover">
                         <div class="css-book">
                             <div class="css-book-pages"></div>
@@ -1190,8 +1190,8 @@
                         作者：架构师
                     </div>
                     <div class="book-actions">
-                        <button class="btn btn-primary" onclick="event.stopPropagation(); showReader()">开始阅读</button>
-                        <button class="btn btn-secondary" onclick="event.stopPropagation(); addToShelf()">加入书架</button>
+                        <button class="btn btn-primary" onclick="showReader()">开始阅读</button>
+                        <button class="btn btn-secondary" onclick="addToShelf()">加入书架</button>
                     </div>
                 </div>
             </div>
@@ -1294,8 +1294,8 @@
                     <div class="book-title">代码之美</div>
                     <div class="book-author">阅读进度：75%</div>
                     <div class="book-actions">
-                        <button class="btn btn-primary" onclick="event.stopPropagation(); showReader()">继续阅读</button>
-                        <button class="btn btn-secondary" onclick="event.stopPropagation(); removeFromShelf()">移除</button>
+                        <button class="btn btn-primary" onclick="showReader()">继续阅读</button>
+                        <button class="btn btn-secondary" onclick="removeFromShelf()">移除</button>
                     </div>
                 </div>
             </div>
@@ -1320,10 +1320,10 @@
                     <div class="book-title">VIP 会员</div>
                     <div class="book-author">¥99/月</div>
                     <div class="book-actions">
-                        <button class="btn btn-primary" onclick="event.stopPropagation(); purchase()">立即购买</button>
+                        <button class="btn btn-primary" onclick="purchase()">立即购买</button>
                     </div>
                 </div>
-                <div class="book-card" onclick="animateCard(this)">
+                <div class="book-card">
                     <div class="book-cover">
                         <div class="css-book">
                             <div class="css-book-pages"></div>
@@ -1336,7 +1336,7 @@
                     <div class="book-title">高级教程</div>
                     <div class="book-author">¥49.9</div>
                     <div class="book-actions">
-                        <button class="btn btn-primary" onclick="event.stopPropagation(); purchase()">立即购买</button>
+                        <button class="btn btn-primary" onclick="purchase()">立即购买</button>
                     </div>
                 </div>
             </div>
@@ -1533,12 +1533,16 @@
         let isNightMode = false;
 
         function showReader() {
-            document.getElementById('readerModal').classList.add('active');
+            const modal = document.getElementById('readerModal');
+            modal.style.display = 'block';
+            modal.classList.add('active');
             updateReaderProgress();
         }
 
         function closeReader() {
-            document.getElementById('readerModal').classList.remove('active');
+            const modal = document.getElementById('readerModal');
+            modal.style.display = 'none';
+            modal.classList.remove('active');
         }
 
         function nextChapter() {
