@@ -916,6 +916,144 @@
         @keyframes ripple-effect {
             to { transform: scale(4); opacity: 0; }
         }
+        
+        /* 阅读器样式 */
+        .reader-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 3000;
+            animation: fadeIn 0.3s;
+        }
+        .reader-modal.active {
+            display: block;
+        }
+        .reader-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: #f8f6f1;
+            max-width: 1000px;
+            margin: 0 auto;
+            box-shadow: 0 0 100px rgba(0,0,0,0.5);
+        }
+        .reader-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: white;
+            border-bottom: 1px solid #eee;
+        }
+        .reader-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+        .reader-controls {
+            display: flex;
+            gap: 15px;
+        }
+        .reader-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #f0f0f0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .reader-btn:hover {
+            background: #e0e0e0;
+        }
+        .reader-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .reader-content {
+            flex: 1;
+            padding: 60px 80px;
+            overflow-y: auto;
+            font-size: 18px;
+            line-height: 2;
+            color: #333;
+            text-align: justify;
+        }
+        .reader-content p {
+            margin-bottom: 24px;
+            text-indent: 2em;
+        }
+        .reader-content h2 {
+            font-size: 24px;
+            margin: 40px 0 20px;
+            color: #667eea;
+        }
+        .reader-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: white;
+            border-top: 1px solid #eee;
+        }
+        .reader-progress-bar {
+            flex: 1;
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            margin: 0 20px;
+            cursor: pointer;
+        }
+        .reader-progress {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        .reader-page-info {
+            font-size: 14px;
+            color: #888;
+            min-width: 100px;
+            text-align: right;
+        }
+        .reader-close {
+            padding: 10px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .reader-night-mode {
+            background: #1a1a2e;
+        }
+        .reader-night-mode .reader-container {
+            background: #16213e;
+        }
+        .reader-night-mode .reader-header,
+        .reader-night-mode .reader-footer {
+            background: #0f0f1a;
+            border-color: #2a2a4a;
+        }
+        .reader-night-mode .reader-title {
+            color: #fff;
+        }
+        .reader-night-mode .reader-content {
+            color: #ccc;
+        }
+        .reader-night-mode .reader-btn {
+            background: #2a2a4a;
+            color: #fff;
+        }
+        .reader-night-mode .reader-btn:hover {
+            background: #3a3a5a;
+        }
+        .reader-night-mode .reader-progress-bar {
+            background: #2a2a4a;
+        }
     </style>
 </head>
 <body>
@@ -1301,6 +1439,49 @@
         <p style="margin-top: 10px; font-size: 14px;">这是一个演示页面，完整功能需要后端服务支持</p>
     </div>
 
+    <!-- 阅读器模态框 -->
+    <div class="reader-modal" id="readerModal">
+        <div class="reader-container">
+            <div class="reader-header">
+                <div class="reader-title" id="readerBookTitle">代码之美</div>
+                <div class="reader-controls">
+                    <button class="reader-btn" onclick="adjustFontSize(-1)">A-</button>
+                    <button class="reader-btn" onclick="adjustFontSize(1)">A+</button>
+                    <button class="reader-btn" onclick="toggleNightMode()" id="nightModeBtn">🌙 夜间</button>
+                </div>
+            </div>
+            <div class="reader-content" id="readerContent">
+                <h2>第一章：代码的艺术</h2>
+                <p>在计算机科学的浩瀚海洋中，代码不仅仅是一种工具，更是一种艺术形式。优秀的代码如同一幅精美的画卷，让阅读者赏心悦目；如同一首优美的诗篇，让维护者心旷神怡。</p>
+                <p>代码之美，在于它的简洁、优雅和高效。一行好的代码，应该能够清晰地表达程序员的意图，让其他开发者能够快速理解其功能和逻辑。代码的美感来自于结构的清晰、命名的恰当、逻辑的严谨。</p>
+                <h2>第二章：简洁之道</h2>
+                <p>简洁是代码美的第一要素。一个优秀的程序员应该追求用最少的代码实现最强大的功能。简洁的代码不仅易于理解，更易于维护和扩展。</p>
+                <p>简洁并不意味着简单。简洁是在保证功能完整性的前提下，去除冗余和不必要的复杂性。一个简洁的解决方案往往比一个复杂的解决方案更难实现，因为它需要更深的理解和更高的技巧。</p>
+                <h2>第三章：命名的艺术</h2>
+                <p>变量、函数和类的命名是代码可读性的关键。一个好的名字应该能够准确地表达其含义，让读者能够望文生义。命名应该遵循一致的风格和规范，避免使用缩写和模糊的名称。</p>
+                <p>好的命名就像好的标题，能够快速传达代码的核心意图。在团队开发中，一致的命名规范能够极大地提高协作效率和代码质量。</p>
+                <h2>第四章：架构之美</h2>
+                <p>代码的美感也体现在整体架构上。一个良好的架构应该具有清晰的层次结构和职责划分。模块之间应该低耦合、高内聚，便于独立开发和测试。</p>
+                <p>优秀的架构设计能够让代码具有良好的可扩展性和可维护性。它不仅满足当前的需求，更为未来的发展留下足够的空间。</p>
+                <h2>第五章：测试与优雅</h2>
+                <p>代码的优雅还体现在测试的完整性上。一个好的代码库应该配有完善的测试用例，确保每一个功能都能够按照预期工作。测试不仅是验证功能的手段，更是文档的一种形式。</p>
+                <p>测试驱动开发(TDD)是一种让代码更加优雅的方法论。通过先写测试再实现功能，我们能够确保代码的每一部分都经过验证，从而提高整体的可靠性和质量。</p>
+                <h2>结语：追求卓越</h2>
+                <p>代码之美是一种追求，一种态度。作为程序员，我们应该不断地追求代码的完美，不断地提升自己的技艺。每一行代码都是我们的作品，应该值得我们用心去雕琢。</p>
+                <p>让我们一起，用代码书写美好的未来，用技术创造更美好的世界。</p>
+            </div>
+            <div class="reader-footer">
+                <button class="reader-btn" onclick="prevChapter()">上一章</button>
+                <div class="reader-progress-bar" onclick="jumpToProgress(event)">
+                    <div class="reader-progress" id="readerProgress"></div>
+                </div>
+                <div class="reader-page-info" id="readerPageInfo">1 / 6</div>
+                <button class="reader-btn" onclick="nextChapter()">下一章</button>
+                <button class="reader-close" onclick="closeReader()">关闭</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // 创建粒子背景
         function createParticles() {
@@ -1346,8 +1527,74 @@
             closeLogin();
         }
 
+        let currentChapter = 1;
+        let totalChapters = 6;
+        let currentFontSize = 18;
+        let isNightMode = false;
+
         function showReader() {
-            showNotification('📖 正在打开阅读器...');
+            document.getElementById('readerModal').classList.add('active');
+            updateReaderProgress();
+        }
+
+        function closeReader() {
+            document.getElementById('readerModal').classList.remove('active');
+        }
+
+        function nextChapter() {
+            if (currentChapter < totalChapters) {
+                currentChapter++;
+                updateReaderProgress();
+                scrollToTop();
+            }
+        }
+
+        function prevChapter() {
+            if (currentChapter > 1) {
+                currentChapter--;
+                updateReaderProgress();
+                scrollToTop();
+            }
+        }
+
+        function updateReaderProgress() {
+            const progress = (currentChapter / totalChapters) * 100;
+            document.getElementById('readerProgress').style.width = progress + '%';
+            document.getElementById('readerPageInfo').textContent = currentChapter + ' / ' + totalChapters;
+        }
+
+        function scrollToTop() {
+            document.getElementById('readerContent').scrollTop = 0;
+        }
+
+        function adjustFontSize(delta) {
+            const content = document.getElementById('readerContent');
+            currentFontSize = Math.max(14, Math.min(28, currentFontSize + delta));
+            content.style.fontSize = currentFontSize + 'px';
+        }
+
+        function toggleNightMode() {
+            const modal = document.getElementById('readerModal');
+            const btn = document.getElementById('nightModeBtn');
+            
+            if (isNightMode) {
+                modal.classList.remove('reader-night-mode');
+                btn.textContent = '🌙 夜间';
+            } else {
+                modal.classList.add('reader-night-mode');
+                btn.textContent = '☀️ 日间';
+            }
+            isNightMode = !isNightMode;
+        }
+
+        function jumpToProgress(event) {
+            const bar = event.currentTarget;
+            const rect = bar.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const percentage = x / rect.width;
+            currentChapter = Math.max(1, Math.min(totalChapters, Math.ceil(percentage * totalChapters)));
+            updateReaderProgress();
+            scrollToTop();
         }
 
         function addToShelf() {
