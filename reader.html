@@ -3,21 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>代码之美 - 书易创</title>
+    <title>书易创 - 阅读器</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #1a1a1a;
+            background: rgba(0,0,0,0.8);
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
-        
-        /* 阅读器头部 */
+
+        /* 窗口容器 */
+        .reader-window {
+            width: 90%;
+            max-width: 1200px;
+            height: 85vh;
+            background: #1a1a1a;
+            border-radius: 16px;
+            box-shadow: 0 20px 80px rgba(0,0,0,0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            min-height: 500px;
+        }
+
+        /* 窗口头部 */
+        .window-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background: #0d0d0d;
+            border-bottom: 1px solid #2a2a2a;
+            cursor: move;
+            user-select: none;
+        }
+
+        .window-title {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .window-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .window-btn:hover {
+            opacity: 0.8;
+        }
+
+        .btn-minimize {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-fullscreen {
+            background: #28a745;
+            color: #fff;
+        }
+
+        .btn-close {
+            background: #dc3545;
+            color: #fff;
+        }
+
+        /* 主内容区域 */
+        .reader-main {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* 左侧阅读区域 */
+        .reader-content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 阅读头部 */
         .reader-header {
             display: flex;
             justify-content: space-between;
@@ -25,11 +113,8 @@
             padding: 15px 30px;
             background: #0d0d0d;
             border-bottom: 1px solid #2a2a2a;
-            position: sticky;
-            top: 0;
-            z-index: 100;
         }
-        
+
         .reader-back {
             width: 40px;
             height: 40px;
@@ -41,31 +126,31 @@
             cursor: pointer;
             transition: background 0.3s;
         }
-        
+
         .reader-back:hover {
             background: #3a3a3a;
         }
-        
+
         .reader-header-center {
             text-align: center;
         }
-        
+
         .reader-book-title {
             font-size: 16px;
             color: #fff;
             font-weight: 500;
         }
-        
+
         .reader-chapter {
             font-size: 13px;
             color: #666;
         }
-        
+
         .reader-header-right {
             display: flex;
             gap: 15px;
         }
-        
+
         .reader-action {
             width: 40px;
             height: 40px;
@@ -77,17 +162,18 @@
             cursor: pointer;
             transition: background 0.3s;
         }
-        
+
         .reader-action:hover {
             background: #3a3a3a;
         }
-        
-        /* 阅读内容区域 */
-        .reader-content-area {
-            min-height: calc(100vh - 140px);
+
+        /* 阅读内容 */
+        .reader-content-wrapper {
+            flex: 1;
+            overflow-y: auto;
             padding: 40px 80px;
         }
-        
+
         .reader-content {
             max-width: 700px;
             margin: 0 auto;
@@ -96,20 +182,26 @@
             line-height: 2.2;
             text-align: justify;
         }
-        
+
         .reader-content p {
             margin-bottom: 30px;
             text-indent: 2em;
         }
-        
+
         .reader-content h2 {
             font-size: 22px;
             color: #fff;
             margin: 50px 0 25px;
             font-weight: 600;
         }
-        
-        /* 阅读器底部 */
+
+        /* 选中文字样式 */
+        ::selection {
+            background: rgba(102, 126, 234, 0.4);
+            color: #fff;
+        }
+
+        /* 阅读底部 */
         .reader-footer {
             display: flex;
             justify-content: space-between;
@@ -117,10 +209,8 @@
             padding: 15px 30px;
             background: #0d0d0d;
             border-top: 1px solid #2a2a2a;
-            position: sticky;
-            bottom: 0;
         }
-        
+
         .reader-progress-bar {
             flex: 1;
             height: 4px;
@@ -129,36 +219,240 @@
             margin: 0 30px;
             cursor: pointer;
         }
-        
+
         .reader-progress {
             height: 100%;
             background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
             border-radius: 2px;
             transition: width 0.3s;
         }
-        
+
         .reader-page-info {
             font-size: 13px;
             color: #666;
             min-width: 80px;
             text-align: right;
         }
-        
-        /* 右侧浮动菜单 */
-        .reader-menu {
+
+        /* 右侧面板 */
+        .reader-sidebar {
+            width: 320px;
+            background: #121212;
+            border-left: 1px solid #2a2a2a;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 侧边栏标签 */
+        .sidebar-tabs {
+            display: flex;
+            background: #0d0d0d;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .sidebar-tab {
+            flex: 1;
+            padding: 14px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .sidebar-tab.active {
+            color: #fff;
+        }
+
+        .sidebar-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20%;
+            right: 20%;
+            height: 2px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 1px;
+        }
+
+        /* 侧边栏内容 */
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        /* 笔记列表 */
+        .notes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .note-item {
+            background: #1a1a1a;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #2a2a2a;
+        }
+
+        .note-text {
+            font-size: 14px;
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .note-highlight {
+            background: rgba(255, 215, 0, 0.2);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .note-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 评论列表 */
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .comment-item {
+            background: #1a1a1a;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #2a2a2a;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .comment-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .comment-author {
+            font-size: 14px;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .comment-time {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .comment-content {
+            font-size: 14px;
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .comment-action {
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .comment-action:hover {
+            color: #667eea;
+        }
+
+        /* 发表评论/笔记区域 */
+        .input-area {
+            padding: 15px;
+            background: #0d0d0d;
+            border-top: 1px solid #2a2a2a;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 12px 15px;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-field:focus {
+            border-color: #667eea;
+        }
+
+        .input-field::placeholder {
+            color: #666;
+        }
+
+        .submit-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* 阅读工具菜单 */
+        .reader-tools {
             position: fixed;
             right: 30px;
             top: 50%;
             transform: translateY(-50%);
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
+            z-index: 100;
         }
-        
-        .reader-menu-item {
+
+        .tool-item {
             width: 45px;
             height: 45px;
             background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -166,212 +460,438 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-        
-        .reader-menu-item:hover {
+
+        .tool-item:hover {
             background: rgba(255,255,255,0.2);
             transform: scale(1.1);
         }
-        
-        /* 日间模式 */
-        .day-mode {
-            background: #f5f5f5;
+
+        /* 笔记弹窗 */
+        .note-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1a1a1a;
+            border-radius: 16px;
+            padding: 30px;
+            width: 450px;
+            max-width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            z-index: 200;
         }
-        
+
+        .note-modal.active {
+            display: block;
+        }
+
+        .note-modal-title {
+            font-size: 18px;
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .note-highlight-text {
+            background: rgba(255, 215, 0, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+
+        .note-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            background: #0d0d0d;
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            resize: vertical;
+            outline: none;
+        }
+
+        .note-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn-cancel {
+            padding: 10px 20px;
+            background: #2a2a2a;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn-save {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* 日间模式 */
+        .day-mode .reader-window {
+            background: #fff;
+        }
+
+        .day-mode .window-header,
         .day-mode .reader-header,
         .day-mode .reader-footer {
-            background: #fff;
+            background: #f8f9fa;
             border-color: #e0e0e0;
         }
-        
-        .day-mode .reader-back,
-        .day-mode .reader-action {
-            background: #f0f0f0;
-        }
-        
-        .day-mode .reader-back:hover,
-        .day-mode .reader-action:hover {
-            background: #e0e0e0;
-        }
-        
+
+        .day-mode .window-title,
         .day-mode .reader-book-title {
             color: #333;
         }
-        
+
+        .day-mode .reader-chapter {
+            color: #999;
+        }
+
+        .day-mode .reader-back,
+        .day-mode .reader-action {
+            background: #e0e0e0;
+        }
+
         .day-mode .reader-content {
             color: #333;
         }
-        
+
         .day-mode .reader-content h2 {
             color: #667eea;
         }
-        
-        .day-mode .reader-progress-bar {
-            background: #e0e0e0;
+
+        .day-mode .reader-sidebar {
+            background: #f8f9fa;
+            border-color: #e0e0e0;
         }
-        
-        .day-mode .reader-menu-item {
-            background: rgba(0,0,0,0.1);
+
+        .day-mode .note-item,
+        .day-mode .comment-item {
+            background: #fff;
+            border-color: #e0e0e0;
         }
-        
-        /* 移动端适配 */
-        @media (max-width: 768px) {
-            .reader-header, .reader-footer {
-                padding: 12px 20px;
+
+        .day-mode .note-text,
+        .day-mode .comment-content {
+            color: #333;
+        }
+
+        .day-mode .input-field {
+            background: #fff;
+            border-color: #e0e0e0;
+            color: #333;
+        }
+
+        /* 响应式 */
+        @media (max-width: 900px) {
+            .reader-sidebar {
+                display: none;
             }
-            .reader-content-area {
+            .reader-content-wrapper {
                 padding: 20px;
             }
-            .reader-menu {
+            .reader-tools {
                 right: 15px;
-            }
-            .reader-progress-bar {
-                margin: 0 15px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- 阅读器头部 -->
-    <div class="reader-header">
-        <div class="reader-back" onclick="goBack()">
-            <span style="color: #fff; font-size: 16px;">←</span>
-        </div>
-        <div class="reader-header-center">
-            <div class="reader-book-title">代码之美</div>
-            <div class="reader-chapter" id="readerChapter">第一章 代码的艺术</div>
-        </div>
-        <div class="reader-header-right">
-            <div class="reader-action" onclick="toggleFavorite()">
-                <span style="color: #fff; font-size: 16px;">⭐</span>
+    <!-- 阅读窗口 -->
+    <div class="reader-window" id="readerWindow">
+        <!-- 窗口头部 -->
+        <div class="window-header" id="windowHeader">
+            <div class="window-title" id="windowTitle">📖 远山呼唤</div>
+            <div class="window-controls">
+                <div class="window-btn btn-minimize" onclick="minimizeWindow()" title="最小化">
+                    <span>−</span>
+                </div>
+                <div class="window-btn btn-fullscreen" onclick="toggleFullscreen()" title="全屏">
+                    <span>☐</span>
+                </div>
+                <div class="window-btn btn-close" onclick="closeWindow()" title="关闭">
+                    <span>×</span>
+                </div>
             </div>
-            <div class="reader-action" onclick="showMore()">
-                <span style="color: #fff; font-size: 16px;">...</span>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="reader-main">
+            <!-- 左侧阅读区域 -->
+            <div class="reader-content-area">
+                <!-- 阅读头部 -->
+                <div class="reader-header">
+                    <div class="reader-back" onclick="goBack()">
+                        <span style="color: #fff; font-size: 16px;">←</span>
+                    </div>
+                    <div class="reader-header-center">
+                        <div class="reader-book-title" id="bookTitle">远山呼唤</div>
+                        <div class="reader-chapter" id="currentChapter">第一章 暮色</div>
+                    </div>
+                    <div class="reader-header-right">
+                        <div class="reader-action" onclick="toggleFavorite()">
+                            <span style="color: #fff; font-size: 16px;">⭐</span>
+                        </div>
+                        <div class="reader-action" onclick="showShare()">
+                            <span style="color: #fff; font-size: 16px;">↗</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 阅读内容 -->
+                <div class="reader-content-wrapper" id="contentWrapper" onmouseup="handleTextSelection()">
+                    <div class="reader-content" id="readerContent">
+                        <h2>第一章：暮色</h2>
+                        <p>群山在暮色中起伏如兽脊，陈默站在村口的老槐树下，望着蜿蜒消失在群山深处的土路。夕阳把他的影子拉得很长，像一根孤独的木桩钉在苍茫的大地上。</p>
+                        <p>"该走了。"他轻声对自己说，声音被呼啸的山风卷走，消散在空旷的山谷中。背包已经收拾妥当，里面装着几件换洗衣物、一本翻旧的笔记本，还有母亲塞给他的几个煮鸡蛋。</p>
+                        
+                        <h2>第二章：启程</h2>
+                        <p>清晨的露珠还挂在草叶上，陈默已经踏上了通往山外的路。这条路他走了无数次，但这次不同，他不知道什么时候才能回来，甚至不知道还能不能回来。</p>
+                        <p>脚下的石板路被岁月打磨得光滑发亮，每一步都像是在与过去告别。他想起小时候在这里奔跑嬉戏，想起父亲背着他走过这段路去镇上赶集，想起母亲在这条路的尽头盼他回家。</p>
+                        
+                        <h2>第三章：城市</h2>
+                        <p>城市的霓虹在夜色中闪烁，像一片光怪陆离的海洋。陈默站在车站广场上，茫然地看着来来往往的人群，他们的脚步匆匆，脸上带着他看不懂的表情。</p>
+                        <p>"这就是外面的世界。"他喃喃自语。高耸的楼房直插云霄，汽车的鸣笛声此起彼伏，空气中弥漫着汽油和陌生人的气息。他握紧了背包带，感觉自己像一粒尘埃，随时可能被这巨大的城市吞噬。</p>
+                        
+                        <h2>第四章：挣扎</h2>
+                        <p>找工作远比想象中艰难。学历不高，没有技能，陈默只能做最底层的体力活。搬砖、洗碗、送外卖，他尝遍了生活的艰辛。但他从未想过放弃，笔记本上的字迹越来越多，记录着他的所见所闻，也记录着他的梦想。</p>
+                        <p>夜晚，他蜷缩在狭小的出租屋里，听着窗外的车水马龙，思念着远方的家乡。那座寂静的山村，那棵老槐树，还有母亲慈祥的笑容，成了他支撑下去的唯一力量。</p>
+                        
+                        <h2>第五章：回响</h2>
+                        <p>多年后，陈默再次踏上了回乡的路。只是这一次，他的背包里多了一本出版的书，书名叫《远山呼唤》。车轮滚滚向前，窗外的风景熟悉又陌生，仿佛时光从未流逝。</p>
+                        <p>当老槐树再次出现在视线中时，他的眼眶湿润了。母亲站在村口，白发在风中飘扬，像一面等待的旗帜。远处的群山依然沉默，但在他心中，却响起了最动人的回响。</p>
+                    </div>
+                </div>
+
+                <!-- 阅读底部 -->
+                <div class="reader-footer">
+                    <button class="reader-action" style="width: auto; padding: 0 20px; border-radius: 20px;" onclick="prevChapter()">
+                        <span style="color: #fff; font-size: 14px;">上一章</span>
+                    </button>
+                    <div class="reader-progress-bar" onclick="jumpToProgress(event)">
+                        <div class="reader-progress" id="readerProgress"></div>
+                    </div>
+                    <div class="reader-page-info" id="pageInfo">1 / 5</div>
+                    <button class="reader-action" style="width: auto; padding: 0 20px; border-radius: 20px;" onclick="nextChapter()">
+                        <span style="color: #fff; font-size: 14px;">下一章</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 右侧面板 -->
+            <div class="reader-sidebar">
+                <div class="sidebar-tabs">
+                    <div class="sidebar-tab active" onclick="switchSidebar('notes')">📝 笔记</div>
+                    <div class="sidebar-tab" onclick="switchSidebar('comments')">💬 评论</div>
+                </div>
+                <div class="sidebar-content" id="sidebarContent">
+                    <!-- 笔记列表 -->
+                    <div id="notesPanel">
+                        <div class="notes-list" id="notesList">
+                            <div class="note-item">
+                                <div class="note-highlight">群山在暮色中起伏如兽脊，陈默站在村口的老槐树下</div>
+                                <div class="note-text">这段描写很有意境，暮色、群山、老槐树，构成了一幅生动的画面。</div>
+                                <div class="note-meta">
+                                    <span>第1章</span>
+                                    <span>2026-05-21</span>
+                                </div>
+                            </div>
+                            <div class="note-item">
+                                <div class="note-highlight">当老槐树再次出现在视线中时，他的眼眶湿润了</div>
+                                <div class="note-text">结尾很感人，呼应开头，完成了一个完整的故事闭环。</div>
+                                <div class="note-meta">
+                                    <span>第5章</span>
+                                    <span>2026-05-21</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 评论列表 -->
+                    <div id="commentsPanel" style="display: none;">
+                        <div class="comments-list" id="commentsList">
+                            <div class="comment-item">
+                                <div class="comment-header">
+                                    <div class="comment-avatar">张</div>
+                                    <div>
+                                        <div class="comment-author">张三</div>
+                                        <div class="comment-time">2小时前</div>
+                                    </div>
+                                </div>
+                                <div class="comment-content">写得太棒了！画面感很强，仿佛身临其境。期待作者更多作品！</div>
+                                <div class="comment-actions">
+                                    <span class="comment-action">👍 有用</span>
+                                    <span class="comment-action">💬 回复</span>
+                                </div>
+                            </div>
+                            <div class="comment-item">
+                                <div class="comment-header">
+                                    <div class="comment-avatar">李</div>
+                                    <div>
+                                        <div class="comment-author">李四</div>
+                                        <div class="comment-time">5小时前</div>
+                                    </div>
+                                </div>
+                                <div class="comment-content">故乡情结总是最动人的主题，看哭了😭</div>
+                                <div class="comment-actions">
+                                    <span class="comment-action">👍 有用</span>
+                                    <span class="comment-action">💬 回复</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-area" id="inputArea">
+                    <div class="input-wrapper">
+                        <input type="text" class="input-field" id="commentInput" placeholder="写评论或笔记..." onkeypress="handleEnter(event)">
+                        <button class="submit-btn" id="submitBtn" onclick="submitComment()">发送</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    
-    <!-- 阅读内容区域 -->
-    <div class="reader-content-area" id="readerContentArea">
-        <div class="reader-content" id="readerContent">
-            <h2>第一章：代码的艺术</h2>
-            <p>在计算机科学的浩瀚海洋中，代码不仅仅是一种工具，更是一种艺术形式。优秀的代码如同一幅精美的画卷，让阅读者赏心悦目；如同一首优美的诗篇，让维护者心旷神怡。</p>
-            <p>代码之美，在于它的简洁、优雅和高效。一行好的代码，应该能够清晰地表达程序员的意图，让其他开发者能够快速理解其功能和逻辑。代码的美感来自于结构的清晰、命名的恰当、逻辑的严谨。</p>
-            
-            <h2>第二章：简洁之道</h2>
-            <p>简洁是代码美的第一要素。一个优秀的程序员应该追求用最少的代码实现最强大的功能。简洁的代码不仅易于理解，更易于维护和扩展。</p>
-            <p>简洁并不意味着简单。简洁是在保证功能完整性的前提下，去除冗余和不必要的复杂性。一个简洁的解决方案往往比一个复杂的解决方案更难实现，因为它需要更深的理解和更高的技巧。</p>
-            
-            <h2>第三章：命名的艺术</h2>
-            <p>变量、函数和类的命名是代码可读性的关键。一个好的名字应该能够准确地表达其含义，让读者能够望文生义。命名应该遵循一致的风格和规范，避免使用缩写和模糊的名称。</p>
-            <p>好的命名就像好的标题，能够快速传达代码的核心意图。在团队开发中，一致的命名规范能够极大地提高协作效率和代码质量。</p>
-            
-            <h2>第四章：架构之美</h2>
-            <p>代码的美感也体现在整体架构上。一个良好的架构应该具有清晰的层次结构和职责划分。模块之间应该低耦合、高内聚，便于独立开发和测试。</p>
-            <p>优秀的架构设计能够让代码具有良好的可扩展性和可维护性。它不仅满足当前的需求，更为未来的发展留下足够的空间。</p>
-            
-            <h2>第五章：测试与优雅</h2>
-            <p>代码的优雅还体现在测试的完整性上。一个好的代码库应该配有完善的测试用例，确保每一个功能都能够按照预期工作。测试不仅是验证功能的手段，更是文档的一种形式。</p>
-            <p>测试驱动开发(TDD)是一种让代码更加优雅的方法论。通过先写测试再实现功能，我们能够确保代码的每一部分都经过验证，从而提高整体的可靠性和质量。</p>
-            
-            <h2>结语：追求卓越</h2>
-            <p>代码之美是一种追求，一种态度。作为程序员，我们应该不断地追求代码的完美，不断地提升自己的技艺。每一行代码都是我们的作品，应该值得我们用心去雕琢。</p>
-            <p>让我们一起，用代码书写美好的未来，用技术创造更美好的世界。</p>
-        </div>
-    </div>
-    
-    <!-- 阅读器底部 -->
-    <div class="reader-footer">
-        <button class="reader-action" style="width: auto; padding: 0 20px; border-radius: 20px;" onclick="prevChapter()">
-            <span style="color: #fff; font-size: 14px;">上一章</span>
-        </button>
-        <div class="reader-progress-bar" onclick="jumpToProgress(event)">
-            <div class="reader-progress" id="readerProgress"></div>
-        </div>
-        <div class="reader-page-info" id="readerPageInfo">1 / 6</div>
-        <button class="reader-action" style="width: auto; padding: 0 20px; border-radius: 20px;" onclick="nextChapter()">
-            <span style="color: #fff; font-size: 14px;">下一章</span>
-        </button>
-    </div>
-    
-    <!-- 右侧菜单 -->
-    <div class="reader-menu">
-        <div class="reader-menu-item" onclick="showContents()">
-            <span style="color: #fff; font-size: 18px;">☰</span>
-        </div>
-        <div class="reader-menu-item" onclick="adjustFontSize(1)">
+
+    <!-- 阅读工具菜单 -->
+    <div class="reader-tools">
+        <div class="tool-item" onclick="adjustFontSize(1)" title="增大字体">
             <span style="color: #fff; font-size: 18px;">A+</span>
         </div>
-        <div class="reader-menu-item" onclick="adjustFontSize(-1)">
+        <div class="tool-item" onclick="adjustFontSize(-1)" title="减小字体">
             <span style="color: #fff; font-size: 16px;">A-</span>
         </div>
-        <div class="reader-menu-item" onclick="toggleNightMode()">
-            <span style="color: #fff; font-size: 18px;" id="nightIcon">🌙</span>
+        <div class="tool-item" onclick="toggleNightMode()" title="日间/夜间模式">
+            <span style="color: #fff; font-size: 18px;" id="modeIcon">🌙</span>
+        </div>
+        <div class="tool-item" onclick="showChapterList()" title="章节列表">
+            <span style="color: #fff; font-size: 18px;">☰</span>
         </div>
     </div>
-    
+
+    <!-- 笔记弹窗 -->
+    <div class="note-modal" id="noteModal">
+        <div class="note-modal-title">📝 添加笔记</div>
+        <div class="note-highlight-text" id="selectedText"></div>
+        <textarea class="note-textarea" id="noteTextarea" placeholder="写下你的想法..."></textarea>
+        <div class="note-modal-actions">
+            <button class="btn-cancel" onclick="closeNoteModal()">取消</button>
+            <button class="btn-save" onclick="saveNote()">保存笔记</button>
+        </div>
+    </div>
+
     <script>
+        // 阅读状态
         let currentChapter = 1;
-        let totalChapters = 6;
+        let totalChapters = 5;
         let currentFontSize = 17;
         let isNightMode = true;
-        
+        let isFullscreen = false;
+        let selectedText = '';
+
         const chapters = [
-            "第一章 代码的艺术",
-            "第二章 简洁之道", 
-            "第三章 命名的艺术",
-            "第四章 架构之美",
-            "第五章 测试与优雅",
-            "结语：追求卓越"
+            "第一章 暮色",
+            "第二章 启程",
+            "第三章 城市",
+            "第四章 挣扎",
+            "第五章 回响"
         ];
-        
+
+        // 窗口控制
+        function closeWindow() {
+            window.close();
+        }
+
+        function minimizeWindow() {
+            if (window.chrome || window.opera) {
+                alert('最小化功能需要浏览器支持');
+            } else {
+                window.resizeTo(100, 100);
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                isFullscreen = true;
+            } else {
+                document.exitFullscreen();
+                isFullscreen = false;
+            }
+        }
+
+        // 阅读功能
         function goBack() {
             window.history.back();
         }
-        
+
         function toggleFavorite() {
-            alert('已加入书架！');
+            alert('❤️ 已加入我的书架');
         }
-        
-        function showMore() {
-            alert('更多选项功能开发中...');
+
+        function showShare() {
+            alert('分享链接已复制到剪贴板！');
         }
-        
+
         function nextChapter() {
             if (currentChapter < totalChapters) {
                 currentChapter++;
-                updateReaderProgress();
+                updateProgress();
                 scrollToTop();
             }
         }
-        
+
         function prevChapter() {
             if (currentChapter > 1) {
                 currentChapter--;
-                updateReaderProgress();
+                updateProgress();
                 scrollToTop();
             }
         }
-        
-        function updateReaderProgress() {
+
+        function updateProgress() {
             const progress = (currentChapter / totalChapters) * 100;
             document.getElementById('readerProgress').style.width = progress + '%';
-            document.getElementById('readerPageInfo').textContent = currentChapter + ' / ' + totalChapters;
-            document.getElementById('readerChapter').textContent = chapters[currentChapter - 1];
+            document.getElementById('pageInfo').textContent = currentChapter + ' / ' + totalChapters;
+            document.getElementById('currentChapter').textContent = chapters[currentChapter - 1];
         }
-        
+
         function scrollToTop() {
-            document.getElementById('readerContentArea').scrollTop = 0;
+            document.getElementById('contentWrapper').scrollTop = 0;
         }
-        
+
+        function jumpToProgress(event) {
+            const bar = event.currentTarget;
+            const rect = bar.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const percentage = x / rect.width;
+            currentChapter = Math.max(1, Math.min(totalChapters, Math.ceil(percentage * totalChapters)));
+            updateProgress();
+            scrollToTop();
+        }
+
         function adjustFontSize(delta) {
             const content = document.getElementById('readerContent');
             currentFontSize = Math.max(14, Math.min(24, currentFontSize + delta));
             content.style.fontSize = currentFontSize + 'px';
         }
-        
+
         function toggleNightMode() {
             const body = document.body;
-            const icon = document.getElementById('nightIcon');
+            const icon = document.getElementById('modeIcon');
             
             if (isNightMode) {
                 body.classList.add('day-mode');
@@ -382,22 +902,148 @@
             }
             isNightMode = !isNightMode;
         }
-        
-        function jumpToProgress(event) {
-            const bar = event.currentTarget;
-            const rect = bar.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const percentage = x / rect.width;
-            currentChapter = Math.max(1, Math.min(totalChapters, Math.ceil(percentage * totalChapters)));
-            updateReaderProgress();
-            scrollToTop();
+
+        function showChapterList() {
+            let chapterList = chapters.map((ch, i) => (i + 1) + '. ' + ch).join('\n');
+            alert('章节列表:\n\n' + chapterList);
         }
-        
-        function showContents() {
-            alert('章节列表功能开发中...');
+
+        // 侧边栏切换
+        function switchSidebar(tab) {
+            document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('notesPanel').style.display = tab === 'notes' ? 'block' : 'none';
+            document.getElementById('commentsPanel').style.display = tab === 'comments' ? 'block' : 'none';
+            
+            const input = document.getElementById('commentInput');
+            const btn = document.getElementById('submitBtn');
+            
+            if (tab === 'notes') {
+                input.placeholder = '添加笔记...';
+                btn.textContent = '添加';
+            } else {
+                input.placeholder = '写评论...';
+                btn.textContent = '发送';
+            }
         }
-        
-        updateReaderProgress();
+
+        // 评论功能
+        function submitComment() {
+            const input = document.getElementById('commentInput');
+            const content = input.value.trim();
+            
+            if (!content) {
+                alert('请输入内容');
+                return;
+            }
+
+            const isNotes = document.querySelector('.sidebar-tab.active').textContent.includes('笔记');
+            
+            if (isNotes) {
+                addNote(content);
+            } else {
+                addComment(content);
+            }
+            
+            input.value = '';
+        }
+
+        function addComment(content) {
+            const commentsList = document.getElementById('commentsList');
+            const newComment = `
+                <div class="comment-item">
+                    <div class="comment-header">
+                        <div class="comment-avatar">${currentUser?.username?.charAt(0) || '用'}</div>
+                        <div>
+                            <div class="comment-author">${currentUser?.username || '用户'}</div>
+                            <div class="comment-time">刚刚</div>
+                        </div>
+                    </div>
+                    <div class="comment-content">${content}</div>
+                    <div class="comment-actions">
+                        <span class="comment-action">👍 有用</span>
+                        <span class="comment-action">💬 回复</span>
+                    </div>
+                </div>
+            `;
+            commentsList.innerHTML = newComment + commentsList.innerHTML;
+            alert('✅ 评论发布成功');
+        }
+
+        // 笔记功能
+        function handleTextSelection() {
+            const selection = window.getSelection();
+            selectedText = selection.toString().trim();
+            
+            if (selectedText.length > 0 && selectedText.length < 500) {
+                setTimeout(() => {
+                    if (selectedText) {
+                        document.getElementById('selectedText').textContent = selectedText;
+                        document.getElementById('noteModal').classList.add('active');
+                    }
+                }, 300);
+            }
+        }
+
+        function closeNoteModal() {
+            document.getElementById('noteModal').classList.remove('active');
+            selectedText = '';
+            document.getElementById('noteTextarea').value = '';
+            window.getSelection().removeAllRanges();
+        }
+
+        function saveNote() {
+            const noteContent = document.getElementById('noteTextarea').value.trim();
+            
+            if (!noteContent) {
+                alert('请输入笔记内容');
+                return;
+            }
+
+            const notesList = document.getElementById('notesList');
+            const newNote = `
+                <div class="note-item">
+                    <div class="note-highlight">${selectedText}</div>
+                    <div class="note-text">${noteContent}</div>
+                    <div class="note-meta">
+                        <span>第${currentChapter}章</span>
+                        <span>${new Date().toISOString().split('T')[0]}</span>
+                    </div>
+                </div>
+            `;
+            notesList.innerHTML = newNote + notesList.innerHTML;
+            
+            closeNoteModal();
+            alert('✅ 笔记保存成功');
+        }
+
+        function addNote(content) {
+            const notesList = document.getElementById('notesList');
+            const newNote = `
+                <div class="note-item">
+                    <div class="note-text">${content}</div>
+                    <div class="note-meta">
+                        <span>第${currentChapter}章</span>
+                        <span>${new Date().toISOString().split('T')[0]}</span>
+                    </div>
+                </div>
+            `;
+            notesList.innerHTML = newNote + notesList.innerHTML;
+            alert('✅ 笔记添加成功');
+        }
+
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                submitComment();
+            }
+        }
+
+        // 模拟当前用户
+        const currentUser = { username: '读者' };
+
+        // 初始化
+        updateProgress();
     </script>
 </body>
 </html>
