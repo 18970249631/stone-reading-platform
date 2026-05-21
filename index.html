@@ -576,33 +576,43 @@
         if (shelfBooks.length === 0) {
             shelfBooks = [...savedShelf];
         }
-        let users = [
-            { id: 1, username: 'testuser', email: 'test@example.com', role: 'USER', status: '正常', date: '2024-01-01' },
-            { id: 2, username: 'vipuser', email: 'vip@example.com', role: 'VIP', status: '正常', date: '2024-01-15' },
-            { id: 3, username: 'admin', email: 'admin@example.com', role: 'ADMIN', status: '正常', date: '2024-01-01' },
-            { id: 4, username: 'author', email: 'author@example.com', role: 'AUTHOR', status: '正常', date: '2024-02-01' }
+        // 默认数据
+        const defaultUsers = [
+            { id: 1, username: 'testuser', phone: '13800138001', email: 'test@example.com', role: '普通用户', status: '正常', date: '2024-01-01' },
+            { id: 2, username: 'vipuser', phone: '13800138002', email: 'vip@example.com', role: 'VIP会员', status: '正常', date: '2024-01-15' },
+            { id: 3, username: 'admin', phone: '13800138003', email: 'admin@example.com', role: '管理员', status: '正常', date: '2024-01-01' },
+            { id: 4, username: 'author', phone: '13800138004', email: 'author@example.com', role: '作家', status: '正常', date: '2024-02-01' }
         ];
-        let books = [
-            { id: 1, title: '代码之美', author: '技术大师', type: 'paper', category: '科技科普', price: 49.9, status: '在售' },
-            { id: 2, title: '编程艺术', author: '编程专家', type: 'paper', category: '科技科普', price: 59.9, status: '在售' },
-            { id: 3, title: '算法导论', author: '算法大师', type: 'paper', category: '科技科普', price: 69.9, status: '在售' },
-            { id: 4, title: '设计模式', author: '架构师', type: 'ebook', category: '科技科普', price: 45.9, status: '在售' },
-            { id: 5, title: '深入理解计算机系统', author: '计算机专家', type: 'ebook', category: '科技科普', price: 89.9, status: '在售' }
+        const defaultBooks = [
+            { id: 1, title: '代码之美', author: '技术大师', category: '科技科普', type: '纸质书', price: 49.9, status: '在售' },
+            { id: 2, title: '编程艺术', author: '编程专家', category: '科技科普', type: '电子书', price: 29.9, status: '在售' },
+            { id: 3, title: '算法导论', author: '算法大师', category: '科技科普', type: '纸质书', price: 69.9, status: '在售' },
+            { id: 4, title: '活着', author: '余华', category: '文学小说', type: '纸质书', price: 35.0, status: '在售' },
+            { id: 5, title: '三体', author: '刘慈欣', category: '文学小说', type: '电子书', price: 19.9, status: '在售' }
         ];
-        let comments = [
-            { id: 1, user: 'testuser', book: '代码之美', content: '这本书写得非常好，强烈推荐！', rating: 5, date: '2024-01-20' },
-            { id: 2, user: 'vipuser', book: '编程艺术', content: '内容很精彩，值得一读', rating: 4, date: '2024-01-21' },
-            { id: 3, user: 'author', book: '算法导论', content: '经典之作，受益匪浅', rating: 5, date: '2024-01-22' }
+        const defaultComments = [
+            { id: 1, user: '张三', book: '代码之美', content: '这本书真的很棒！', rating: 5, date: '2024-01-20' },
+            { id: 2, user: '李四', book: '编程艺术', content: '内容很实用，推荐', rating: 4, date: '2024-01-21' }
         ];
-        let orders = [
-            { id: 'ORD2024001', user: 'testuser', item: '代码之美', amount: 49.9, status: '已完成', date: '2024-01-20' },
-            { id: 'ORD2024002', user: 'vipuser', item: 'VIP年度会员', amount: 699, status: '已完成', date: '2024-01-21' },
-            { id: 'ORD2024003', user: 'admin', item: 'Python课程', amount: 299, status: '处理中', date: '2024-01-22' }
+        const defaultOrders = [
+            { id: 1, orderNo: 'DD20240120001', user: '张三', items: '代码之美', amount: 49.9, status: '已完成', date: '2024-01-20' },
+            { id: 2, orderNo: 'DD20240119002', user: '李四', items: '编程艺术', amount: 29.9, status: '处理中', date: '2024-01-19' }
         ];
-        let articles = JSON.parse(localStorage.getItem('shuyic_articles') || '[]');
-        let authors = JSON.parse(localStorage.getItem('authors') || JSON.stringify([
-            { id: 1, username: 'author', healthScore: 100, status: '正常', bannedUntil: null, violationCount: 0 }
-        ]));
+        const defaultArticles = [
+            { id: 1, title: '如何写出优雅的代码', author: '技术大师', category: '科技', content: '本文分享了一些编写高质量代码的技巧...', status: '已发布', date: '2024-01-15' },
+            { id: 2, title: '春天的故事', author: '作家', category: '散文', content: '春天来了，万物复苏...', status: '已发布', date: '2024-01-10' }
+        ];
+        const defaultAuthors = [
+            { id: 1, name: '王五', healthScore: 100, status: '正常', violations: 0, date: '2024-01-01' }
+        ];
+
+        // 从localStorage读取数据，如果不存在则使用默认数据
+        let users = JSON.parse(localStorage.getItem('shuyic_users') || JSON.stringify(defaultUsers));
+        let books = JSON.parse(localStorage.getItem('shuyic_books') || JSON.stringify(defaultBooks));
+        let comments = JSON.parse(localStorage.getItem('shuyic_comments') || JSON.stringify(defaultComments));
+        let orders = JSON.parse(localStorage.getItem('shuyic_orders') || JSON.stringify(defaultOrders));
+        let articles = JSON.parse(localStorage.getItem('shuyic_articles') || JSON.stringify(defaultArticles));
+        let authors = JSON.parse(localStorage.getItem('shuyic_authors') || JSON.stringify(defaultAuthors));
         
         const forbiddenKeywords = [
             '黄赌毒', '暴力', '色情', '赌博', '毒品', 
@@ -833,6 +843,7 @@
                 date: new Date().toISOString().split('T')[0]
             };
             users.push(newUser);
+            localStorage.setItem('shuyic_users', JSON.stringify(users));
             closeAddUserModal();
             renderAdminTables();
             showNotification('✅ 用户添加成功');
@@ -849,6 +860,7 @@
             const index = users.findIndex(u => u.id === id);
             if (index !== -1) {
                 users[index] = { ...users[index], username, email, role, status };
+                localStorage.setItem('shuyic_users', JSON.stringify(users));
                 closeEditUserModal();
                 renderAdminTables();
                 showNotification('✅ 用户更新成功');
@@ -858,6 +870,7 @@
         function deleteUser(id) {
             if (confirm('确定要删除这个用户吗？')) {
                 users = users.filter(u => u.id !== id);
+                localStorage.setItem('shuyic_users', JSON.stringify(users));
                 renderAdminTables();
                 showNotification('✅ 用户删除成功');
             }
@@ -881,6 +894,7 @@
                 status: status
             };
             books.push(newBook);
+            localStorage.setItem('shuyic_books', JSON.stringify(books));
             closeAddBookModal();
             renderAdminTables();
             showNotification('✅ 书籍添加成功');
@@ -900,6 +914,7 @@
             const index = books.findIndex(b => b.id === id);
             if (index !== -1) {
                 books[index] = { ...books[index], title, author, type, category, price, status };
+                localStorage.setItem('shuyic_books', JSON.stringify(books));
                 closeEditBookModal();
                 renderAdminTables();
                 showNotification('✅ 书籍更新成功');
@@ -909,6 +924,7 @@
         function deleteBook(id) {
             if (confirm('确定要删除这本书吗？')) {
                 books = books.filter(b => b.id !== id);
+                localStorage.setItem('shuyic_books', JSON.stringify(books));
                 renderAdminTables();
                 showNotification('✅ 书籍删除成功');
             }
@@ -917,6 +933,7 @@
         function deleteComment(id) {
             if (confirm('确定要删除这条评论吗？')) {
                 comments = comments.filter(c => c.id !== id);
+                localStorage.setItem('shuyic_comments', JSON.stringify(comments));
                 renderAdminTables();
                 showNotification('✅ 评论删除成功');
             }
@@ -1030,7 +1047,7 @@
                 showNotification('⚠️ 您的健康分已低于80分，请规范内容创作！');
             }
             
-            localStorage.setItem('authors', JSON.stringify(authors));
+            localStorage.setItem('shuyic_authors', JSON.stringify(authors));
         }
         
         function renderAdminTables() {
@@ -1071,7 +1088,7 @@
                 author.status = '正常';
                 author.bannedUntil = null;
                 author.violationCount = 0;
-                localStorage.setItem('authors', JSON.stringify(authors));
+                localStorage.setItem('shuyic_authors', JSON.stringify(authors));
                 renderAdminTables();
                 showNotification('✅ 作者健康分已恢复');
             }
