@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>书易创 - 数据库管理系统</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%); min-height: 100vh; }
+        body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.08) 0%, transparent 50%); pointer-events: none; z-index: -1; }
+        
+        .login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .login-box { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 24px; padding: 50px; width: 100%; max-width: 450px; }
+        .login-header { text-align: center; margin-bottom: 40px; }
+        .login-logo { width: 80px; height: 80px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 20px; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4); }
+        .login-title { font-size: 28px; font-weight: 700; color: white; margin-bottom: 10px; }
+        .login-subtitle { color: rgba(255,255,255,0.6); font-size: 14px; }
+        .form-group { margin-bottom: 24px; }
+        .form-group label { display: block; font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 10px; }
+        .form-group input { width: 100%; padding: 14px 18px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; font-size: 15px; color: white; outline: none; transition: all 0.3s; }
+        .form-group input:focus { border-color: rgba(102, 126, 234, 0.6); background: rgba(255, 255, 255, 0.15); }
+        .form-group input::placeholder { color: rgba(255,255,255,0.4); }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5); }
+        .btn-secondary { background: rgba(255, 255, 255, 0.1); color: rgba(255,255,255,0.8); border: 1px solid rgba(255, 255, 255, 0.2); margin-top: 12px; }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.15); }
+        .login-hint { text-align: center; margin-top: 24px; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; }
+        .login-hint p { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
+        .login-hint code { background: rgba(102, 126, 234, 0.3); padding: 3px 8px; border-radius: 4px; color: #a5b4fc; }
+
+        .admin-container { display: none; }
+        .admin-header { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .admin-logo { display: flex; align-items: center; gap: 12px; }
+        .admin-logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .admin-logo-text { font-size: 20px; font-weight: 700; color: white; }
+        .admin-user { display: flex; align-items: center; gap: 15px; }
+        .admin-user-info { text-align: right; }
+        .admin-user-name { font-size: 14px; color: white; font-weight: 500; }
+        .admin-user-role { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .btn-logout { padding: 8px 16px; background: rgba(255, 77, 79, 0.2); color: #ff7875; border: 1px solid rgba(255, 77, 79, 0.3); border-radius: 8px; font-size: 13px; cursor: pointer; }
+        .btn-logout:hover { background: rgba(255, 77, 79, 0.3); }
+
+        .admin-content { max-width: 1400px; margin: 0 auto; padding: 30px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: rgba(255, 255, 255, 0.06); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 24px; display: flex; align-items: center; gap: 20px; }
+        .stat-icon { width: 56px; height: 56px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.5) 0%, rgba(118, 75, 162, 0.5) 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+        .stat-info h4 { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
+        .stat-info .value { font-size: 28px; font-weight: 700; color: white; }
+
+        .nav-tabs { display: flex; gap: 8px; margin-bottom: 25px; background: rgba(255, 255, 255, 0.05); padding: 8px; border-radius: 12px; overflow-x: auto; }
+        .nav-tab { padding: 12px 20px; background: transparent; border: none; color: rgba(255,255,255,0.7); font-size: 14px; font-weight: 500; cursor: pointer; border-radius: 8px; transition: all 0.3s; white-space: nowrap; }
+        .nav-tab:hover { color: white; background: rgba(255, 255, 255, 0.1); }
+        .nav-tab.active { background: rgba(102, 126, 234, 0.3); color: white; }
+
+        .panel { background: rgba(255, 255, 255, 0.06); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 25px; display: none; }
+        .panel.active { display: block; }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .panel-title { font-size: 18px; font-weight: 600; color: white; }
+
+        .btn-add { padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); }
+        .btn-add:hover { transform: translateY(-2px); }
+        .btn-danger { padding: 8px 16px; background: rgba(255, 77, 79, 0.8); color: white; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; }
+        .btn-danger:hover { background: rgba(255, 77, 79, 1); }
+        .btn-edit { padding: 8px 16px; background: rgba(24, 144, 255, 0.8); color: white; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; margin-right: 8px; }
+        .btn-edit:hover { background: rgba(24, 144, 255, 1); }
+
+        table { width: 100%; border-collapse: collapse; }
+        table th, table td { padding: 14px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+        table th { font-weight: 600; color: rgba(255,255,255,0.8); background: rgba(255, 255, 255, 0.03); font-size: 13px; }
+        table td { color: rgba(255,255,255,0.7); font-size: 14px; }
+        table tr:hover { background: rgba(102, 126, 234, 0.1); }
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; }
+        .status-active { background: rgba(52, 211, 153, 0.2); color: #34d399; }
+        .status-vip { background: rgba(250, 140, 22, 0.2); color: #ffc53d; }
+        .status-pending { background: rgba(255, 77, 79, 0.2); color: #ff7875; }
+        .status-normal { background: rgba(24, 144, 255, 0.2); color: #69c0ff; }
+        .status-banned { background: rgba(255, 77, 79, 0.2); color: #ff7875; }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.5); }
+        .empty-state-icon { font-size: 60px; margin-bottom: 15px; }
+        .empty-state h3 { font-size: 18px; color: rgba(255,255,255,0.7); margin-bottom: 10px; }
+        .empty-state p { font-size: 14px; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); z-index: 2000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: rgba(30, 30, 50, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 30px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .modal-title { font-size: 20px; font-weight: 600; color: white; }
+        .modal-close { width: 36px; height: 36px; background: rgba(255, 255, 255, 0.1); border: none; border-radius: 50%; color: rgba(255,255,255,0.7); font-size: 20px; cursor: pointer; }
+        .modal-close:hover { background: rgba(255, 255, 255, 0.2); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .modal-footer { display: flex; gap: 15px; justify-content: flex-end; margin-top: 25px; }
+        .btn-cancel { padding: 12px 24px; background: rgba(255, 255, 255, 0.1); color: rgba(255,255,255,0.8); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; font-size: 14px; cursor: pointer; }
+        .btn-cancel:hover { background: rgba(255, 255, 255, 0.15); }
+        .btn-save { padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); }
+
+        .search-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-bar input { flex: 1; padding: 12px 16px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; color: white; font-size: 14px; outline: none; }
+        .search-bar input:focus { border-color: rgba(102, 126, 234, 0.6); }
+        .search-bar input::placeholder { color: rgba(255,255,255,0.4); }
+        .search-bar button { padding: 12px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 14px; cursor: pointer; }
+
+        .data-actions { display: flex; gap: 8px; align-items: center; }
+
+        .toast { position: fixed; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; padding: 16px 24px; z-index: 3000; animation: slideIn 0.3s ease-out; display: flex; align-items: center; gap: 12px; }
+        .toast-icon { font-size: 20px; }
+        .toast-content { color: white; font-size: 14px; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-row { grid-template-columns: 1fr; }
+            .nav-tabs { flex-wrap: nowrap; overflow-x: auto; }
+            table { font-size: 12px; }
+            table th, table td { padding: 10px 8px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录页面 -->
+    <div class="login-container" id="loginPage">
+        <div class="login-box">
+            <div class="login-header">
+                <div class="login-logo">📚</div>
+                <h1 class="login-title">书易创</h1>
+                <p class="login-subtitle">数据库管理系统</p>
+            </div>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>管理员账号</label>
+                    <input type="text" id="loginUsername" placeholder="请输入管理员账号" required>
+                </div>
+                <div class="form-group">
+                    <label>管理员密码</label>
+                    <input type="password" id="loginPassword" placeholder="请输入管理员密码" required>
+                </div>
+                <button type="submit" class="btn btn-primary">登录系统</button>
+                <button type="button" class="btn btn-secondary" onclick="resetPassword()">重置密码</button>
+            </form>
+            <div class="login-hint">
+                <p>测试账号：admin</p>
+                <p>测试密码：<code>admin123</code></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理后台 -->
+    <div class="admin-container" id="adminPage">
+        <header class="admin-header">
+            <div class="admin-logo">
+                <div class="admin-logo-icon">📚</div>
+                <span class="admin-logo-text">书易创 - 数据管理中心</span>
+            </div>
+            <div class="admin-user">
+                <div class="admin-user-info">
+                    <div class="admin-user-name" id="currentAdminName">管理员</div>
+                    <div class="admin-user-role">系统管理员</div>
+                </div>
+                <button class="btn-logout" onclick="logout()">退出登录</button>
+            </div>
+        </header>
+
+        <div class="admin-content">
+            <!-- 统计卡片 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-info">
+                        <h4>用户总数</h4>
+                        <div class="value" id="statUsers">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-info">
+                        <h4>书籍总数</h4>
+                        <div class="value" id="statBooks">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📝</div>
+                    <div class="stat-info">
+                        <h4>文章总数</h4>
+                        <div class="value" id="statArticles">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💬</div>
+                    <div class="stat-info">
+                        <h4>评论总数</h4>
+                        <div class="value" id="statComments">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🛒</div>
+                    <div class="stat-info">
+                        <h4>订单总数</h4>
+                        <div class="value" id="statOrders">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-info">
+                        <h4>总收入</h4>
+                        <div class="value" id="statRevenue">¥0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 导航标签 -->
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="switchTab('users')">👥 用户管理</button>
+                <button class="nav-tab" onclick="switchTab('books')">📚 书籍管理</button>
+                <button class="nav-tab" onclick="switchTab('articles')">📝 文章管理</button>
+                <button class="nav-tab" onclick="switchTab('orders')">🛒 订单管理</button>
+                <button class="nav-tab" onclick="switchTab('comments')">💬 评论管理</button>
+                <button class="nav-tab" onclick="switchTab('authors')">✍️ 作者管理</button>
+                <button class="nav-tab" onclick="switchTab('backup')">💾 数据备份</button>
+            </div>
+
+            <!-- 用户管理面板 -->
+            <div class="panel active" id="panel-users">
+                <div class="panel-header">
+                    <h3 class="panel-title">用户管理</h3>
+                    <button class="btn-add" onclick="openUserModal()">+ 添加用户</button>
+                </div>
+                <div class="search-bar">
+                    <input type="text" placeholder="搜索用户名、手机号..." id="userSearch" oninput="filterUsers()">
+                    <button onclick="filterUsers()">搜索</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr><th>ID</th><th>用户名</th><th>手机号</th><th>邮箱</th><th>角色</th><th>状态</th><th>注册时间</th><th>操作</th></tr>
+                    </thead>
+                    <tbody id="usersTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- 书籍管理面板 -->
+            <div class="panel" id="panel-books">
+                <div class="panel-header">
+                    <h3 class="panel-title">书籍管理</h3>
+                    <button class="btn-add" onclick="openBookModal()">+ 添加书籍</button>
+                </div>
+                <div class="search-bar">
+                    <input type="text" placeholder="搜索书名、作者..." id="bookSearch" oninput="filterBooks()">
+                    <button onclick="filterBooks()">搜索</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr><th>ID</th><th>书名</th><th>作者</th><th>分类</th><th>类型</th><th>价格</th><th>状态</th><th>操作</th></tr>
+                    </thead>
+                    <tbody id="booksTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- 文章管理面板 -->
+            <div class="panel" id="panel-articles">
+                <div class="panel-header">
+                    <h3 class="panel-title">文章管理</h3>
+                    <button class="btn-add" onclick="openArticleModal()">+ 发布文章</button>
+                </div>
+                <div class="search-bar">
+                    <input type="text" placeholder="搜索文章标题..." id="articleSearch" oninput="filterArticles()">
+                    <button onclick="filterArticles()">搜索</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr><th>ID</th><th>标题</th><th>作者</th><th>分类</th><th>状态</th><th>发布时间</th><th>操作</th></tr>
+                    </thead>
+                    <tbody id="articlesTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- 订单管理面板 -->
+            <div class="panel" id="panel-orders">
+                <div class="panel-header">
+                    <h3 class="panel-title">订单管理</h3>
+                </div>
+                <div class="search-bar">
+                    <input type="text" placeholder="搜索订单号..." id="orderSearch" oninput="filterOrders()">
+                    <button onclick="filterOrders()">搜索</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr><th>ID</th><th>订单号</th><th>用户</th><th>商品</th><th>金额</th><th>状态</th><th>时间</th><th>操作</th></tr>
+                    </thead>
+                    <tbody id="ordersTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- 评论管理面板 -->
+            <div class="panel" id="panel-comments">
+                <div class="panel-header">
+                    <h3 class="panel-title">评论管理</h3>
+                </div>
+                <div class="search-bar">
+                    <input type="text" placeholder="搜索评论内容..." id="commentSearch" oninput="filterComments()">
+                    <button onclick="filterComments()">搜索</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr><th>ID</th><th>用户</th><th>书籍</th><th>评论内容</th><th>评分</th><th>时间</th><th>操作</th></tr>
+                    </thead>
+                    <tbody id="commentsTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- 作者管理面板 -->
+            <div class="panel" id="panel-authors">
+                <div class="panel-header">
+                    <h3 class="panel-title">作者健康分管理</h3>
+                </div>
+                <table>
+                    <thead>
+                        <tr><th>ID</th><th>作者名</th><th>健康分</th><th>状态</th><th>违规次数</th><th>注册时间</th><th>操作</th></tr>
+                    </thead>
+                    <tbody id="authorsTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- 数据备份面板 -->
+            <div class="panel" id="panel-backup">
+                <div class="panel-header">
+                    <h3 class="panel-title">数据备份与恢复</h3>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 25px;">
+                        <h4 style="color: white; margin-bottom: 15px;">📤 导出数据</h4>
+                        <p style="color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 20px;">将所有数据导出为JSON文件，方便备份和迁移</p>
+                        <button class="btn-add" onclick="exportData()">导出所有数据</button>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 25px;">
+                        <h4 style="color: white; margin-bottom: 15px;">📥 导入数据</h4>
+                        <p style="color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 20px;">从JSON文件导入数据，覆盖现有数据</p>
+                        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+                        <button class="btn-add" onclick="document.getElementById('importFile').click()">选择文件导入</button>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 25px;">
+                        <h4 style="color: white; margin-bottom: 15px;">🗑️ 清空数据</h4>
+                        <p style="color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 20px;">清空所有数据，请谨慎操作！</p>
+                        <button class="btn-danger" onclick="clearAllData()">清空所有数据</button>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 25px;">
+                        <h4 style="color: white; margin-bottom: 15px;">🔄 初始化演示数据</h4>
+                        <p style="color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 20px;">恢复默认的演示数据</p>
+                        <button class="btn-add" onclick="initDemoData()">初始化数据</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 用户模态框 -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="userModalTitle">添加用户</h3>
+                <button class="modal-close" onclick="closeUserModal()">×</button>
+            </div>
+            <input type="hidden" id="userId">
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" id="userName" placeholder="请输入用户名">
+            </div>
+            <div class="form-group">
+                <label>手机号</label>
+                <input type="tel" id="userPhone" placeholder="请输入手机号">
+            </div>
+            <div class="form-group">
+                <label>邮箱</label>
+                <input type="email" id="userEmail" placeholder="请输入邮箱">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>角色</label>
+                    <select id="userRole" style="width:100%;padding:12px 15px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;font-size:14px;color:white;outline:none;">
+                        <option value="普通用户">普通用户</option>
+                        <option value="VIP会员">VIP会员</option>
+                        <option value="管理员">管理员</option>
+                        <option value="作家">作家</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>状态</label>
+                    <select id="userStatus" style="width:100%;padding:12px 15px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;font-size:14px;color:white;outline:none;">
+                        <option value="正常">正常</option>
+                        <option value="禁用">禁用</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeUserModal()">取消</button>
+                <button class="btn-save" onclick="saveUser()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 书籍模态框 -->
+    <div class="modal" id="bookModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="bookModalTitle">添加书籍</h3>
+                <button class="modal-close" onclick="closeBookModal()">×</button>
+            </div>
+            <input type="hidden" id="bookId">
+            <div class="form-group">
+                <label>书名</label>
+                <input type="text" id="bookTitle" placeholder="请输入书名">
+            </div>
+            <div class="form-group">
+                <label>作者</label>
+                <input type="text" id="bookAuthor" placeholder="请输入作者">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>分类</label>
+                    <select id="bookCategory" style="width:100%;padding:12px 15px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;font-size:14px;color:white;outline:none;">
+                        <option value="文学小说">文学小说</option>
+                        <option value="人文社科">人文社科</option>
+                        <option value="经管励志">经管励志</option>
+                        <option value="科技科普">科技科普</option>
+                        <option value="少儿读物">少儿读物</option>
+                        <option value="生活健康">生活健康</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>类型</label>
+                    <select id="bookType" style="width:100%;padding:12px 15px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;font-size:14px;color:white;outline:none;">
+                        <option value="纸质书">纸质书</option>
+                        <option value="电子书">电子书</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>价格</label>
+                    <input type="number" id="bookPrice" placeholder="请输入价格" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>状态</label>
+                    <select id="bookStatus" style="width:100%;padding:12px 15px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;font-size:14px;color:white;outline:none;">
+                        <option value="在售">在售</option>
+                        <option value="下架">下架</option>
+                        <option value="预售">预售</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeBookModal()">取消</button>
+                <button class="btn-save" onclick="saveBook()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 文章模态框 -->
+    <div class="modal" id="articleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="articleModalTitle">发布文章</h3>
+                <button class="modal-close" onclick="closeArticleModal()">×</button>
+            </div>
+            <input type="hidden" id="articleId">
+            <div class="form-group">
+                <label>标题</label>
+                <input type="text" id="articleTitle" placeholder="请输入文章标题">
+            </div>
+            <div class="form-group">
+                <label>作者</label>
+                <input type="text" id="articleAuthor" placeholder="请输入作者">
+            </div>
+            <div class="form-group">
+                <label>分类</label>
+                <select id="articleCategory" style="width:100%;padding:12px 15px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;font-size:14px;color:white;outline:none;">
+                    <option value="小说">小说</option>
+                    <option value="散文">散文</option>
+                    <option value="诗歌">诗歌</option>
+                    <option value="评论">评论</option>
+                    <option value="科普">科普</option>
+                    <option value="其他">其他</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>内容</label>
+                <textarea id="articleContent" rows="8" placeholder="请输入文章内容" style="width:100%;padding:12px 15px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;font-size:14px;color:white;outline:none;resize:vertical;"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeArticleModal()">取消</button>
+                <button class="btn-save" onclick="saveArticle()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 数据库配置
+        const DB_CONFIG = {
+            admin: { username: 'admin', password: 'admin123' }
+        };
+
+        // LocalStorage 键名
+        const STORAGE_KEYS = {
+            users: 'shuyic_users',
+            books: 'shuyic_books',
+            articles: 'shuyic_articles',
+            orders: 'shuyic_orders',
+            comments: 'shuyic_comments',
+            authors: 'shuyic_authors'
+        };
+
+        // 初始化数据库
+        function initDatabase() {
+            if (!localStorage.getItem(STORAGE_KEYS.users)) {
+                initDemoData();
+            }
+        }
+
+        // 初始化演示数据
+        function initDemoData() {
+            const demoData = {
+                users: [
+                    { id: 1, username: '张三', phone: '13800138001', email: 'zhangsan@test.com', role: 'VIP会员', status: '正常', date: '2026-01-15' },
+                    { id: 2, username: '李四', phone: '13800138002', email: 'lisi@test.com', role: '普通用户', status: '正常', date: '2026-02-20' },
+                    { id: 3, username: '王五', phone: '13800138003', email: 'wangwu@test.com', role: '作家', status: '正常', date: '2026-03-10' },
+                    { id: 4, username: '赵六', phone: '13800138004', email: 'zhaoliu@test.com', role: '管理员', status: '正常', date: '2026-01-01' }
+                ],
+                books: [
+                    { id: 1, title: '代码之美', author: '技术大师', category: '科技科普', type: '纸质书', price: 49.9, status: '在售' },
+                    { id: 2, title: '编程艺术', author: '编程专家', category: '科技科普', type: '电子书', price: 29.9, status: '在售' },
+                    { id: 3, title: '算法导论', author: '算法大师', category: '科技科普', type: '纸质书', price: 69.9, status: '在售' },
+                    { id: 4, title: '活着', author: '余华', category: '文学小说', type: '纸质书', price: 35.0, status: '在售' },
+                    { id: 5, title: '三体', author: '刘慈欣', category: '文学小说', type: '电子书', price: 19.9, status: '在售' }
+                ],
+                articles: [
+                    { id: 1, title: '如何写出优雅的代码', author: '技术大师', category: '科技', content: '本文分享了一些编写高质量代码的技巧...', status: '已发布', date: '2026-05-15' },
+                    { id: 2, title: '春天的故事', author: '作家', category: '散文', content: '春天来了，万物复苏...', status: '已发布', date: '2026-05-10' }
+                ],
+                orders: [
+                    { id: 1, orderNo: 'DD20260520001', user: '张三', items: '代码之美', amount: 49.9, status: '已完成', date: '2026-05-20' },
+                    { id: 2, orderNo: 'DD20260519002', user: '李四', items: '编程艺术', amount: 29.9, status: '处理中', date: '2026-05-19' },
+                    { id: 3, orderNo: 'DD20260518003', user: '王五', items: '算法导论', amount: 69.9, status: '已完成', date: '2026-05-18' }
+                ],
+                comments: [
+                    { id: 1, user: '张三', book: '代码之美', content: '这本书真的很棒！', rating: 5, date: '2026-05-20' },
+                    { id: 2, user: '李四', book: '编程艺术', content: '内容很实用，推荐', rating: 4, date: '2026-05-19' }
+                ],
+                authors: [
+                    { id: 1, name: '王五', healthScore: 100, status: '正常', violations: 0, date: '2026-03-10' },
+                    { id: 2, name: '技术大师', healthScore: 85, status: '正常', violations: 1, date: '2026-01-15' }
+                ]
+            };
+
+            Object.keys(demoData).forEach(key => {
+                localStorage.setItem(STORAGE_KEYS[key], JSON.stringify(demoData[key]));
+            });
+            showToast('✅ 演示数据初始化成功！');
+        }
+
+        // 数据操作函数
+        function getData(key) {
+            const data = localStorage.getItem(STORAGE_KEYS[key]);
+            return data ? JSON.parse(data) : [];
+        }
+
+        function setData(key, data) {
+            localStorage.setItem(STORAGE_KEYS[key], JSON.stringify(data));
+        }
+
+        function generateId(key) {
+            const data = getData(key);
+            return data.length > 0 ? Math.max(...data.map(item => item.id)) + 1 : 1;
+        }
+
+        // 登录相关
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (username === DB_CONFIG.admin.username && password === DB_CONFIG.admin.password) {
+                localStorage.setItem('shuyic_admin', JSON.stringify({ username, loginTime: new Date().toISOString() }));
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('adminPage').style.display = 'block';
+                document.getElementById('currentAdminName').textContent = username;
+                initDatabase();
+                renderAllTables();
+                updateStats();
+                showToast('🎉 登录成功！');
+            } else {
+                showToast('❌ 用户名或密码错误');
+            }
+        }
+
+        function resetPassword() {
+            document.getElementById('loginUsername').value = 'admin';
+            document.getElementById('loginPassword').value = 'admin123';
+            showToast('✅ 账号密码已填充');
+        }
+
+        function logout() {
+            localStorage.removeItem('shuyic_admin');
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('adminPage').style.display = 'none';
+            showToast('👋 已退出登录');
+        }
+
+        function checkLogin() {
+            const admin = localStorage.getItem('shuyic_admin');
+            if (admin) {
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('adminPage').style.display = 'block';
+                const adminData = JSON.parse(admin);
+                document.getElementById('currentAdminName').textContent = adminData.username;
+                initDatabase();
+                renderAllTables();
+                updateStats();
+            }
+        }
+
+        // 标签切换
+        function switchTab(tab) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('panel-' + tab).classList.add('active');
+        }
+
+        // 更新统计
+        function updateStats() {
+            document.getElementById('statUsers').textContent = getData('users').length;
+            document.getElementById('statBooks').textContent = getData('books').length;
+            document.getElementById('statArticles').textContent = getData('articles').length;
+            document.getElementById('statComments').textContent = getData('comments').length;
+            document.getElementById('statOrders').textContent = getData('orders').length;
+            const revenue = getData('orders').reduce((sum, o) => sum + o.amount, 0);
+            document.getElementById('statRevenue').textContent = '¥' + revenue.toFixed(2);
+        }
+
+        // 渲染所有表格
+        function renderAllTables() {
+            renderUsers();
+            renderBooks();
+            renderArticles();
+            renderOrders();
+            renderComments();
+            renderAuthors();
+        }
+
+        // 用户管理
+        function renderUsers(filter = '') {
+            const users = getData('users');
+            const tbody = document.getElementById('usersTableBody');
+            const filtered = filter ? users.filter(u => u.username.includes(filter) || u.phone.includes(filter)) : users;
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:rgba(255,255,255,0.5);">暂无数据</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = filtered.map(user => `
+                <tr>
+                    <td>${user.id}</td>
+                    <td>${user.username}</td>
+                    <td>${user.phone || '-'}</td>
+                    <td>${user.email || '-'}</td>
+                    <td><span class="status-badge ${user.role === 'VIP会员' ? 'status-vip' : user.role === '管理员' ? 'status-active' : ''}">${user.role}</span></td>
+                    <td><span class="status-badge ${user.status === '正常' ? 'status-active' : 'status-banned'}">${user.status}</span></td>
+                    <td>${user.date}</td>
+                    <td>
+                        <button class="btn-edit" onclick="editUser(${user.id})">编辑</button>
+                        <button class="btn-danger" onclick="deleteUser(${user.id})">删除</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterUsers() {
+            const filter = document.getElementById('userSearch').value;
+            renderUsers(filter);
+        }
+
+        function openUserModal(id = null) {
+            document.getElementById('userModal').classList.add('active');
+            document.getElementById('userModalTitle').textContent = id ? '编辑用户' : '添加用户';
+            if (id) {
+                const users = getData('users');
+                const user = users.find(u => u.id === id);
+                if (user) {
+                    document.getElementById('userId').value = user.id;
+                    document.getElementById('userName').value = user.username;
+                    document.getElementById('userPhone').value = user.phone || '';
+                    document.getElementById('userEmail').value = user.email || '';
+                    document.getElementById('userRole').value = user.role;
+                    document.getElementById('userStatus').value = user.status;
+                }
+            } else {
+                document.getElementById('userId').value = '';
+                document.getElementById('userName').value = '';
+                document.getElementById('userPhone').value = '';
+                document.getElementById('userEmail').value = '';
+                document.getElementById('userRole').value = '普通用户';
+                document.getElementById('userStatus').value = '正常';
+            }
+        }
+
+        function closeUserModal() {
+            document.getElementById('userModal').classList.remove('active');
+        }
+
+        function saveUser() {
+            const id = document.getElementById('userId').value;
+            const user = {
+                id: id ? parseInt(id) : generateId('users'),
+                username: document.getElementById('userName').value,
+                phone: document.getElementById('userPhone').value,
+                email: document.getElementById('userEmail').value,
+                role: document.getElementById('userRole').value,
+                status: document.getElementById('userStatus').value,
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            let users = getData('users');
+            if (id) {
+                const index = users.findIndex(u => u.id === parseInt(id));
+                if (index !== -1) users[index] = user;
+            } else {
+                users.push(user);
+            }
+            setData('users', users);
+            closeUserModal();
+            renderUsers();
+            updateStats();
+            showToast(id ? '✅ 用户更新成功！' : '✅ 用户添加成功！');
+        }
+
+        function editUser(id) { openUserModal(id); }
+        
+        function deleteUser(id) {
+            if (confirm('确定要删除该用户吗？')) {
+                let users = getData('users').filter(u => u.id !== id);
+                setData('users', users);
+                renderUsers();
+                updateStats();
+                showToast('✅ 用户删除成功！');
+            }
+        }
+
+        // 书籍管理
+        function renderBooks(filter = '') {
+            const books = getData('books');
+            const tbody = document.getElementById('booksTableBody');
+            const filtered = filter ? books.filter(b => b.title.includes(filter) || b.author.includes(filter) || b.category.includes(filter)) : books;
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:rgba(255,255,255,0.5);">暂无数据</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = filtered.map(book => `
+                <tr>
+                    <td>${book.id}</td>
+                    <td>${book.title}</td>
+                    <td>${book.author}</td>
+                    <td>${book.category}</td>
+                    <td>${book.type}</td>
+                    <td>¥${book.price}</td>
+                    <td><span class="status-badge ${book.status === '在售' ? 'status-active' : book.status === '下架' ? 'status-banned' : 'status-normal'}">${book.status}</span></td>
+                    <td>
+                        <button class="btn-edit" onclick="editBook(${book.id})">编辑</button>
+                        <button class="btn-danger" onclick="deleteBook(${book.id})">删除</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterBooks() {
+            const filter = document.getElementById('bookSearch').value;
+            renderBooks(filter);
+        }
+
+        function openBookModal(id = null) {
+            document.getElementById('bookModal').classList.add('active');
+            document.getElementById('bookModalTitle').textContent = id ? '编辑书籍' : '添加书籍';
+            if (id) {
+                const books = getData('books');
+                const book = books.find(b => b.id === id);
+                if (book) {
+                    document.getElementById('bookId').value = book.id;
+                    document.getElementById('bookTitle').value = book.title;
+                    document.getElementById('bookAuthor').value = book.author;
+                    document.getElementById('bookCategory').value = book.category;
+                    document.getElementById('bookType').value = book.type;
+                    document.getElementById('bookPrice').value = book.price;
+                    document.getElementById('bookStatus').value = book.status;
+                }
+            } else {
+                document.getElementById('bookId').value = '';
+                document.getElementById('bookTitle').value = '';
+                document.getElementById('bookAuthor').value = '';
+                document.getElementById('bookCategory').value = '文学小说';
+                document.getElementById('bookType').value = '纸质书';
+                document.getElementById('bookPrice').value = '';
+                document.getElementById('bookStatus').value = '在售';
+            }
+        }
+
+        function closeBookModal() {
+            document.getElementById('bookModal').classList.remove('active');
+        }
+
+        function saveBook() {
+            const id = document.getElementById('bookId').value;
+            const book = {
+                id: id ? parseInt(id) : generateId('books'),
+                title: document.getElementById('bookTitle').value,
+                author: document.getElementById('bookAuthor').value,
+                category: document.getElementById('bookCategory').value,
+                type: document.getElementById('bookType').value,
+                price: parseFloat(document.getElementById('bookPrice').value),
+                status: document.getElementById('bookStatus').value
+            };
+
+            let books = getData('books');
+            if (id) {
+                const index = books.findIndex(b => b.id === parseInt(id));
+                if (index !== -1) books[index] = book;
+            } else {
+                books.push(book);
+            }
+            setData('books', books);
+            closeBookModal();
+            renderBooks();
+            updateStats();
+            showToast(id ? '✅ 书籍更新成功！' : '✅ 书籍添加成功！');
+        }
+
+        function editBook(id) { openBookModal(id); }
+        
+        function deleteBook(id) {
+            if (confirm('确定要删除该书籍吗？')) {
+                let books = getData('books').filter(b => b.id !== id);
+                setData('books', books);
+                renderBooks();
+                updateStats();
+                showToast('✅ 书籍删除成功！');
+            }
+        }
+
+        // 文章管理
+        function renderArticles(filter = '') {
+            const articles = getData('articles');
+            const tbody = document.getElementById('articlesTableBody');
+            const filtered = filter ? articles.filter(a => a.title.includes(filter)) : articles;
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:rgba(255,255,255,0.5);">暂无数据</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = filtered.map(article => `
+                <tr>
+                    <td>${article.id}</td>
+                    <td>${article.title}</td>
+                    <td>${article.author}</td>
+                    <td>${article.category}</td>
+                    <td><span class="status-badge status-active">${article.status}</span></td>
+                    <td>${article.date}</td>
+                    <td>
+                        <button class="btn-danger" onclick="deleteArticle(${article.id})">删除</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterArticles() {
+            const filter = document.getElementById('articleSearch').value;
+            renderArticles(filter);
+        }
+
+        function openArticleModal(id = null) {
+            document.getElementById('articleModal').classList.add('active');
+            document.getElementById('articleModalTitle').textContent = id ? '编辑文章' : '发布文章';
+            if (id) {
+                const articles = getData('articles');
+                const article = articles.find(a => a.id === id);
+                if (article) {
+                    document.getElementById('articleId').value = article.id;
+                    document.getElementById('articleTitle').value = article.title;
+                    document.getElementById('articleAuthor').value = article.author;
+                    document.getElementById('articleCategory').value = article.category;
+                    document.getElementById('articleContent').value = article.content;
+                }
+            } else {
+                document.getElementById('articleId').value = '';
+                document.getElementById('articleTitle').value = '';
+                document.getElementById('articleAuthor').value = '';
+                document.getElementById('articleCategory').value = '小说';
+                document.getElementById('articleContent').value = '';
+            }
+        }
+
+        function closeArticleModal() {
+            document.getElementById('articleModal').classList.remove('active');
+        }
+
+        function saveArticle() {
+            const id = document.getElementById('articleId').value;
+            const article = {
+                id: id ? parseInt(id) : generateId('articles'),
+                title: document.getElementById('articleTitle').value,
+                author: document.getElementById('articleAuthor').value,
+                category: document.getElementById('articleCategory').value,
+                content: document.getElementById('articleContent').value,
+                status: '已发布',
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            let articles = getData('articles');
+            if (id) {
+                const index = articles.findIndex(a => a.id === parseInt(id));
+                if (index !== -1) articles[index] = article;
+            } else {
+                articles.push(article);
+            }
+            setData('articles', articles);
+            closeArticleModal();
+            renderArticles();
+            updateStats();
+            showToast(id ? '✅ 文章更新成功！' : '✅ 文章发布成功！');
+        }
+
+        function deleteArticle(id) {
+            if (confirm('确定要删除该文章吗？')) {
+                let articles = getData('articles').filter(a => a.id !== id);
+                setData('articles', articles);
+                renderArticles();
+                updateStats();
+                showToast('✅ 文章删除成功！');
+            }
+        }
+
+        // 订单管理
+        function renderOrders(filter = '') {
+            const orders = getData('orders');
+            const tbody = document.getElementById('ordersTableBody');
+            const filtered = filter ? orders.filter(o => o.orderNo.includes(filter) || o.user.includes(filter)) : orders;
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:rgba(255,255,255,0.5);">暂无数据</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = filtered.map(order => `
+                <tr>
+                    <td>${order.id}</td>
+                    <td>${order.orderNo}</td>
+                    <td>${order.user}</td>
+                    <td>${order.items}</td>
+                    <td>¥${order.amount}</td>
+                    <td><span class="status-badge ${order.status === '已完成' ? 'status-active' : 'status-normal'}">${order.status}</span></td>
+                    <td>${order.date}</td>
+                    <td>
+                        <button class="btn-danger" onclick="deleteOrder(${order.id})">删除</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterOrders() {
+            const filter = document.getElementById('orderSearch').value;
+            renderOrders(filter);
+        }
+
+        function deleteOrder(id) {
+            if (confirm('确定要删除该订单吗？')) {
+                let orders = getData('orders').filter(o => o.id !== id);
+                setData('orders', orders);
+                renderOrders();
+                updateStats();
+                showToast('✅ 订单删除成功！');
+            }
+        }
+
+        // 评论管理
+        function renderComments(filter = '') {
+            const comments = getData('comments');
+            const tbody = document.getElementById('commentsTableBody');
+            const filtered = filter ? comments.filter(c => c.content.includes(filter) || c.user.includes(filter)) : comments;
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:rgba(255,255,255,0.5);">暂无数据</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = filtered.map(comment => `
+                <tr>
+                    <td>${comment.id}</td>
+                    <td>${comment.user}</td>
+                    <td>${comment.book}</td>
+                    <td>${comment.content}</td>
+                    <td>${'⭐'.repeat(comment.rating)}</td>
+                    <td>${comment.date}</td>
+                    <td>
+                        <button class="btn-danger" onclick="deleteComment(${comment.id})">删除</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterComments() {
+            const filter = document.getElementById('commentSearch').value;
+            renderComments(filter);
+        }
+
+        function deleteComment(id) {
+            if (confirm('确定要删除该评论吗？')) {
+                let comments = getData('comments').filter(c => c.id !== id);
+                setData('comments', comments);
+                renderComments();
+                updateStats();
+                showToast('✅ 评论删除成功！');
+            }
+        }
+
+        // 作者管理
+        function renderAuthors() {
+            const authors = getData('authors');
+            const tbody = document.getElementById('authorsTableBody');
+            
+            if (authors.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:rgba(255,255,255,0.5);">暂无数据</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = authors.map(author => `
+                <tr>
+                    <td>${author.id}</td>
+                    <td>${author.name}</td>
+                    <td><span style="color: ${author.healthScore >= 80 ? '#34d399' : author.healthScore >= 60 ? '#ffc53d' : '#ff7875'}; font-weight: 600;">${author.healthScore}分</span></td>
+                    <td><span class="status-badge ${author.status === '正常' ? 'status-active' : 'status-banned'}">${author.status}</span></td>
+                    <td>${author.violations}次</td>
+                    <td>${author.date}</td>
+                    <td>
+                        <button class="btn-edit" onclick="resetAuthorScore(${author.id})">恢复分数</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function resetAuthorScore(id) {
+            let authors = getData('authors');
+            const index = authors.findIndex(a => a.id === id);
+            if (index !== -1) {
+                authors[index].healthScore = 100;
+                authors[index].violations = 0;
+                authors[index].status = '正常';
+                setData('authors', authors);
+                renderAuthors();
+                showToast('✅ 作者健康分已恢复！');
+            }
+        }
+
+        // 数据备份
+        function exportData() {
+            const allData = {};
+            Object.keys(STORAGE_KEYS).forEach(key => {
+                allData[key] = getData(key);
+            });
+            
+            const dataStr = JSON.stringify(allData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `shuyic_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('✅ 数据导出成功！');
+        }
+
+        function importData(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    Object.keys(data).forEach(key => {
+                        if (STORAGE_KEYS[key]) {
+                            setData(key, data[key]);
+                        }
+                    });
+                    renderAllTables();
+                    updateStats();
+                    showToast('✅ 数据导入成功！');
+                } catch (err) {
+                    showToast('❌ 数据导入失败：文件格式错误');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearAllData() {
+            if (confirm('⚠️ 确定要清空所有数据吗？此操作不可恢复！')) {
+                if (confirm('⚠️ 这是最后一次确认，清空后所有数据将永久丢失！')) {
+                    Object.keys(STORAGE_KEYS).forEach(key => {
+                        localStorage.removeItem(STORAGE_KEYS[key]);
+                    });
+                    renderAllTables();
+                    updateStats();
+                    showToast('✅ 所有数据已清空！');
+                }
+            }
+        }
+
+        // Toast提示
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<span class="toast-icon">💬</span><span class="toast-content">${message}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // 初始化
+        checkLogin();
+    </script>
+</body>
+</html>
