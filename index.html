@@ -406,7 +406,7 @@
             <div id="admin-articles" class="admin-content" style="display:none;">
                 <div class="admin-table">
                     <div class="admin-table-header"><h3>📝 文章管理</h3><button class="admin-table-btn" onclick="openPublishArticleModal()">+ 发布文章</button></div>
-                    <table><thead><tr><th>ID</th><th>标题</th><th>作者</th><th>分类</th><th>审核状态</th><th>发布时间</th><th>操作</th></tr></thead><tbody id="articleTableBody"></tbody></table>
+                    <table><thead><tr><th>ID</th><th>标题</th><th>作者</th><th>分类</th><th>AI审核</th><th>审核状态</th><th>审核人</th><th>发布时间</th><th>操作</th></tr></thead><tbody id="articleTableBody"></tbody></table>
                 </div>
             </div>
             <div id="admin-authors" class="admin-content" style="display:none;">
@@ -787,7 +787,15 @@
             document.getElementById('statComments').textContent = comments.length;
             document.getElementById('userTableBody').innerHTML = users.map(user => `<tr><td>${user.id}</td><td>${user.username}</td><td>${user.email}</td><td>${user.role}</td><td><span class="status-badge ${user.role === 'VIP' ? 'status-vip' : user.status === '禁用' ? 'status-pending' : 'status-active'}">${user.status}</span></td><td>${user.date}</td><td><button class="action-btn-small action-btn-edit" onclick="openEditUserModal(${user.id})">编辑</button><button class="action-btn-small action-btn-delete" onclick="deleteUser(${user.id})">删除</button></td></tr>`).join('');
             document.getElementById('bookTableBody').innerHTML = books.map(book => `<tr><td>${book.id}</td><td>${book.title}</td><td>${book.author}</td><td>${book.type === 'paper' ? '纸质书' : '电子书'}</td><td>${book.category}</td><td>¥${book.price}</td><td><span class="status-badge ${book.status === '在售' ? 'status-active' : 'status-pending'}">${book.status}</span></td><td><button class="action-btn-small action-btn-edit" onclick="openEditBookModal(${book.id})">编辑</button><button class="action-btn-small action-btn-delete" onclick="deleteBook(${book.id})">删除</button></td></tr>`).join('');
-            document.getElementById('articleTableBody').innerHTML = articles.length === 0 ? '<tr><td colspan="7" style="text-align:center;padding:20px;color:#999;">暂无文章</td></tr>' : articles.map(article => `<tr><td>${article.id}</td><td>${article.title}</td><td>${article.author}</td><td>${article.category}</td><td><span class="status-badge ${article.status === '已发布' ? 'status-active' : 'status-pending'}">${article.status}</span></td><td>${article.date}</td><td><button class="action-btn-small action-btn-delete" onclick="deleteArticle(${article.id})">删除</button></td></tr>`).join('');
+            document.getElementById('articleTableBody').innerHTML = articles.length === 0 ? '<tr><td colspan="9" style="text-align:center;padding:20px;color:#999;">暂无文章</td></tr>' : articles.map(article => {
+                const statusClass = article.status === '已发布' ? 'status-active' : article.status === '待审核' ? 'status-pending' : 'status-pending';
+                const aiClass = article.aiReview === '通过' ? 'status-active' : 'status-pending';
+                let actions = '<button class="action-btn-small action-btn-delete" onclick="deleteArticle(' + article.id + ')">删除</button>';
+                if (article.status === '待审核') {
+                    actions = '<button class="action-btn-small action-btn-edit" onclick="reviewArticle(' + article.id + ', \'通过\')">通过</button><button class="action-btn-small action-btn-delete" onclick="reviewArticle(' + article.id + ', \'拒绝\')">拒绝</button>';
+                }
+                return `<tr><td>${article.id}</td><td>${article.title}</td><td>${article.author}</td><td>${article.category}</td><td><span class="status-badge ${aiClass}">${article.aiReview || '-'}</span></td><td><span class="status-badge ${statusClass}">${article.status}</span></td><td>${article.adminReviewer || '-'}</td><td>${article.date}</td><td>${actions}</td></tr>`;
+            }).join('');
             document.getElementById('authorTableBody').innerHTML = authors.map(author => {
                 const healthColor = author.healthScore >= 80 ? 'status-active' : author.healthScore >= 60 ? 'status-pending' : 'status-pending';
                 const banTime = author.bannedUntil ? new Date(author.bannedUntil).toLocaleDateString() : '-';
@@ -972,8 +980,8 @@
                 return;
             }
             
-            if (!currentUser || (currentUser.type !== 'author' && currentUser.type !== 'admin')) {
-                showNotification('❌ 只有作者或管理员才能发布文章');
+            if (!currentUser) {
+                showNotification('❌ 请先登录');
                 return;
             }
             
@@ -987,36 +995,63 @@
                 }
             }
             
-            showNotification('🤖 正在进行AI内容审核...');
+            showNotification('🤖 AI审稿员正在审核...');
             
-            const reviewResult = aiContentReview(content);
-            
-            if (!reviewResult.pass) {
-                handleViolation(currentUser.username, reviewResult.reason);
-                showNotification('❌ ' + reviewResult.reason + '，文章已被打回');
-                return;
-            }
-            
-            const article = {
-                id: articles.length + 1,
-                title: title,
-                author: currentUser.username,
-                category: category,
-                content: content,
-                status: '已发布',
-                date: new Date().toISOString().split('T')[0]
-            };
-            
-            articles.push(article);
-            localStorage.setItem('shuyic_articles', JSON.stringify(articles));
-            
-            showNotification('✅ 文章发布成功！');
-            closePublishArticleModal();
-            
-            document.getElementById('articleTitle').value = '';
-            document.getElementById('articleContent').value = '';
-            
-            renderArticles();
+            setTimeout(() => {
+                const reviewResult = aiContentReview(content);
+                
+                if (!reviewResult.pass) {
+                    handleViolation(currentUser.username, reviewResult.reason);
+                    showNotification('❌ AI审核未通过：' + reviewResult.reason + '，文章已被打回');
+                    return;
+                }
+                
+                showNotification('✅ AI审核通过！');
+                
+                const now = new Date().toISOString().split('T')[0];
+                let status = '待审核';
+                let message = '文章已提交，等待管理员审核';
+                
+                if (currentUser.type === 'admin') {
+                    status = '已发布';
+                    message = '✅ 文章发布成功！';
+                } else if (currentUser.type === 'vip') {
+                    status = '已发布';
+                    message = '✅ VIP用户文章已自动发布！';
+                } else if (currentUser.type === 'author') {
+                    status = '待审核';
+                    message = '📝 文章已提交，等待管理员审核';
+                } else {
+                    status = '待审核';
+                    message = '📝 文章已提交，等待管理员审核';
+                }
+                
+                const article = {
+                    id: articles.length + 1,
+                    title: title,
+                    author: currentUser.username,
+                    category: category,
+                    content: content,
+                    status: status,
+                    aiReview: '通过',
+                    aiReviewTime: now,
+                    adminReview: status === '已发布' ? '通过' : null,
+                    adminReviewTime: status === '已发布' ? now : null,
+                    adminReviewer: status === '已发布' ? currentUser.username : null,
+                    date: now
+                };
+                
+                articles.push(article);
+                localStorage.setItem('shuyic_articles', JSON.stringify(articles));
+                
+                showNotification(message);
+                closePublishArticleModal();
+                
+                document.getElementById('articleTitle').value = '';
+                document.getElementById('articleContent').value = '';
+                
+                renderArticles();
+            }, 1500);
         }
         
         function handleViolation(username, reason) {
@@ -1059,7 +1094,15 @@
             
             document.getElementById('bookTableBody').innerHTML = books.map(book => `<tr><td>${book.id}</td><td>${book.title}</td><td>${book.author}</td><td>${book.type === 'paper' ? '纸质书' : '电子书'}</td><td>${book.category}</td><td>¥${book.price}</td><td><span class="status-badge ${book.status === '在售' ? 'status-active' : 'status-pending'}">${book.status}</span></td><td><button class="action-btn-small action-btn-edit" onclick="openEditBookModal(${book.id})">编辑</button><button class="action-btn-small action-btn-delete" onclick="deleteBook(${book.id})">删除</button></td></tr>`).join('');
             
-            document.getElementById('articleTableBody').innerHTML = articles.length === 0 ? '<tr><td colspan="7" style="text-align:center;padding:20px;color:#999;">暂无文章</td></tr>' : articles.map(article => `<tr><td>${article.id}</td><td>${article.title}</td><td>${article.author}</td><td>${article.category}</td><td><span class="status-badge ${article.status === '已发布' ? 'status-active' : 'status-pending'}">${article.status}</span></td><td>${article.date}</td><td><button class="action-btn-small action-btn-delete" onclick="deleteArticle(${article.id})">删除</button></td></tr>`).join('');
+            document.getElementById('articleTableBody').innerHTML = articles.length === 0 ? '<tr><td colspan="9" style="text-align:center;padding:20px;color:#999;">暂无文章</td></tr>' : articles.map(article => {
+                const statusClass = article.status === '已发布' ? 'status-active' : article.status === '待审核' ? 'status-pending' : 'status-pending';
+                const aiClass = article.aiReview === '通过' ? 'status-active' : 'status-pending';
+                let actions = '<button class="action-btn-small action-btn-delete" onclick="deleteArticle(' + article.id + ')">删除</button>';
+                if (article.status === '待审核') {
+                    actions = '<button class="action-btn-small action-btn-edit" onclick="reviewArticle(' + article.id + ', \'通过\')">通过</button><button class="action-btn-small action-btn-delete" onclick="reviewArticle(' + article.id + ', \'拒绝\')">拒绝</button>';
+                }
+                return `<tr><td>${article.id}</td><td>${article.title}</td><td>${article.author}</td><td>${article.category}</td><td><span class="status-badge ${aiClass}">${article.aiReview || '-'}</span></td><td><span class="status-badge ${statusClass}">${article.status}</span></td><td>${article.adminReviewer || '-'}</td><td>${article.date}</td><td>${actions}</td></tr>`;
+            }).join('');
             
             document.getElementById('authorTableBody').innerHTML = authors.map(author => {
                 const healthColor = author.healthScore >= 80 ? 'status-active' : author.healthScore >= 60 ? 'status-pending' : 'status-pending';
@@ -1078,6 +1121,32 @@
                 localStorage.setItem('shuyic_articles', JSON.stringify(articles));
                 renderAdminTables();
                 showNotification('✅ 文章删除成功');
+            }
+        }
+        
+        function reviewArticle(id, result) {
+            const index = articles.findIndex(a => a.id === id);
+            if (index !== -1) {
+                const now = new Date().toISOString().split('T')[0];
+                if (result === '通过') {
+                    articles[index].status = '已发布';
+                    articles[index].adminReview = '通过';
+                    articles[index].adminReviewTime = now;
+                    articles[index].adminReviewer = currentUser ? currentUser.username : '管理员';
+                    localStorage.setItem('shuyic_articles', JSON.stringify(articles));
+                    renderAdminTables();
+                    renderArticles();
+                    showNotification('✅ 文章审核通过并发布！');
+                } else {
+                    articles[index].status = '已拒绝';
+                    articles[index].adminReview = '拒绝';
+                    articles[index].adminReviewTime = now;
+                    articles[index].adminReviewer = currentUser ? currentUser.username : '管理员';
+                    localStorage.setItem('shuyic_articles', JSON.stringify(articles));
+                    renderAdminTables();
+                    renderArticles();
+                    showNotification('❌ 文章已拒绝');
+                }
             }
         }
         
@@ -1160,7 +1229,8 @@
             const articlesGrid = document.getElementById('articlesGrid');
             if (!articlesGrid) return;
             
-            const sortedArticles = [...articles].sort((a, b) => new Date(b.date) - new Date(a.date));
+            const publishedArticles = articles.filter(a => a.status === '已发布');
+            const sortedArticles = [...publishedArticles].sort((a, b) => new Date(b.date) - new Date(a.date));
             const displayArticles = sortedArticles.slice(0, 6);
             
             if (displayArticles.length === 0) {
