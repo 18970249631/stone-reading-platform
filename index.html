@@ -843,6 +843,7 @@
         function addBook() {
             const title = document.getElementById('newBookTitle').value;
             const author = document.getElementById('newBookAuthor').value;
+            const type = document.getElementById('newBookType').value;
             const category = document.getElementById('newBookCategory').value;
             const price = parseFloat(document.getElementById('newBookPrice').value);
             const status = document.getElementById('newBookStatus').value;
@@ -851,6 +852,7 @@
                 id: books.length + 1,
                 title: title,
                 author: author,
+                type: type,
                 category: category,
                 price: price,
                 status: status
@@ -868,12 +870,13 @@
             const id = parseInt(document.getElementById('editBookId').value);
             const title = document.getElementById('editBookTitle').value;
             const author = document.getElementById('editBookAuthor').value;
+            const type = document.getElementById('editBookType').value;
             const category = document.getElementById('editBookCategory').value;
             const price = parseFloat(document.getElementById('editBookPrice').value);
             const status = document.getElementById('editBookStatus').value;
             const index = books.findIndex(b => b.id === id);
             if (index !== -1) {
-                books[index] = { ...books[index], title, author, category, price, status };
+                books[index] = { ...books[index], title, author, type, category, price, status };
                 closeEditBookModal();
                 renderAdminTables();
                 showNotification('✅ 书籍更新成功');
