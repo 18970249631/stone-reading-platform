@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>书易创 - 我的订单</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%); min-height: 100vh; }
+        body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.08) 0%, transparent 50%); pointer-events: none; z-index: -1; }
+        
+        .header { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); position: sticky; top: 0; z-index: 100; }
+        .header-main { display: flex; justify-content: space-between; align-items: center; padding: 15px 40px; }
+        .logo { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .logo-icon { width: 45px; height: 45px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .logo-text { font-size: 24px; font-weight: 700; color: white; }
+        .header-actions { display: flex; align-items: center; gap: 20px; }
+        .action-btn { display: flex; align-items: center; gap: 5px; padding: 10px 20px; border: none; border-radius: 20px; cursor: pointer; font-size: 14px; }
+        .action-btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .action-btn-secondary { background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.2); }
+
+        .main-content { max-width: 1000px; margin: 0 auto; padding: 40px; }
+        
+        .page-header { margin-bottom: 30px; }
+        .page-title { font-size: 28px; font-weight: 700; color: white; margin-bottom: 10px; }
+        .page-subtitle { color: rgba(255,255,255,0.6); font-size: 14px; }
+
+        .order-tabs { display: flex; gap: 5px; margin-bottom: 30px; background: rgba(255, 255, 255, 0.05); padding: 5px; border-radius: 12px; }
+        .order-tab { flex: 1; padding: 12px 20px; text-align: center; color: rgba(255,255,255,0.7); font-size: 14px; cursor: pointer; border-radius: 8px; transition: all 0.3s; }
+        .order-tab:hover { color: white; }
+        .order-tab.active { background: rgba(102, 126, 234, 0.3); color: white; }
+        .order-tab .count { display: inline-block; min-width: 20px; height: 20px; background: rgba(255, 77, 79, 0.8); border-radius: 10px; font-size: 12px; line-height: 20px; margin-left: 5px; }
+
+        .order-list { }
+        .order-card { background: rgba(255, 255, 255, 0.06); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; margin-bottom: 20px; overflow: hidden; }
+        .order-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(255, 255, 255, 0.03); border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+        .order-info { display: flex; gap: 20px; font-size: 13px; color: rgba(255,255,255,0.6); }
+        .order-info span { display: flex; align-items: center; gap: 5px; }
+        .order-status { padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+        .status-pending { background: rgba(250, 140, 22, 0.2); color: #ffc53d; }
+        .status-paid { background: rgba(24, 144, 255, 0.2); color: #69c0ff; }
+        .status-shipped { background: rgba(102, 126, 234, 0.2); color: #a5b4fc; }
+        .status-completed { background: rgba(52, 211, 153, 0.2); color: #34d399; }
+        .status-cancelled { background: rgba(255, 77, 79, 0.2); color: #ff7875; }
+
+        .order-body { padding: 20px; }
+        .order-item { display: flex; gap: 20px; padding: 15px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+        .order-item:last-child { border-bottom: none; }
+        .item-image { width: 100px; height: 130px; background: rgba(255, 255, 255, 0.08); border-radius: 8px; overflow: hidden; }
+        .item-image img { width: 100%; height: 100%; object-fit: cover; }
+        .item-info { flex: 1; }
+        .item-title { font-size: 16px; font-weight: 600; color: white; margin-bottom: 8px; }
+        .item-author { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
+        .item-price { font-size: 14px; color: rgba(255,255,255,0.7); }
+        .item-qty { font-size: 13px; color: rgba(255,255,255,0.5); }
+        .item-subtotal { text-align: right; }
+        .subtotal-price { font-size: 18px; font-weight: 700; color: #ff9f43; margin-bottom: 5px; }
+        .subtotal-qty { font-size: 13px; color: rgba(255,255,255,0.5); }
+
+        .order-footer { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(255, 255, 255, 0.03); border-top: 1px solid rgba(255, 255, 255, 0.08); }
+        .order-total { font-size: 14px; color: rgba(255,255,255,0.7); }
+        .order-total strong { font-size: 18px; color: #ff9f43; }
+        .order-actions { display: flex; gap: 10px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%); color: white; }
+        .btn-secondary { background: rgba(255, 255, 255, 0.1); color: rgba(255,255,255,0.8); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .btn-danger { background: rgba(255, 77, 79, 0.8); color: white; }
+        .btn:hover { transform: translateY(-2px); }
+
+        .address-section { background: rgba(255, 255, 255, 0.06); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 25px; margin-bottom: 25px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .section-title { font-size: 18px; font-weight: 600; color: white; }
+        .address-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .address-card { background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 15px; cursor: pointer; transition: all 0.3s; }
+        .address-card:hover { border-color: rgba(102, 126, 234, 0.5); }
+        .address-card.default { border-color: rgba(102, 126, 234, 0.6); background: rgba(102, 126, 234, 0.1); }
+        .address-card h4 { font-size: 15px; color: white; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .address-card .default-tag { font-size: 12px; color: #a5b4fc; }
+        .address-card p { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.6; }
+        .address-card .actions { display: flex; gap: 10px; margin-top: 10px; }
+        .address-card .btn-small { padding: 6px 12px; font-size: 12px; border-radius: 6px; cursor: pointer; border: none; }
+        .btn-edit { background: rgba(24, 144, 255, 0.8); color: white; }
+        .btn-delete { background: rgba(255, 77, 79, 0.8); color: white; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); z-index: 2000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: rgba(30, 30, 50, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 30px; width: 90%; max-width: 500px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .modal-title { font-size: 20px; font-weight: 600; color: white; }
+        .modal-close { width: 36px; height: 36px; background: rgba(255, 255, 255, 0.1); border: none; border-radius: 50%; color: rgba(255,255,255,0.7); font-size: 20px; cursor: pointer; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 8px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 15px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; font-size: 14px; color: white; outline: none; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: rgba(102, 126, 234, 0.6); }
+        .form-group input::placeholder { color: rgba(255,255,255,0.4); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; }
+        .checkbox-group input[type="checkbox"] { width: auto; }
+        .modal-footer { display: flex; gap: 15px; justify-content: flex-end; margin-top: 25px; }
+
+        .footer { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(15px); border-top: 1px solid rgba(255, 255, 255, 0.08); color: rgba(255,255,255,0.6); padding: 50px 40px; margin-top: 50px; text-align: center; }
+
+        @media (max-width: 768px) {
+            .header-main { padding: 10px 20px; }
+            .main-content { padding: 20px; }
+            .order-tabs { flex-wrap: wrap; }
+            .order-tab { min-width: 50%; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-main">
+            <div class="logo" onclick="goHome()">
+                <div class="logo-icon">📚</div>
+                <span class="logo-text">书易创</span>
+            </div>
+            <div class="header-actions">
+                <button class="action-btn action-btn-secondary" onclick="goHome()">
+                    <span>👤</span> 我的订单
+                </button>
+                <button class="action-btn action-btn-primary" onclick="goHome()">
+                    <span>🛒</span> 购物车
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">我的订单</h1>
+            <p class="page-subtitle">管理您的所有订单，了解物流状态</p>
+        </div>
+
+        <div class="address-section">
+            <div class="section-header">
+                <h3 class="section-title">📍 收货地址</h3>
+                <button class="btn btn-primary" onclick="openAddressModal()">+ 添加地址</button>
+            </div>
+            <div class="address-list" id="addressList">
+                <div class="address-card default">
+                    <h4>张三 <span class="default-tag">默认</span></h4>
+                    <p>北京市朝阳区建国路88号SOHO现代城A座1201室<br>手机：13800138000</p>
+                    <div class="actions">
+                        <button class="btn-small btn-edit" onclick="editAddress(0)">编辑</button>
+                        <button class="btn-small btn-delete" onclick="deleteAddress(0)">删除</button>
+                    </div>
+                </div>
+                <div class="address-card">
+                    <h4>李四</h4>
+                    <p>上海市浦东新区张江高科技园区碧波路690号<br>手机：13900139000</p>
+                    <div class="actions">
+                        <button class="btn-small btn-edit" onclick="editAddress(1)">编辑</button>
+                        <button class="btn-small btn-delete" onclick="deleteAddress(1)">删除</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="order-tabs">
+            <div class="order-tab active" onclick="filterOrders('all')">全部<span class="count">4</span></div>
+            <div class="order-tab" onclick="filterOrders('pending')">待付款<span class="count">1</span></div>
+            <div class="order-tab" onclick="filterOrders('paid')">待发货<span class="count">1</span></div>
+            <div class="order-tab" onclick="filterOrders('shipped')">已发货<span class="count">1</span></div>
+            <div class="order-tab" onclick="filterOrders('completed')">已完成<span class="count">1</span></div>
+        </div>
+
+        <div class="order-list" id="orderList">
+            <div class="order-card" data-status="pending">
+                <div class="order-header">
+                    <div class="order-info">
+                        <span>订单号：DD20260520001</span>
+                        <span>下单时间：2026-05-20 10:30</span>
+                    </div>
+                    <span class="order-status status-pending">待付款</span>
+                </div>
+                <div class="order-body">
+                    <div class="order-item">
+                        <div class="item-image"><img src="https://picsum.photos/200/300?random=1" alt="书籍封面"></div>
+                        <div class="item-info">
+                            <h4 class="item-title">代码之美</h4>
+                            <p class="item-author">作者：技术大师</p>
+                            <p class="item-price">¥49.90</p>
+                        </div>
+                        <div class="item-subtotal">
+                            <div class="subtotal-price">¥49.90</div>
+                            <div class="subtotal-qty">x1</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-footer">
+                    <div class="order-total">合计：<strong>¥49.90</strong>（含运费¥0.00）</div>
+                    <div class="order-actions">
+                        <button class="btn btn-danger" onclick="cancelOrder('DD20260520001')">取消订单</button>
+                        <button class="btn btn-primary" onclick="payOrder('DD20260520001')">立即付款</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-card" data-status="paid">
+                <div class="order-header">
+                    <div class="order-info">
+                        <span>订单号：DD20260519002</span>
+                        <span>下单时间：2026-05-19 14:22</span>
+                    </div>
+                    <span class="order-status status-paid">待发货</span>
+                </div>
+                <div class="order-body">
+                    <div class="order-item">
+                        <div class="item-image"><img src="https://picsum.photos/200/300?random=2" alt="书籍封面"></div>
+                        <div class="item-info">
+                            <h4 class="item-title">编程艺术</h4>
+                            <p class="item-author">作者：编程专家</p>
+                            <p class="item-price">¥59.90</p>
+                        </div>
+                        <div class="item-subtotal">
+                            <div class="subtotal-price">¥59.90</div>
+                            <div class="subtotal-qty">x1</div>
+                        </div>
+                    </div>
+                    <div class="order-item">
+                        <div class="item-image"><img src="https://picsum.photos/200/300?random=4" alt="书籍封面"></div>
+                        <div class="item-info">
+                            <h4 class="item-title">设计模式</h4>
+                            <p class="item-author">作者：架构师</p>
+                            <p class="item-price">¥45.90</p>
+                        </div>
+                        <div class="item-subtotal">
+                            <div class="subtotal-price">¥45.90</div>
+                            <div class="subtotal-qty">x1</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-footer">
+                    <div class="order-total">合计：<strong>¥105.80</strong>（含运费¥0.00）</div>
+                    <div class="order-actions">
+                        <button class="btn btn-secondary" onclick="applyRefund('DD20260519002')">申请退款</button>
+                        <button class="btn btn-primary" onclick="viewLogistics('DD20260519002')">催发货</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-card" data-status="shipped">
+                <div class="order-header">
+                    <div class="order-info">
+                        <span>订单号：DD20260518003</span>
+                        <span>下单时间：2026-05-18 09:15</span>
+                    </div>
+                    <span class="order-status status-shipped">已发货</span>
+                </div>
+                <div class="order-body">
+                    <div class="order-item">
+                        <div class="item-image"><img src="https://picsum.photos/200/300?random=3" alt="书籍封面"></div>
+                        <div class="item-info">
+                            <h4 class="item-title">算法导论</h4>
+                            <p class="item-author">作者：算法大师</p>
+                            <p class="item-price">¥69.90</p>
+                        </div>
+                        <div class="item-subtotal">
+                            <div class="subtotal-price">¥69.90</div>
+                            <div class="subtotal-qty">x1</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-footer">
+                    <div class="order-total">合计：<strong>¥69.90</strong>（含运费¥0.00）<br><small style="color:#a5b4fc;">物流：顺丰速运 SF1234567890</small></div>
+                    <div class="order-actions">
+                        <button class="btn btn-secondary" onclick="viewLogistics('DD20260518003')">查看物流</button>
+                        <button class="btn btn-primary" onclick="confirmReceive('DD20260518003')">确认收货</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-card" data-status="completed">
+                <div class="order-header">
+                    <div class="order-info">
+                        <span>订单号：DD20260515004</span>
+                        <span>下单时间：2026-05-15 16:45</span>
+                    </div>
+                    <span class="order-status status-completed">已完成</span>
+                </div>
+                <div class="order-body">
+                    <div class="order-item">
+                        <div class="item-image"><img src="https://picsum.photos/200/300?random=5" alt="书籍封面"></div>
+                        <div class="item-info">
+                            <h4 class="item-title">深入理解计算机系统</h4>
+                            <p class="item-author">作者：计算机专家</p>
+                            <p class="item-price">¥89.90</p>
+                        </div>
+                        <div class="item-subtotal">
+                            <div class="subtotal-price">¥89.90</div>
+                            <div class="subtotal-qty">x1</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-footer">
+                    <div class="order-total">合计：<strong>¥89.90</strong>（含运费¥0.00）</div>
+                    <div class="order-actions">
+                        <button class="btn btn-secondary" onclick="writeReview('DD20260515004')">写评价</button>
+                        <button class="btn btn-primary" onclick="buyAgain('DD20260515004')">再次购买</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 添加/编辑地址模态框 -->
+    <div class="modal" id="addressModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="addressModalTitle">添加收货地址</h3>
+                <button class="modal-close" onclick="closeAddressModal()">×</button>
+            </div>
+            <form id="addressForm">
+                <div class="form-group">
+                    <label>收货人姓名</label>
+                    <input type="text" id="consigneeName" placeholder="请输入收货人姓名" required>
+                </div>
+                <div class="form-group">
+                    <label>手机号码</label>
+                    <input type="tel" id="consigneePhone" placeholder="请输入手机号码" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>省份</label>
+                        <select id="province">
+                            <option value="">请选择省份</option>
+                            <option value="beijing">北京市</option>
+                            <option value="shanghai">上海市</option>
+                            <option value="guangdong">广东省</option>
+                            <option value="zhejiang">浙江省</option>
+                            <option value="jiangsu">江苏省</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>城市</label>
+                        <select id="city">
+                            <option value="">请选择城市</option>
+                            <option value="beijing">北京市</option>
+                            <option value="shanghai">上海市</option>
+                            <option value="guangzhou">广州市</option>
+                            <option value="shenzhen">深圳市</option>
+                            <option value="hangzhou">杭州市</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>详细地址</label>
+                    <textarea id="detailAddress" rows="3" placeholder="请输入详细地址" required></textarea>
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="setDefault">
+                    <label for="setDefault">设为默认地址</label>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAddressModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveAddress()">保存地址</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>© 2026 书易创 - 发现你的阅读世界</p>
+    </footer>
+
+    <script>
+        function goHome() {
+            window.location.href = 'index.html';
+        }
+
+        function filterOrders(status) {
+            document.querySelectorAll('.order-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.closest('.order-tab').classList.add('active');
+            
+            const cards = document.querySelectorAll('.order-card');
+            cards.forEach(card => {
+                if (status === 'all' || card.dataset.status === status) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function payOrder(orderId) {
+            alert(`正在跳转到支付页面...\n订单号：${orderId}\n金额：待计算`);
+        }
+
+        function cancelOrder(orderId) {
+            if (confirm('确定要取消该订单吗？')) {
+                alert(`订单 ${orderId} 已取消`);
+                location.reload();
+            }
+        }
+
+        function viewLogistics(orderId) {
+            alert(`物流信息\n订单号：${orderId}\n物流公司：顺丰速运\n运单号：SF1234567890\n状态：运输中`);
+        }
+
+        function confirmReceive(orderId) {
+            if (confirm('确认已收到商品？')) {
+                alert(`订单 ${orderId} 已确认收货`);
+                location.reload();
+            }
+        }
+
+        function applyRefund(orderId) {
+            alert(`退款申请已提交\n订单号：${orderId}\n我们将尽快处理您的退款请求`);
+        }
+
+        function writeReview(orderId) {
+            alert(`去写评价\n订单号：${orderId}`);
+        }
+
+        function buyAgain(orderId) {
+            alert(`商品已加入购物车\n订单号：${orderId}`);
+        }
+
+        function openAddressModal() {
+            document.getElementById('addressModal').classList.add('active');
+            document.getElementById('addressModalTitle').textContent = '添加收货地址';
+        }
+
+        function closeAddressModal() {
+            document.getElementById('addressModal').classList.remove('active');
+        }
+
+        function editAddress(index) {
+            document.getElementById('addressModal').classList.add('active');
+            document.getElementById('addressModalTitle').textContent = '编辑收货地址';
+        }
+
+        function deleteAddress(index) {
+            if (confirm('确定要删除该地址吗？')) {
+                alert('地址已删除');
+            }
+        }
+
+        function saveAddress() {
+            const name = document.getElementById('consigneeName').value;
+            const phone = document.getElementById('consigneePhone').value;
+            const address = document.getElementById('detailAddress').value;
+            
+            if (!name || !phone || !address) {
+                alert('请填写完整信息');
+                return;
+            }
+            
+            alert('地址保存成功！');
+            closeAddressModal();
+        }
+    </script>
+</body>
+</html>

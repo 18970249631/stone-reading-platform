@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>书易创 - 搜索结果</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%); min-height: 100vh; }
+        body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.08) 0%, transparent 50%); pointer-events: none; z-index: -1; }
+        
+        .header { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); position: sticky; top: 0; z-index: 100; }
+        .header-main { display: flex; justify-content: space-between; align-items: center; padding: 15px 40px; }
+        .logo { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .logo-icon { width: 45px; height: 45px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .logo-text { font-size: 24px; font-weight: 700; color: white; }
+        .search-bar { flex: 1; max-width: 600px; position: relative; margin: 0 50px; }
+        .search-input { width: 100%; padding: 12px 15px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 30px; font-size: 14px; outline: none; color: white; }
+        .search-input:focus { border-color: rgba(102, 126, 234, 0.6); }
+        .search-input::placeholder { color: rgba(255,255,255,0.5); }
+        .search-btn { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; }
+        .header-actions { display: flex; align-items: center; gap: 20px; }
+        .action-btn { display: flex; align-items: center; gap: 5px; padding: 10px 20px; border: none; border-radius: 20px; cursor: pointer; font-size: 14px; }
+        .action-btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .action-btn-secondary { background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.2); }
+
+        .main-content { max-width: 1200px; margin: 0 auto; padding: 40px; }
+        
+        .search-header { margin-bottom: 30px; }
+        .search-title { font-size: 24px; color: white; margin-bottom: 10px; }
+        .search-title span { color: #a5b4fc; }
+        .search-stats { color: rgba(255,255,255,0.6); font-size: 14px; }
+
+        .filter-bar { background: rgba(255, 255, 255, 0.06); backdrop-filter: blur(15px); border-radius: 12px; padding: 20px; margin-bottom: 30px; display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+        .filter-item { display: flex; align-items: center; gap: 10px; }
+        .filter-label { color: rgba(255,255,255,0.6); font-size: 14px; }
+        .filter-select { padding: 8px 16px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: white; font-size: 14px; outline: none; }
+        .filter-select option { background: #1a1a2e; color: white; }
+        .sort-btn { padding: 8px 16px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: rgba(255,255,255,0.7); font-size: 14px; cursor: pointer; transition: all 0.3s; }
+        .sort-btn:hover, .sort-btn.active { background: rgba(102, 126, 234, 0.3); color: white; border-color: rgba(102, 126, 234, 0.5); }
+
+        .search-results { }
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px; margin-bottom: 40px; }
+        
+        .book-card { background: rgba(255, 255, 255, 0.06); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; overflow: hidden; transition: all 0.3s; cursor: pointer; }
+        .book-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2); }
+        .book-cover { width: 100%; height: 280px; background: rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: center; position: relative; }
+        .book-cover img { width: 150px; height: 210px; object-fit: cover; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+        .book-badge { position: absolute; top: 10px; left: 10px; background: linear-gradient(135deg, rgba(255, 77, 79, 0.9) 0%, rgba(255, 107, 107, 0.9) 100%); color: white; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+        .book-badge.vip { background: linear-gradient(135deg, rgba(255, 215, 0, 0.9) 0%, rgba(255, 165, 0, 0.9) 100%); }
+        .book-info { padding: 18px; }
+        .book-title { font-size: 15px; font-weight: 600; color: white; margin-bottom: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .book-author { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 10px; }
+        .book-price { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+        .price-current { font-size: 18px; font-weight: 600; color: #ff9f43; }
+        .price-original { font-size: 13px; color: rgba(255,255,255,0.4); text-decoration: line-through; }
+        .book-stats { display: flex; gap: 12px; font-size: 12px; color: rgba(255,255,255,0.5); }
+        .book-actions { display: flex; gap: 10px; margin-top: 15px; }
+        .btn { padding: 10px 16px; border: none; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%); color: white; }
+        .btn-secondary { background: rgba(255, 255, 255, 0.1); color: rgba(255,255,255,0.8); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .btn:hover { transform: translateY(-2px); }
+
+        .no-results { text-align: center; padding: 60px 20px; }
+        .no-results-icon { font-size: 80px; margin-bottom: 20px; }
+        .no-results h3 { font-size: 24px; color: white; margin-bottom: 10px; }
+        .no-results p { color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 20px; }
+        .recommend-title { font-size: 18px; color: white; margin: 40px 0 20px; }
+
+        .pagination { display: flex; justify-content: center; gap: 10px; margin-top: 40px; }
+        .page-btn { padding: 10px 18px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: rgba(255,255,255,0.7); font-size: 14px; cursor: pointer; transition: all 0.3s; }
+        .page-btn:hover, .page-btn.active { background: rgba(102, 126, 234, 0.3); color: white; border-color: rgba(102, 126, 234, 0.5); }
+        .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .footer { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(15px); border-top: 1px solid rgba(255, 255, 255, 0.08); color: rgba(255,255,255,0.6); padding: 50px 40px; margin-top: 50px; text-align: center; }
+
+        @media (max-width: 768px) {
+            .header-main { padding: 10px 20px; flex-wrap: wrap; }
+            .search-bar { order: 3; width: 100%; margin: 15px 0 0 0; }
+            .results-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-main">
+            <div class="logo" onclick="goHome()">
+                <div class="logo-icon">📚</div>
+                <span class="logo-text">书易创</span>
+            </div>
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="搜索书籍、作者、ISBN..." id="searchInput">
+                <button class="search-btn" onclick="handleSearch()">🔍</button>
+            </div>
+            <div class="header-actions">
+                <button class="action-btn action-btn-secondary" onclick="goHome()">
+                    <span>👤</span> 登录
+                </button>
+                <button class="action-btn action-btn-primary" onclick="goHome()">
+                    <span>🛒</span> 购物车
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="search-header">
+            <h2 class="search-title">搜索 "<span id="keyword">代码</span>" 的结果</h2>
+            <p class="search-stats">共找到 <strong id="resultCount">8</strong> 本图书</p>
+        </div>
+
+        <div class="filter-bar">
+            <div class="filter-item">
+                <span class="filter-label">分类:</span>
+                <select class="filter-select" id="categoryFilter">
+                    <option value="">全部分类</option>
+                    <option value="1">文学小说</option>
+                    <option value="2">人文社科</option>
+                    <option value="3">经管励志</option>
+                    <option value="4">科技科普</option>
+                    <option value="5">少儿读物</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <span class="filter-label">价格:</span>
+                <select class="filter-select" id="priceFilter">
+                    <option value="">全部价格</option>
+                    <option value="0-50">0-50元</option>
+                    <option value="50-100">50-100元</option>
+                    <option value="100-200">100-200元</option>
+                    <option value="200+">200元以上</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <span class="filter-label">排序:</span>
+                <button class="sort-btn active" onclick="sortResults('relevance')">综合</button>
+                <button class="sort-btn" onclick="sortResults('sales')">销量</button>
+                <button class="sort-btn" onclick="sortResults('price-asc')">价格↑</button>
+                <button class="sort-btn" onclick="sortResults('price-desc')">价格↓</button>
+                <button class="sort-btn" onclick="sortResults('rating')">评分</button>
+            </div>
+        </div>
+
+        <div class="search-results">
+            <div class="results-grid" id="resultsGrid">
+                <!-- 搜索结果将通过JavaScript动态生成 -->
+            </div>
+
+            <div class="no-results" id="noResults" style="display: none;">
+                <div class="no-results-icon">📚</div>
+                <h3>未找到相关图书</h3>
+                <p>换个关键词试试，或者查看我们的热门推荐</p>
+                <button class="btn btn-primary" onclick="goHome()">返回首页</button>
+            </div>
+
+            <h3 class="recommend-title">🔥 热门推荐</h3>
+            <div class="results-grid" id="recommendGrid">
+                <!-- 推荐图书将通过JavaScript动态生成 -->
+            </div>
+        </div>
+
+        <div class="pagination">
+            <button class="page-btn" onclick="changePage(-1)" id="prevBtn">上一页</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn" onclick="changePage(1)" id="nextBtn">下一页</button>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>© 2026 书易创 - 发现你的阅读世界</p>
+    </footer>
+
+    <script>
+        // 模拟搜索结果数据
+        const searchResults = [
+            { id: 1, title: '代码之美', author: '技术大师', price: 49.9, originalPrice: 79, rating: 4.9, comments: 3200, cover: 'https://picsum.photos/200/300?random=1', badge: '热卖' },
+            { id: 2, title: '编程艺术', author: '编程专家', price: 59.9, originalPrice: 89, rating: 4.8, comments: 2800, cover: 'https://picsum.photos/200/300?random=2', badge: 'VIP' },
+            { id: 3, title: '算法导论', author: '算法大师', price: 69.9, originalPrice: 99, rating: 4.9, comments: 5100, cover: 'https://picsum.photos/200/300?random=3' },
+            { id: 4, title: '设计模式', author: '架构师', price: 45.9, originalPrice: 68, rating: 4.7, comments: 1900, cover: 'https://picsum.photos/200/300?random=4', badge: '新品' },
+            { id: 5, title: 'Python编程从入门到精通', author: 'Python大师', price: 39.9, originalPrice: 59, rating: 4.8, comments: 8200, cover: 'https://picsum.photos/200/300?random=6', badge: 'VIP' },
+            { id: 6, title: '人工智能入门', author: 'AI专家', price: 79.9, originalPrice: 108, rating: 4.7, comments: 2100, cover: 'https://picsum.photos/200/300?random=8', badge: '热卖' },
+            { id: 7, title: 'Java核心技术', author: 'Java大师', price: 89.9, originalPrice: 128, rating: 4.6, comments: 4500, cover: 'https://picsum.photos/200/300?random=10' },
+            { id: 8, title: 'Web前端开发实战', author: '前端专家', price: 59.9, originalPrice: 88, rating: 4.5, comments: 1800, cover: 'https://picsum.photos/200/300?random=12' }
+        ];
+
+        function getUrlParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        function goHome() {
+            window.location.href = 'index.html';
+        }
+
+        function handleSearch() {
+            const keyword = document.getElementById('searchInput').value;
+            if (keyword) {
+                window.location.href = `search.html?keyword=${encodeURIComponent(keyword)}`;
+            }
+        }
+
+        function renderResults(results) {
+            const grid = document.getElementById('resultsGrid');
+            if (results.length === 0) {
+                grid.style.display = 'none';
+                document.getElementById('noResults').style.display = 'block';
+                return;
+            }
+
+            grid.innerHTML = results.map(book => `
+                <div class="book-card" onclick="goToDetail(${book.id})">
+                    <div class="book-cover">
+                        ${book.badge ? `<span class="book-badge ${book.badge === 'VIP' ? 'vip' : ''}">${book.badge}</span>` : ''}
+                        <img src="${book.cover}" alt="${book.title}">
+                    </div>
+                    <div class="book-info">
+                        <h3 class="book-title">${book.title}</h3>
+                        <p class="book-author">${book.author}</p>
+                        <div class="book-price">
+                            <span class="price-current">¥${book.price}</span>
+                            <span class="price-original">¥${book.originalPrice}</span>
+                        </div>
+                        <div class="book-stats">
+                            <span>⭐ ${book.rating}</span>
+                            <span>${(book.comments/1000).toFixed(1)}k评价</span>
+                        </div>
+                        <div class="book-actions">
+                            <button class="btn btn-primary" onclick="event.stopPropagation(); addToCart('${book.title}', ${book.price})">加入购物车</button>
+                            <button class="btn btn-secondary" onclick="event.stopPropagation(); addToShelf('${book.title}')">书架</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderRecommend() {
+            const grid = document.getElementById('recommendGrid');
+            const recommends = searchResults.slice(0, 4);
+            grid.innerHTML = recommends.map(book => `
+                <div class="book-card" onclick="goToDetail(${book.id})">
+                    <div class="book-cover">
+                        ${book.badge ? `<span class="book-badge ${book.badge === 'VIP' ? 'vip' : ''}">${book.badge}</span>` : ''}
+                        <img src="${book.cover}" alt="${book.title}">
+                    </div>
+                    <div class="book-info">
+                        <h3 class="book-title">${book.title}</h3>
+                        <p class="book-author">${book.author}</p>
+                        <div class="book-price">
+                            <span class="price-current">¥${book.price}</span>
+                            <span class="price-original">¥${book.originalPrice}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function goToDetail(id) {
+            window.location.href = `book-detail.html?id=${id}`;
+        }
+
+        function addToCart(title, price) {
+            alert(`✅ 已加入购物车：${title} - ¥${price}`);
+        }
+
+        function addToShelf(title) {
+            alert(`✅ 已加入书架：${title}`);
+        }
+
+        function sortResults(type) {
+            document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            let sorted = [...searchResults];
+            switch(type) {
+                case 'sales':
+                    sorted.sort((a, b) => b.comments - a.comments);
+                    break;
+                case 'price-asc':
+                    sorted.sort((a, b) => a.price - b.price);
+                    break;
+                case 'price-desc':
+                    sorted.sort((a, b) => b.price - a.price);
+                    break;
+                case 'rating':
+                    sorted.sort((a, b) => b.rating - a.rating);
+                    break;
+                default:
+                    break;
+            }
+            renderResults(sorted);
+        }
+
+        function changePage(dir) {
+            alert('分页功能演示中...');
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            const keyword = getUrlParam('keyword') || '代码';
+            document.getElementById('keyword').textContent = keyword;
+            document.getElementById('searchInput').value = keyword;
+            document.getElementById('resultCount').textContent = searchResults.length;
+            renderResults(searchResults);
+            renderRecommend();
+        });
+    </script>
+</body>
+</html>

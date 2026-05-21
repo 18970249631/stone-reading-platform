@@ -232,7 +232,7 @@
                 <span class="logo-text">书易创</span>
             </a>
             <div class="search-bar">
-                <input type="text" class="search-input" placeholder="搜索书籍、作者、ISBN..." id="searchInput">
+                <input type="text" class="search-input" placeholder="搜索书籍、作者、ISBN..." id="searchInput" onkeypress="if(event.key==='Enter')handleSearch()">
                 <button class="search-btn" onclick="handleSearch()">🔍</button>
             </div>
             <nav class="header-nav">
@@ -255,13 +255,14 @@
     <nav class="nav-menu">
         <ul>
             <li><a onclick="navigateTo('home')" class="active">首页</a></li>
-            <li><a onclick="navigateTo('home')">图书</a></li>
+            <li><a onclick="window.location.href='search.html'">搜索</a></li>
             <li><a onclick="window.location.href='ebook.html'">电子书</a></li>
-            <li><a onclick="navigateTo('home')">新书上架</a></li>
-            <li><a onclick="navigateTo('home')">畅销榜</a></li>
+            <li><a onclick="window.location.href='audiobook.html'">有声书</a></li>
+            <li><a onclick="window.location.href='course.html'">课程</a></li>
             <li><a onclick="navigateTo('trade')">交易区</a></li>
             <li><a onclick="navigateTo('shelf')">我的书架</a></li>
-            <li><a onclick="navigateTo('admin')">管理后台</a></li>
+            <li><a onclick="window.location.href='orders.html'">我的订单</a></li>
+            <li><a onclick="window.location.href='vip.html'">会员中心</a></li>
             <li><a onclick="navigateTo('profile')">个人中心</a></li>
             <li><a onclick="window.location.href='help.html'">帮助中心</a></li>
         </ul>
@@ -921,7 +922,7 @@
             }
         }
         
-        function handleSearch() { const query = document.getElementById('searchInput').value; if (query) showNotification('🔍 正在搜索：' + query); }
+        function handleSearch() { const query = document.getElementById('searchInput').value; if (query) window.location.href = 'search.html?keyword=' + encodeURIComponent(query); else window.location.href = 'search.html'; }
         function saveProfile() { const name = document.getElementById('profileInputName').value; if (name) showNotification('✅ 个人信息已保存'); }
         
         function showNotification(message) {
