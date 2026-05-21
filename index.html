@@ -102,6 +102,15 @@
         .trade-card-title { font-size: 18px; font-weight: 600; color: #333; margin-bottom: 10px; }
         .trade-card-desc { font-size: 14px; color: #666; margin-bottom: 15px; line-height: 1.6; }
         .trade-card-price { display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid #f0f0f0; }
+        .articles-section { margin-top: 30px; }
+        .articles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .article-card { background: white; border-radius: 12px; padding: 20px; transition: all 0.3s; cursor: pointer; }
+        .article-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        .article-category { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; margin-bottom: 12px; }
+        .article-title { font-size: 17px; font-weight: 600; color: #333; margin-bottom: 10px; line-height: 1.4; }
+        .article-excerpt { font-size: 14px; color: #666; margin-bottom: 15px; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .article-meta { display: flex; justify-content: space-between; align-items: center; color: #999; font-size: 13px; padding-top: 15px; border-top: 1px solid #f0f0f0; }
+        .article-meta span { display: flex; align-items: center; gap: 5px; }
         .trade-price { font-size: 24px; font-weight: 700; color: #ff4d4f; }
         .trade-buy-btn { padding: 10px 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; }
         .cart-section { background: white; border-radius: 12px; padding: 25px; margin-bottom: 30px; }
@@ -306,6 +315,11 @@
                         <a href="reader.html" class="ranking-link"><li class="ranking-item"><div class="ranking-rank">5</div><div class="ranking-cover">📙</div><div class="ranking-info"><div class="ranking-title">深入理解计算机系统</div><div class="ranking-author">计算机专家</div><div class="ranking-price">¥89.9</div></div></li></a>
                     </ul>
                 </div>
+            </section>
+            
+            <section class="articles-section">
+                <div class="section-title"><h3>📝 精选文章</h3><a onclick="navigateTo('articles')">查看更多 ></a></div>
+                <div class="articles-grid" id="articlesGrid"></div>
             </section>
         </main>
     </div>
@@ -976,6 +990,8 @@
             
             document.getElementById('articleTitle').value = '';
             document.getElementById('articleContent').value = '';
+            
+            renderArticles();
         }
         
         function handleViolation(username, reason) {
@@ -1115,6 +1131,38 @@
             }
         }
         
+        function renderArticles() {
+            const articlesGrid = document.getElementById('articlesGrid');
+            if (!articlesGrid) return;
+            
+            const sortedArticles = [...articles].sort((a, b) => new Date(b.date) - new Date(a.date));
+            const displayArticles = sortedArticles.slice(0, 6);
+            
+            if (displayArticles.length === 0) {
+                articlesGrid.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">暂无文章</div>';
+                return;
+            }
+            
+            articlesGrid.innerHTML = displayArticles.map(article => `
+                <div class="article-card" onclick="showArticleDetail(${article.id})">
+                    <span class="article-category">${article.category}</span>
+                    <h3 class="article-title">${article.title}</h3>
+                    <p class="article-excerpt">${article.content}</p>
+                    <div class="article-meta">
+                        <span>✍️ ${article.author}</span>
+                        <span>📅 ${article.date}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function showArticleDetail(id) {
+            const article = articles.find(a => a.id === id);
+            if (article) {
+                alert(`文章标题：${article.title}\n\n作者：${article.author}\n分类：${article.category}\n发布时间：${article.date}\n\n内容：\n${article.content}`);
+            }
+        }
+        
         function init() {
             if (currentUser) {
                 document.getElementById('userName').textContent = currentUser.username;
@@ -1123,6 +1171,7 @@
                 document.getElementById('profileInputName').value = currentUser.username;
             }
             updateCartCount();
+            renderArticles();
         }
         
         init();
