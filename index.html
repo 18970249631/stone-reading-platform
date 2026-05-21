@@ -357,12 +357,14 @@
             <div class="admin-stats">
                 <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-info"><h4>总用户数</h4><div class="stat-number" id="statUsers">1,234</div></div></div>
                 <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-info"><h4>书籍总数</h4><div class="stat-number" id="statBooks">567</div></div></div>
-                <div class="stat-card"><div class="stat-icon">�</div><div class="stat-info"><h4>评论总数</h4><div class="stat-number" id="statComments">2,345</div></div></div>
-                <div class="stat-card"><div class="stat-icon">�</div><div class="stat-info"><h4>今日收入</h4><div class="stat-number" id="statRevenue">¥12,345</div></div></div>
+                <div class="stat-card"><div class="stat-icon">💬</div><div class="stat-info"><h4>评论总数</h4><div class="stat-number" id="statComments">2,345</div></div></div>
+                <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-info"><h4>今日收入</h4><div class="stat-number" id="statRevenue">¥12,345</div></div></div>
             </div>
             <div class="trade-tabs">
                 <button class="trade-tab active" onclick="switchAdminTab('users')">👥 用户管理</button>
                 <button class="trade-tab" onclick="switchAdminTab('books')">📚 书籍管理</button>
+                <button class="trade-tab" onclick="switchAdminTab('articles')">📝 文章管理</button>
+                <button class="trade-tab" onclick="switchAdminTab('authors')">👨‍💻 作者健康分</button>
                 <button class="trade-tab" onclick="switchAdminTab('comments')">💬 评论管理</button>
                 <button class="trade-tab" onclick="switchAdminTab('orders')">💰 订单管理</button>
             </div>
@@ -375,18 +377,30 @@
             <div id="admin-books" class="admin-content" style="display:none;">
                 <div class="admin-table">
                     <div class="admin-table-header"><h3>📚 书籍管理</h3><button class="admin-table-btn" onclick="openAddBookModal()">+ 添加书籍</button></div>
-                    <table><thead><tr><th>ID</th><th>书名</th><th>作者</th><th>分类</th><th>价格</th><th>状态</th><th>操作</th></tr></thead><tbody id="bookTableBody"></tbody></table>
+                    <table><thead><tr><th>ID</th><th>书名</th><th>作者</th><th>类型</th><th>分类</th><th>价格</th><th>状态</th><th>操作</th></tr></thead><tbody id="bookTableBody"></tbody></table>
+                </div>
+            </div>
+            <div id="admin-articles" class="admin-content" style="display:none;">
+                <div class="admin-table">
+                    <div class="admin-table-header"><h3>📝 文章管理</h3><button class="admin-table-btn" onclick="openPublishArticleModal()">+ 发布文章</button></div>
+                    <table><thead><tr><th>ID</th><th>标题</th><th>作者</th><th>分类</th><th>审核状态</th><th>发布时间</th><th>操作</th></tr></thead><tbody id="articleTableBody"></tbody></table>
+                </div>
+            </div>
+            <div id="admin-authors" class="admin-content" style="display:none;">
+                <div class="admin-table">
+                    <div class="admin-table-header"><h3>👨‍💻 作者健康分管理</h3></div>
+                    <table><thead><tr><th>ID</th><th>作者</th><th>健康分</th><th>状态</th><th>禁言时间</th><th>违规次数</th><th>操作</th></tr></thead><tbody id="authorTableBody"></tbody></table>
                 </div>
             </div>
             <div id="admin-comments" class="admin-content" style="display:none;">
                 <div class="admin-table">
-                    <div class="admin-table-header"><h3>� 评论管理</h3></div>
+                    <div class="admin-table-header"><h3>💬 评论管理</h3></div>
                     <table><thead><tr><th>ID</th><th>用户</th><th>书籍</th><th>评论内容</th><th>评分</th><th>时间</th><th>操作</th></tr></thead><tbody id="commentTableBody"></tbody></table>
                 </div>
             </div>
             <div id="admin-orders" class="admin-content" style="display:none;">
                 <div class="admin-table">
-                    <div class="admin-table-header"><h3>� 订单管理</h3></div>
+                    <div class="admin-table-header"><h3>💰 订单管理</h3></div>
                     <table><thead><tr><th>订单号</th><th>用户</th><th>商品</th><th>金额</th><th>状态</th><th>时间</th><th>操作</th></tr></thead><tbody id="orderTableBody"></tbody></table>
                 </div>
             </div>
@@ -477,6 +491,7 @@
             <h3>📚 添加书籍</h3>
             <div class="form-group"><label>书名</label><input type="text" id="newBookTitle" placeholder="请输入书名"></div>
             <div class="form-group"><label>作者</label><input type="text" id="newBookAuthor" placeholder="请输入作者"></div>
+            <div class="form-group"><label>书籍类型</label><select id="newBookType"><option value="paper">纸质书</option><option value="ebook">电子书</option></select></div>
             <div class="form-group"><label>分类</label><select id="newBookCategory"><option value="文学小说">文学小说</option><option value="人文社科">人文社科</option><option value="经管励志">经管励志</option><option value="教育考试">教育考试</option><option value="少儿读物">少儿读物</option><option value="科技科普">科技科普</option><option value="生活健康">生活健康</option><option value="艺术设计">艺术设计</option></select></div>
             <div class="form-group"><label>价格</label><input type="number" id="newBookPrice" placeholder="请输入价格" step="0.01"></div>
             <div class="form-group"><label>状态</label><select id="newBookStatus"><option value="在售">在售</option><option value="下架">下架</option><option value="预售">预售</option></select></div>
@@ -504,11 +519,23 @@
             <input type="hidden" id="editBookId">
             <div class="form-group"><label>书名</label><input type="text" id="editBookTitle" placeholder="请输入书名"></div>
             <div class="form-group"><label>作者</label><input type="text" id="editBookAuthor" placeholder="请输入作者"></div>
+            <div class="form-group"><label>书籍类型</label><select id="editBookType"><option value="paper">纸质书</option><option value="ebook">电子书</option></select></div>
             <div class="form-group"><label>分类</label><select id="editBookCategory"><option value="文学小说">文学小说</option><option value="人文社科">人文社科</option><option value="经管励志">经管励志</option><option value="教育考试">教育考试</option><option value="少儿读物">少儿读物</option><option value="科技科普">科技科普</option><option value="生活健康">生活健康</option><option value="艺术设计">艺术设计</option></select></div>
             <div class="form-group"><label>价格</label><input type="number" id="editBookPrice" placeholder="请输入价格" step="0.01"></div>
             <div class="form-group"><label>状态</label><select id="editBookStatus"><option value="在售">在售</option><option value="下架">下架</option><option value="预售">预售</option></select></div>
             <button class="btn btn-primary" style="width: 100%;" onclick="updateBook()">保存</button>
             <button class="btn btn-secondary" style="width: 100%; margin-top: 16px;" onclick="closeEditBookModal()">关闭</button>
+        </div>
+    </div>
+    
+    <div class="login-modal" id="publishArticleModal" style="width: 80%; max-width: 700px; max-height: 90vh; overflow-y: auto;">
+        <div class="login-box" style="max-width: 100%;">
+            <h3>📝 发布文章/小说</h3>
+            <div class="form-group"><label>标题</label><input type="text" id="articleTitle" placeholder="请输入标题"></div>
+            <div class="form-group"><label>分类</label><select id="articleCategory"><option value="小说">小说</option><option value="散文">散文</option><option value="诗歌">诗歌</option><option value="评论">评论</option><option value="科普">科普</option><option value="其他">其他</option></select></div>
+            <div class="form-group"><label>内容</label><textarea id="articleContent" placeholder="请输入文章内容..." style="width:100%;min-height:200px;padding:10px;border:2px solid #e0e0e0;border-radius:8px;font-size:14px;resize:vertical;"></textarea></div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="publishArticle()">发布</button>
+            <button class="btn btn-secondary" style="width: 100%; margin-top: 16px;" onclick="closePublishArticleModal()">关闭</button>
         </div>
     </div>
     
@@ -533,11 +560,11 @@
             { id: 4, username: 'author', email: 'author@example.com', role: 'AUTHOR', status: '正常', date: '2024-02-01' }
         ];
         let books = [
-            { id: 1, title: '代码之美', author: '技术大师', category: '科技科普', price: 49.9, status: '在售' },
-            { id: 2, title: '编程艺术', author: '编程专家', category: '科技科普', price: 59.9, status: '在售' },
-            { id: 3, title: '算法导论', author: '算法大师', category: '科技科普', price: 69.9, status: '在售' },
-            { id: 4, title: '设计模式', author: '架构师', category: '科技科普', price: 45.9, status: '在售' },
-            { id: 5, title: '深入理解计算机系统', author: '计算机专家', category: '科技科普', price: 89.9, status: '在售' }
+            { id: 1, title: '代码之美', author: '技术大师', type: 'paper', category: '科技科普', price: 49.9, status: '在售' },
+            { id: 2, title: '编程艺术', author: '编程专家', type: 'paper', category: '科技科普', price: 59.9, status: '在售' },
+            { id: 3, title: '算法导论', author: '算法大师', type: 'paper', category: '科技科普', price: 69.9, status: '在售' },
+            { id: 4, title: '设计模式', author: '架构师', type: 'ebook', category: '科技科普', price: 45.9, status: '在售' },
+            { id: 5, title: '深入理解计算机系统', author: '计算机专家', type: 'ebook', category: '科技科普', price: 89.9, status: '在售' }
         ];
         let comments = [
             { id: 1, user: 'testuser', book: '代码之美', content: '这本书写得非常好，强烈推荐！', rating: 5, date: '2024-01-20' },
@@ -548,6 +575,16 @@
             { id: 'ORD2024001', user: 'testuser', item: '代码之美', amount: 49.9, status: '已完成', date: '2024-01-20' },
             { id: 'ORD2024002', user: 'vipuser', item: 'VIP年度会员', amount: 699, status: '已完成', date: '2024-01-21' },
             { id: 'ORD2024003', user: 'admin', item: 'Python课程', amount: 299, status: '处理中', date: '2024-01-22' }
+        ];
+        let articles = JSON.parse(localStorage.getItem('articles') || '[]');
+        let authors = JSON.parse(localStorage.getItem('authors') || JSON.stringify([
+            { id: 1, username: 'author', healthScore: 100, status: '正常', bannedUntil: null, violationCount: 0 }
+        ]));
+        
+        const forbiddenKeywords = [
+            '黄赌毒', '暴力', '色情', '赌博', '毒品', 
+            '辱骂', '诋毁', '反动', '迷信', '低俗',
+            'fuck', 'shit', 'porn', 'sex'
         ];
         
         function navigateTo(page) {
@@ -861,6 +898,210 @@
             notification.innerHTML = '<span class="notification-icon">💬</span><div class="notification-content"><div class="notification-title">提示</div><div class="notification-message">' + message + '</div></div>';
             document.body.appendChild(notification);
             setTimeout(() => { notification.style.animation = 'slideIn 0.3s ease-out reverse'; setTimeout(() => notification.remove(), 300); }, 2000);
+        }
+        
+        function openPublishArticleModal() { document.getElementById('publishArticleModal').style.display = 'flex'; }
+        function closePublishArticleModal() { document.getElementById('publishArticleModal').style.display = 'none'; }
+        
+        function aiContentReview(content) {
+            for (let keyword of forbiddenKeywords) {
+                if (content.toLowerCase().includes(keyword.toLowerCase())) {
+                    return { pass: false, reason: '内容包含违规关键词：' + keyword };
+                }
+            }
+            return { pass: true, reason: '审核通过' };
+        }
+        
+        function publishArticle() {
+            const title = document.getElementById('articleTitle').value;
+            const category = document.getElementById('articleCategory').value;
+            const content = document.getElementById('articleContent').value;
+            
+            if (!title || !content) {
+                showNotification('❌ 请填写完整信息');
+                return;
+            }
+            
+            if (!currentUser || (currentUser.type !== 'author' && currentUser.type !== 'admin')) {
+                showNotification('❌ 只有作者或管理员才能发布文章');
+                return;
+            }
+            
+            const author = authors.find(a => a.username === currentUser.username);
+            if (author && author.status === '禁言') {
+                const now = new Date();
+                const banEnd = new Date(author.bannedUntil);
+                if (now < banEnd) {
+                    showNotification('❌ 您已被禁言，禁言至 ' + banEnd.toLocaleDateString());
+                    return;
+                }
+            }
+            
+            showNotification('🤖 正在进行AI内容审核...');
+            
+            const reviewResult = aiContentReview(content);
+            
+            if (!reviewResult.pass) {
+                handleViolation(currentUser.username, reviewResult.reason);
+                showNotification('❌ ' + reviewResult.reason + '，文章已被打回');
+                return;
+            }
+            
+            const article = {
+                id: articles.length + 1,
+                title: title,
+                author: currentUser.username,
+                category: category,
+                content: content,
+                status: '已发布',
+                date: new Date().toISOString().split('T')[0]
+            };
+            
+            articles.push(article);
+            localStorage.setItem('articles', JSON.stringify(articles));
+            
+            showNotification('✅ 文章发布成功！');
+            closePublishArticleModal();
+            
+            document.getElementById('articleTitle').value = '';
+            document.getElementById('articleContent').value = '';
+        }
+        
+        function handleViolation(username, reason) {
+            let author = authors.find(a => a.username === username);
+            
+            if (!author) {
+                author = {
+                    id: authors.length + 1,
+                    username: username,
+                    healthScore: 100,
+                    status: '正常',
+                    bannedUntil: null,
+                    violationCount: 0
+                };
+                authors.push(author);
+            }
+            
+            author.healthScore -= 20;
+            author.violationCount++;
+            
+            if (author.healthScore < 60) {
+                const banEnd = new Date();
+                banEnd.setMonth(banEnd.getMonth() + 1);
+                author.status = '禁言';
+                author.bannedUntil = banEnd.toISOString();
+                showNotification('⚠️ 您的健康分已低于60分，将被禁言1个月！');
+            } else if (author.healthScore < 80) {
+                showNotification('⚠️ 您的健康分已低于80分，请规范内容创作！');
+            }
+            
+            localStorage.setItem('authors', JSON.stringify(authors));
+        }
+        
+        function renderAdminTables() {
+            document.getElementById('statUsers').textContent = users.length;
+            document.getElementById('statBooks').textContent = books.length;
+            document.getElementById('statComments').textContent = comments.length;
+            
+            document.getElementById('userTableBody').innerHTML = users.map(user => `<tr><td>${user.id}</td><td>${user.username}</td><td>${user.email}</td><td>${user.role}</td><td><span class="status-badge ${user.role === 'VIP' ? 'status-vip' : user.status === '禁用' ? 'status-pending' : 'status-active'}">${user.status}</span></td><td>${user.date}</td><td><button class="action-btn-small action-btn-edit" onclick="openEditUserModal(${user.id})">编辑</button><button class="action-btn-small action-btn-delete" onclick="deleteUser(${user.id})">删除</button></td></tr>`).join('');
+            
+            document.getElementById('bookTableBody').innerHTML = books.map(book => `<tr><td>${book.id}</td><td>${book.title}</td><td>${book.author}</td><td>${book.type === 'paper' ? '纸质书' : '电子书'}</td><td>${book.category}</td><td>¥${book.price}</td><td><span class="status-badge ${book.status === '在售' ? 'status-active' : 'status-pending'}">${book.status}</span></td><td><button class="action-btn-small action-btn-edit" onclick="openEditBookModal(${book.id})">编辑</button><button class="action-btn-small action-btn-delete" onclick="deleteBook(${book.id})">删除</button></td></tr>`).join('');
+            
+            document.getElementById('articleTableBody').innerHTML = articles.length === 0 ? '<tr><td colspan="7" style="text-align:center;padding:20px;color:#999;">暂无文章</td></tr>' : articles.map(article => `<tr><td>${article.id}</td><td>${article.title}</td><td>${article.author}</td><td>${article.category}</td><td><span class="status-badge ${article.status === '已发布' ? 'status-active' : 'status-pending'}">${article.status}</span></td><td>${article.date}</td><td><button class="action-btn-small action-btn-delete" onclick="deleteArticle(${article.id})">删除</button></td></tr>`).join('');
+            
+            document.getElementById('authorTableBody').innerHTML = authors.map(author => {
+                const healthColor = author.healthScore >= 80 ? 'status-active' : author.healthScore >= 60 ? 'status-pending' : 'status-pending';
+                const banTime = author.bannedUntil ? new Date(author.bannedUntil).toLocaleDateString() : '-';
+                return `<tr><td>${author.id}</td><td>${author.username}</td><td><span style="font-weight:bold;${author.healthScore >=80?'color:green;':author.healthScore>=60?'color:orange;':'color:red;'}">${author.healthScore}</span></td><td><span class="status-badge ${author.status === '禁言' ? 'status-pending' : 'status-active'}">${author.status}</span></td><td>${banTime}</td><td>${author.violationCount}</td><td><button class="action-btn-small action-btn-edit" onclick="restoreAuthor(${author.id})">恢复</button></td></tr>`;
+            }).join('');
+            
+            document.getElementById('commentTableBody').innerHTML = comments.map(comment => `<tr><td>${comment.id}</td><td>${comment.user}</td><td>${comment.book}</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${comment.content}</td><td>${'⭐'.repeat(comment.rating)}</td><td>${comment.date}</td><td><button class="action-btn-small action-btn-delete" onclick="deleteComment(${comment.id})">删除</button></td></tr>`).join('');
+            
+            document.getElementById('orderTableBody').innerHTML = orders.map(order => `<tr><td>${order.id}</td><td>${order.user}</td><td>${order.item}</td><td>¥${order.amount}</td><td><span class="status-badge ${order.status === '处理中' ? 'status-pending' : 'status-active'}">${order.status}</span></td><td>${order.date}</td><td><button class="action-btn-small action-btn-edit" onclick="showNotification('✏️ 查看详情...')">查看</button></td></tr>`).join('');
+        }
+        
+        function deleteArticle(id) {
+            if (confirm('确定要删除这篇文章吗？')) {
+                articles = articles.filter(a => a.id !== id);
+                localStorage.setItem('articles', JSON.stringify(articles));
+                renderAdminTables();
+                showNotification('✅ 文章删除成功');
+            }
+        }
+        
+        function restoreAuthor(id) {
+            const author = authors.find(a => a.id === id);
+            if (author) {
+                author.healthScore = 100;
+                author.status = '正常';
+                author.bannedUntil = null;
+                author.violationCount = 0;
+                localStorage.setItem('authors', JSON.stringify(authors));
+                renderAdminTables();
+                showNotification('✅ 作者健康分已恢复');
+            }
+        }
+        
+        function addBook() {
+            const title = document.getElementById('newBookTitle').value;
+            const author = document.getElementById('newBookAuthor').value;
+            const type = document.getElementById('newBookType').value;
+            const category = document.getElementById('newBookCategory').value;
+            const price = parseFloat(document.getElementById('newBookPrice').value);
+            const status = document.getElementById('newBookStatus').value;
+            
+            if (!title || !author || !price) {
+                showNotification('❌ 请填写完整信息');
+                return;
+            }
+            
+            const newBook = {
+                id: books.length + 1,
+                title: title,
+                author: author,
+                type: type,
+                category: category,
+                price: price,
+                status: status
+            };
+            books.push(newBook);
+            closeAddBookModal();
+            renderAdminTables();
+            showNotification('✅ 书籍添加成功');
+            document.getElementById('newBookTitle').value = '';
+            document.getElementById('newBookAuthor').value = '';
+            document.getElementById('newBookPrice').value = '';
+        }
+        
+        function openEditBookModal(id) {
+            const book = books.find(b => b.id === id);
+            if (book) {
+                document.getElementById('editBookId').value = book.id;
+                document.getElementById('editBookTitle').value = book.title;
+                document.getElementById('editBookAuthor').value = book.author;
+                document.getElementById('editBookType').value = book.type;
+                document.getElementById('editBookCategory').value = book.category;
+                document.getElementById('editBookPrice').value = book.price;
+                document.getElementById('editBookStatus').value = book.status;
+                document.getElementById('editBookModal').style.display = 'flex';
+            }
+        }
+        
+        function updateBook() {
+            const id = parseInt(document.getElementById('editBookId').value);
+            const title = document.getElementById('editBookTitle').value;
+            const author = document.getElementById('editBookAuthor').value;
+            const type = document.getElementById('editBookType').value;
+            const category = document.getElementById('editBookCategory').value;
+            const price = parseFloat(document.getElementById('editBookPrice').value);
+            const status = document.getElementById('editBookStatus').value;
+            const index = books.findIndex(b => b.id === id);
+            if (index !== -1) {
+                books[index] = { ...books[index], title, author, type, category, price, status };
+                closeEditBookModal();
+                renderAdminTables();
+                showNotification('✅ 书籍更新成功');
+            }
         }
         
         function init() {
