@@ -46,12 +46,12 @@ const routes = [
     name: 'Search',
     component: () => import('@/views/Search.vue')
   },
-  {
-    path: '/user/profile',
-    name: 'UserProfile',
-    component: () => import('@/views/UserProfile.vue'),
-    meta: { requiresAuth: true }
-  },
+  // {
+  //   path: '/user/profile',
+  //   name: 'UserProfile',
+  //   component: () => import('@/views/UserProfile.vue'),
+  //   meta: { requiresAuth: true }
+  // },
   {
     path: '/admin',
     name: 'Admin',
