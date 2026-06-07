@@ -5,1044 +5,341 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>书易创 - 阅读器</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: rgba(0,0,0,0.8);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        /* 窗口容器 */
-        .reader-window {
-            width: 90%;
-            max-width: 1200px;
-            height: 85vh;
-            background: #1a1a1a;
-            border-radius: 16px;
-            box-shadow: 0 20px 80px rgba(0,0,0,0.5);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            min-height: 500px;
-        }
-
-        /* 窗口头部 */
-        .window-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 20px;
-            background: #0d0d0d;
-            border-bottom: 1px solid #2a2a2a;
-            cursor: move;
-            user-select: none;
-        }
-
-        .window-title {
-            color: #fff;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .window-controls {
-            display: flex;
-            gap: 8px;
-        }
-
-        .window-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
-        }
-
-        .window-btn:hover {
-            opacity: 0.8;
-        }
-
-        .btn-minimize {
-            background: #ffc107;
-            color: #333;
-        }
-
-        .btn-fullscreen {
-            background: #28a745;
-            color: #fff;
-        }
-
-        .btn-close {
-            background: #dc3545;
-            color: #fff;
-        }
-
-        /* 主内容区域 */
-        .reader-main {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-        }
-
-        /* 左侧阅读区域 */
-        .reader-content-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        /* 阅读头部 */
-        .reader-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 30px;
-            background: #0d0d0d;
-            border-bottom: 1px solid #2a2a2a;
-        }
-
-        .reader-back {
-            width: 40px;
-            height: 40px;
-            background: #2a2a2a;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .reader-back:hover {
-            background: #3a3a3a;
-        }
-
-        .reader-header-center {
-            text-align: center;
-        }
-
-        .reader-book-title {
-            font-size: 16px;
-            color: #fff;
-            font-weight: 500;
-        }
-
-        .reader-chapter {
-            font-size: 13px;
-            color: #666;
-        }
-
-        .reader-header-right {
-            display: flex;
-            gap: 15px;
-        }
-
-        .reader-action {
-            width: 40px;
-            height: 40px;
-            background: #2a2a2a;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .reader-action:hover {
-            background: #3a3a3a;
-        }
-
-        /* 阅读内容 */
-        .reader-content-wrapper {
-            flex: 1;
-            overflow-y: auto;
-            padding: 40px 80px;
-        }
-
-        .reader-content {
-            max-width: 700px;
-            margin: 0 auto;
-            color: #ccc;
-            font-size: 17px;
-            line-height: 2.2;
-            text-align: justify;
-        }
-
-        .reader-content p {
-            margin-bottom: 30px;
-            text-indent: 2em;
-        }
-
-        .reader-content h2 {
-            font-size: 22px;
-            color: #fff;
-            margin: 50px 0 25px;
-            font-weight: 600;
-        }
-
-        /* 选中文字样式 */
-        ::selection {
-            background: rgba(102, 126, 234, 0.4);
-            color: #fff;
-        }
-
-        /* 阅读底部 */
-        .reader-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 30px;
-            background: #0d0d0d;
-            border-top: 1px solid #2a2a2a;
-        }
-
-        .reader-progress-bar {
-            flex: 1;
-            height: 4px;
-            background: #2a2a2a;
-            border-radius: 2px;
-            margin: 0 30px;
-            cursor: pointer;
-        }
-
-        .reader-progress {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            border-radius: 2px;
-            transition: width 0.3s;
-        }
-
-        .reader-page-info {
-            font-size: 13px;
-            color: #666;
-            min-width: 80px;
-            text-align: right;
-        }
-
-        /* 右侧面板 */
-        .reader-sidebar {
-            width: 320px;
-            background: #121212;
-            border-left: 1px solid #2a2a2a;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        /* 侧边栏标签 */
-        .sidebar-tabs {
-            display: flex;
-            background: #0d0d0d;
-            border-bottom: 1px solid #2a2a2a;
-        }
-
-        .sidebar-tab {
-            flex: 1;
-            padding: 14px;
-            text-align: center;
-            color: #666;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        .sidebar-tab.active {
-            color: #fff;
-        }
-
-        .sidebar-tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 20%;
-            right: 20%;
-            height: 2px;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            border-radius: 1px;
-        }
-
-        /* 侧边栏内容 */
-        .sidebar-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-        }
-
-        /* 笔记列表 */
-        .notes-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .note-item {
-            background: #1a1a1a;
-            border-radius: 10px;
-            padding: 15px;
-            border: 1px solid #2a2a2a;
-        }
-
-        .note-text {
-            font-size: 14px;
-            color: #ccc;
-            line-height: 1.6;
-            margin-bottom: 10px;
-        }
-
-        .note-highlight {
-            background: rgba(255, 215, 0, 0.2);
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            color: #ffd700;
-            margin-bottom: 10px;
-        }
-
-        .note-meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #666;
-        }
-
-        /* 评论列表 */
-        .comments-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .comment-item {
-            background: #1a1a1a;
-            border-radius: 10px;
-            padding: 15px;
-            border: 1px solid #2a2a2a;
-        }
-
-        .comment-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .comment-avatar {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 14px;
-        }
-
-        .comment-author {
-            font-size: 14px;
-            color: #fff;
-            font-weight: 500;
-        }
-
-        .comment-time {
-            font-size: 12px;
-            color: #666;
-        }
-
-        .comment-content {
-            font-size: 14px;
-            color: #ccc;
-            line-height: 1.6;
-            margin-bottom: 10px;
-        }
-
-        .comment-actions {
-            display: flex;
-            gap: 20px;
-            font-size: 13px;
-            color: #666;
-        }
-
-        .comment-action {
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-
-        .comment-action:hover {
-            color: #667eea;
-        }
-
-        /* 发表评论/笔记区域 */
-        .input-area {
-            padding: 15px;
-            background: #0d0d0d;
-            border-top: 1px solid #2a2a2a;
-        }
-
-        .input-wrapper {
-            display: flex;
-            gap: 10px;
-        }
-
-        .input-field {
-            flex: 1;
-            padding: 12px 15px;
-            background: #1a1a1a;
-            border: 1px solid #2a2a2a;
-            border-radius: 20px;
-            color: #fff;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        .input-field:focus {
-            border-color: #667eea;
-        }
-
-        .input-field::placeholder {
-            color: #666;
-        }
-
-        .submit-btn {
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 20px;
-            color: #fff;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .submit-btn:hover {
-            transform: scale(1.05);
-        }
-
-        /* 阅读工具菜单 */
-        .reader-tools {
-            position: fixed;
-            right: 30px;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            z-index: 100;
-        }
-
-        .tool-item {
-            width: 45px;
-            height: 45px;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .tool-item:hover {
-            background: rgba(255,255,255,0.2);
-            transform: scale(1.1);
-        }
-
-        /* 笔记弹窗 */
-        .note-modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #1a1a1a;
-            border-radius: 16px;
-            padding: 30px;
-            width: 450px;
-            max-width: 90%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            z-index: 200;
-        }
-
-        .note-modal.active {
-            display: block;
-        }
-
-        .note-modal-title {
-            font-size: 18px;
-            color: #fff;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-
-        .note-highlight-text {
-            background: rgba(255, 215, 0, 0.2);
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            color: #ffd700;
-            margin-bottom: 20px;
-        }
-
-        .note-textarea {
-            width: 100%;
-            min-height: 120px;
-            padding: 15px;
-            background: #0d0d0d;
-            border: 1px solid #2a2a2a;
-            border-radius: 10px;
-            color: #fff;
-            font-size: 14px;
-            resize: vertical;
-            outline: none;
-        }
-
-        .note-modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .btn-cancel {
-            padding: 10px 20px;
-            background: #2a2a2a;
-            border: none;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        .btn-save {
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        /* 日间模式 */
-        .day-mode .reader-window {
-            background: #fff;
-        }
-
-        .day-mode .window-header,
-        .day-mode .reader-header,
-        .day-mode .reader-footer {
-            background: #f8f9fa;
-            border-color: #e0e0e0;
-        }
-
-        .day-mode .window-title,
-        .day-mode .reader-book-title {
-            color: #333;
-        }
-
-        .day-mode .reader-chapter {
-            color: #999;
-        }
-
-        .day-mode .reader-back,
-        .day-mode .reader-action {
-            background: #e0e0e0;
-        }
-
-        .day-mode .reader-content {
-            color: #333;
-        }
-
-        .day-mode .reader-content h2 {
-            color: #667eea;
-        }
-
-        .day-mode .reader-sidebar {
-            background: #f8f9fa;
-            border-color: #e0e0e0;
-        }
-
-        .day-mode .note-item,
-        .day-mode .comment-item {
-            background: #fff;
-            border-color: #e0e0e0;
-        }
-
-        .day-mode .note-text,
-        .day-mode .comment-content {
-            color: #333;
-        }
-
-        .day-mode .input-field {
-            background: #fff;
-            border-color: #e0e0e0;
-            color: #333;
-        }
-
-        /* 响应式 */
-        @media (max-width: 900px) {
-            .reader-sidebar {
-                display: none;
-            }
-            .reader-content-wrapper {
-                padding: 20px;
-            }
-            .reader-tools {
-                right: 15px;
-            }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f5f5f5; min-height: 100vh; }
+        
+        .reader-container { max-width: 900px; margin: 0 auto; background: white; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+        
+        .reader-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: white; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .back-btn { width: 36px; height: 36px; background: #f5f5f5; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; border: none; }
+        .back-btn:hover { background: #eee; }
+        .book-title { font-size: 16px; font-weight: 600; color: #333; }
+        .chapter-info { font-size: 13px; color: #999; }
+        
+        .header-right { display: flex; gap: 8px; }
+        .header-btn { padding: 8px 16px; background: #f5f5f5; border: none; border-radius: 20px; font-size: 14px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+        .header-btn:hover { background: #eee; }
+        .header-btn.active { background: #667eea; color: white; }
+        
+        .reader-content { padding: 40px 24px; line-height: 2; font-size: 17px; color: #333; }
+        .reader-content h2 { font-size: 22px; margin: 40px 0 20px; color: #222; font-weight: 600; }
+        .reader-content p { margin-bottom: 24px; text-indent: 2em; text-align: justify; }
+        ::selection { background: #667eea; color: white; }
+        
+        .reader-footer { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: white; border-top: 1px solid #eee; position: sticky; bottom: 0; }
+        .nav-btn { padding: 10px 24px; background: #f5f5f5; border: none; border-radius: 20px; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+        .nav-btn:hover { background: #667eea; color: white; }
+        .progress-bar { flex: 1; height: 4px; background: #eee; border-radius: 2px; margin: 0 20px; cursor: pointer; }
+        .progress-fill { height: 100%; background: #667eea; border-radius: 2px; transition: width 0.3s; }
+        .page-info { font-size: 13px; color: #999; min-width: 60px; text-align: center; }
+        
+        .ai-panel { position: fixed; right: -400px; top: 0; width: 400px; height: 100vh; background: white; box-shadow: -5px 0 20px rgba(0,0,0,0.1); transition: right 0.3s; z-index: 200; display: flex; flex-direction: column; }
+        .ai-panel.open { right: 0; }
+        .ai-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #eee; }
+        .ai-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .ai-close { width: 32px; height: 32px; background: #f5f5f5; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; }
+        
+        .ai-content { flex: 1; overflow-y: auto; padding: 20px; }
+        .ai-features { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .ai-feature { padding: 16px; background: #f8f9fa; border-radius: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
+        .ai-feature:hover { border-color: #667eea; background: #f0f4ff; }
+        .ai-feature-icon { font-size: 24px; margin-bottom: 8px; }
+        .ai-feature-title { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 4px; }
+        .ai-feature-desc { font-size: 12px; color: #999; }
+        
+        .ai-chat { border-top: 1px solid #eee; padding-top: 20px; }
+        .ai-chat-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+        .ai-messages { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; max-height: 300px; overflow-y: auto; }
+        .ai-message { padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.6; }
+        .ai-message.user { background: #667eea; color: white; align-self: flex-end; max-width: 80%; }
+        .ai-message.ai { background: #f5f5f5; color: #333; align-self: flex-start; max-width: 80%; }
+        
+        .ai-input-area { display: flex; gap: 8px; padding: 16px 20px; border-top: 1px solid #eee; background: #fafafa; }
+        .ai-input { flex: 1; padding: 12px 16px; border: 1px solid #eee; border-radius: 24px; font-size: 14px; outline: none; }
+        .ai-input:focus { border-color: #667eea; }
+        .ai-send { padding: 12px 20px; background: #667eea; color: white; border: none; border-radius: 24px; cursor: pointer; font-size: 14px; }
+        .ai-send:hover { background: #5a6fd6; }
+        
+        .ai-result { background: #f0f4ff; border-radius: 12px; padding: 16px; margin-top: 16px; }
+        .ai-result-title { font-size: 14px; font-weight: 600; color: #667eea; margin-bottom: 8px; }
+        .ai-result-content { font-size: 14px; line-height: 1.8; color: #333; }
+        
+        .tool-bar { position: fixed; left: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 50; }
+        .tool-btn { width: 44px; height: 44px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: all 0.2s; border: none; font-size: 18px; }
+        .tool-btn:hover { transform: scale(1.1); box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+        
+        .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); z-index: 150; display: none; }
+        .overlay.show { display: block; }
+        
+        @media (max-width: 768px) {
+            .reader-container { max-width: 100%; }
+            .reader-content { padding: 24px 16px; }
+            .ai-panel { width: 100%; right: -100%; }
+            .tool-bar { left: 10px; }
         }
     </style>
 </head>
 <body>
-    <!-- 阅读窗口 -->
-    <div class="reader-window" id="readerWindow">
-        <!-- 窗口头部 -->
-        <div class="window-header" id="windowHeader">
-            <div class="window-title" id="windowTitle">📖 远山呼唤</div>
-            <div class="window-controls">
-                <div class="window-btn btn-minimize" onclick="minimizeWindow()" title="最小化">
-                    <span>−</span>
-                </div>
-                <div class="window-btn btn-fullscreen" onclick="toggleFullscreen()" title="全屏">
-                    <span>☐</span>
-                </div>
-                <div class="window-btn btn-close" onclick="closeWindow()" title="关闭">
-                    <span>×</span>
+    <div class="reader-container">
+        <header class="reader-header">
+            <div class="header-left">
+                <button class="back-btn" onclick="goBack()">←</button>
+                <div>
+                    <div class="book-title" id="bookTitle">远山呼唤</div>
+                    <div class="chapter-info" id="chapterInfo">第一章 暮色</div>
                 </div>
             </div>
-        </div>
-
-        <!-- 主内容区域 -->
-        <div class="reader-main">
-            <!-- 左侧阅读区域 -->
-            <div class="reader-content-area">
-                <!-- 阅读头部 -->
-                <div class="reader-header">
-                    <div class="reader-back" onclick="goBack()">
-                        <span style="color: #fff; font-size: 16px;">←</span>
-                    </div>
-                    <div class="reader-header-center">
-                        <div class="reader-book-title" id="bookTitle">远山呼唤</div>
-                        <div class="reader-chapter" id="currentChapter">第一章 暮色</div>
-                    </div>
-                    <div class="reader-header-right">
-                        <div class="reader-action" onclick="toggleFavorite()">
-                            <span style="color: #fff; font-size: 16px;">⭐</span>
-                        </div>
-                        <div class="reader-action" onclick="showShare()">
-                            <span style="color: #fff; font-size: 16px;">↗</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 阅读内容 -->
-                <div class="reader-content-wrapper" id="contentWrapper" onmouseup="handleTextSelection()">
-                    <div class="reader-content" id="readerContent">
-                        <h2>第一章：暮色</h2>
-                        <p>群山在暮色中起伏如兽脊，陈默站在村口的老槐树下，望着蜿蜒消失在群山深处的土路。夕阳把他的影子拉得很长，像一根孤独的木桩钉在苍茫的大地上。</p>
-                        <p>"该走了。"他轻声对自己说，声音被呼啸的山风卷走，消散在空旷的山谷中。背包已经收拾妥当，里面装着几件换洗衣物、一本翻旧的笔记本，还有母亲塞给他的几个煮鸡蛋。</p>
-                        
-                        <h2>第二章：启程</h2>
-                        <p>清晨的露珠还挂在草叶上，陈默已经踏上了通往山外的路。这条路他走了无数次，但这次不同，他不知道什么时候才能回来，甚至不知道还能不能回来。</p>
-                        <p>脚下的石板路被岁月打磨得光滑发亮，每一步都像是在与过去告别。他想起小时候在这里奔跑嬉戏，想起父亲背着他走过这段路去镇上赶集，想起母亲在这条路的尽头盼他回家。</p>
-                        
-                        <h2>第三章：城市</h2>
-                        <p>城市的霓虹在夜色中闪烁，像一片光怪陆离的海洋。陈默站在车站广场上，茫然地看着来来往往的人群，他们的脚步匆匆，脸上带着他看不懂的表情。</p>
-                        <p>"这就是外面的世界。"他喃喃自语。高耸的楼房直插云霄，汽车的鸣笛声此起彼伏，空气中弥漫着汽油和陌生人的气息。他握紧了背包带，感觉自己像一粒尘埃，随时可能被这巨大的城市吞噬。</p>
-                        
-                        <h2>第四章：挣扎</h2>
-                        <p>找工作远比想象中艰难。学历不高，没有技能，陈默只能做最底层的体力活。搬砖、洗碗、送外卖，他尝遍了生活的艰辛。但他从未想过放弃，笔记本上的字迹越来越多，记录着他的所见所闻，也记录着他的梦想。</p>
-                        <p>夜晚，他蜷缩在狭小的出租屋里，听着窗外的车水马龙，思念着远方的家乡。那座寂静的山村，那棵老槐树，还有母亲慈祥的笑容，成了他支撑下去的唯一力量。</p>
-                        
-                        <h2>第五章：回响</h2>
-                        <p>多年后，陈默再次踏上了回乡的路。只是这一次，他的背包里多了一本出版的书，书名叫《远山呼唤》。车轮滚滚向前，窗外的风景熟悉又陌生，仿佛时光从未流逝。</p>
-                        <p>当老槐树再次出现在视线中时，他的眼眶湿润了。母亲站在村口，白发在风中飘扬，像一面等待的旗帜。远处的群山依然沉默，但在他心中，却响起了最动人的回响。</p>
-                    </div>
-                </div>
-
-                <!-- 阅读底部 -->
-                <div class="reader-footer">
-                    <button class="reader-action" style="width: auto; padding: 0 20px; border-radius: 20px;" onclick="prevChapter()">
-                        <span style="color: #fff; font-size: 14px;">上一章</span>
-                    </button>
-                    <div class="reader-progress-bar" onclick="jumpToProgress(event)">
-                        <div class="reader-progress" id="readerProgress"></div>
-                    </div>
-                    <div class="reader-page-info" id="pageInfo">1 / 5</div>
-                    <button class="reader-action" style="width: auto; padding: 0 20px; border-radius: 20px;" onclick="nextChapter()">
-                        <span style="color: #fff; font-size: 14px;">下一章</span>
-                    </button>
-                </div>
+            <div class="header-right">
+                <button class="header-btn" onclick="toggleAIPanel()">
+                    <span>🤖</span> AI助手
+                </button>
+                <button class="header-btn" onclick="toggleSettings()">
+                    <span>⚙️</span> 设置
+                </button>
             </div>
-
-            <!-- 右侧面板 -->
-            <div class="reader-sidebar">
-                <div class="sidebar-tabs">
-                    <div class="sidebar-tab active" onclick="switchSidebar('notes')">📝 笔记</div>
-                    <div class="sidebar-tab" onclick="switchSidebar('comments')">💬 评论</div>
-                </div>
-                <div class="sidebar-content" id="sidebarContent">
-                    <!-- 笔记列表 -->
-                    <div id="notesPanel">
-                        <div class="notes-list" id="notesList">
-                            <div class="note-item">
-                                <div class="note-highlight">群山在暮色中起伏如兽脊，陈默站在村口的老槐树下</div>
-                                <div class="note-text">这段描写很有意境，暮色、群山、老槐树，构成了一幅生动的画面。</div>
-                                <div class="note-meta">
-                                    <span>第1章</span>
-                                    <span>2026-05-21</span>
-                                </div>
-                            </div>
-                            <div class="note-item">
-                                <div class="note-highlight">当老槐树再次出现在视线中时，他的眼眶湿润了</div>
-                                <div class="note-text">结尾很感人，呼应开头，完成了一个完整的故事闭环。</div>
-                                <div class="note-meta">
-                                    <span>第5章</span>
-                                    <span>2026-05-21</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- 评论列表 -->
-                    <div id="commentsPanel" style="display: none;">
-                        <div class="comments-list" id="commentsList">
-                            <div class="comment-item">
-                                <div class="comment-header">
-                                    <div class="comment-avatar">张</div>
-                                    <div>
-                                        <div class="comment-author">张三</div>
-                                        <div class="comment-time">2小时前</div>
-                                    </div>
-                                </div>
-                                <div class="comment-content">写得太棒了！画面感很强，仿佛身临其境。期待作者更多作品！</div>
-                                <div class="comment-actions">
-                                    <span class="comment-action">👍 有用</span>
-                                    <span class="comment-action">💬 回复</span>
-                                </div>
-                            </div>
-                            <div class="comment-item">
-                                <div class="comment-header">
-                                    <div class="comment-avatar">李</div>
-                                    <div>
-                                        <div class="comment-author">李四</div>
-                                        <div class="comment-time">5小时前</div>
-                                    </div>
-                                </div>
-                                <div class="comment-content">故乡情结总是最动人的主题，看哭了😭</div>
-                                <div class="comment-actions">
-                                    <span class="comment-action">👍 有用</span>
-                                    <span class="comment-action">💬 回复</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="input-area" id="inputArea">
-                    <div class="input-wrapper">
-                        <input type="text" class="input-field" id="commentInput" placeholder="写评论或笔记..." onkeypress="handleEnter(event)">
-                        <button class="submit-btn" id="submitBtn" onclick="submitComment()">发送</button>
-                    </div>
-                </div>
+        </header>
+        
+        <main class="reader-content" id="readerContent">
+            <h2>第一章：暮色</h2>
+            <p>群山在暮色中起伏如兽脊，陈默站在村口的老槐树下，望着蜿蜒消失在群山深处的土路。夕阳把他的影子拉得很长，像一根孤独的木桩钉在苍茫的大地上。</p>
+            <p>"该走了。"他轻声对自己说，声音被呼啸的山风卷走，消散在空旷的山谷中。背包已经收拾妥当，里面装着几件换洗衣物、一本翻旧的笔记本，还有母亲塞给他的几个煮鸡蛋。</p>
+            
+            <h2>第二章：启程</h2>
+            <p>清晨的露珠还挂在草叶上，陈默已经踏上了通往山外的路。这条路他走了无数次，但这次不同，他不知道什么时候才能回来，甚至不知道还能不能回来。</p>
+            <p>脚下的石板路被岁月打磨得光滑发亮，每一步都像是在与过去告别。他想起小时候在这里奔跑嬉戏，想起父亲背着他走过这段路去镇上赶集，想起母亲在这条路的尽头盼他回家。</p>
+            
+            <h2>第三章：城市</h2>
+            <p>城市的霓虹在夜色中闪烁，像一片光怪陆离的海洋。陈默站在车站广场上，茫然地看着来来往往的人群，他们的脚步匆匆，脸上带着他看不懂的表情。</p>
+            <p>"这就是外面的世界。"他喃喃自语。高耸的楼房直插云霄，汽车的鸣笛声此起彼伏，空气中弥漫着汽油和陌生人的气息。他握紧了背包带，感觉自己像一粒尘埃，随时可能被这巨大的城市吞噬。</p>
+            
+            <h2>第四章：挣扎</h2>
+            <p>找工作远比想象中艰难。学历不高，没有技能，陈默只能做最底层的体力活。搬砖、洗碗、送外卖，他尝遍了生活的艰辛。但他从未想过放弃，笔记本上的字迹越来越多，记录着他的所见所闻，也记录着他的梦想。</p>
+            <p>夜晚，他蜷缩在狭小的出租屋里，听着窗外的车水马龙，思念着远方的家乡。那座寂静的山村，那棵老槐树，还有母亲慈祥的笑容，成了他支撑下去的唯一力量。</p>
+            
+            <h2>第五章：回响</h2>
+            <p>多年后，陈默再次踏上了回乡的路。只是这一次，他的背包里多了一本出版的书，书名叫《远山呼唤》。车轮滚滚向前，窗外的风景熟悉又陌生，仿佛时光从未流逝。</p>
+            <p>当老槐树再次出现在视线中时，他的眼眶湿润了。母亲站在村口，白发在风中飘扬，像一面等待的旗帜。远处的群山依然沉默，但在他心中，却响起了最动人的回响。</p>
+        </main>
+        
+        <footer class="reader-footer">
+            <button class="nav-btn" onclick="prevChapter()">上一章</button>
+            <div class="progress-bar" onclick="jumpProgress(event)">
+                <div class="progress-fill" id="progressFill"></div>
             </div>
-        </div>
+            <div class="page-info" id="pageInfo">1 / 5</div>
+            <button class="nav-btn" onclick="nextChapter()">下一章</button>
+        </footer>
     </div>
-
-    <!-- 阅读工具菜单 -->
-    <div class="reader-tools">
-        <div class="tool-item" onclick="adjustFontSize(1)" title="增大字体">
-            <span style="color: #fff; font-size: 18px;">A+</span>
-        </div>
-        <div class="tool-item" onclick="adjustFontSize(-1)" title="减小字体">
-            <span style="color: #fff; font-size: 16px;">A-</span>
-        </div>
-        <div class="tool-item" onclick="toggleNightMode()" title="日间/夜间模式">
-            <span style="color: #fff; font-size: 18px;" id="modeIcon">🌙</span>
-        </div>
-        <div class="tool-item" onclick="showChapterList()" title="章节列表">
-            <span style="color: #fff; font-size: 18px;">☰</span>
-        </div>
+    
+    <div class="tool-bar">
+        <button class="tool-btn" onclick="adjustFont(1)" title="增大字体">A+</button>
+        <button class="tool-btn" onclick="adjustFont(-1)" title="减小字体">A-</button>
+        <button class="tool-btn" onclick="toggleTheme()" title="切换主题" id="themeBtn">🌙</button>
+        <button class="tool-btn" onclick="showChapters()" title="目录">☰</button>
     </div>
-
-    <!-- 笔记弹窗 -->
-    <div class="note-modal" id="noteModal">
-        <div class="note-modal-title">📝 添加笔记</div>
-        <div class="note-highlight-text" id="selectedText"></div>
-        <textarea class="note-textarea" id="noteTextarea" placeholder="写下你的想法..."></textarea>
-        <div class="note-modal-actions">
-            <button class="btn-cancel" onclick="closeNoteModal()">取消</button>
-            <button class="btn-save" onclick="saveNote()">保存笔记</button>
+    
+    <div class="overlay" id="overlay" onclick="closeAIPanel()"></div>
+    
+    <div class="ai-panel" id="aiPanel">
+        <div class="ai-header">
+            <div class="ai-title">
+                <span>🤖</span> AI阅读助手
+            </div>
+            <button class="ai-close" onclick="closeAIPanel()">×</button>
+        </div>
+        <div class="ai-content">
+            <div class="ai-features">
+                <div class="ai-feature" onclick="aiSummarize()">
+                    <div class="ai-feature-icon">📝</div>
+                    <div class="ai-feature-title">智能总结</div>
+                    <div class="ai-feature-desc">AI为你总结当前章节的核心内容</div>
+                </div>
+                <div class="ai-feature" onclick="aiExplain()">
+                    <div class="ai-feature-icon">💡</div>
+                    <div class="ai-feature-title">内容解读</div>
+                    <div class="ai-feature-desc">深度解析段落含义和写作手法</div>
+                </div>
+                <div class="ai-feature" onclick="aiRecommend()">
+                    <div class="ai-feature-icon">📚</div>
+                    <div class="ai-feature-title">相关推荐</div>
+                    <div class="ai-feature-desc">发现更多相似风格的优秀作品</div>
+                </div>
+                <div class="ai-feature" onclick="aiVocabulary()">
+                    <div class="ai-feature-icon">📖</div>
+                    <div class="ai-feature-title">词汇解析</div>
+                    <div class="ai-feature-desc">解释文中生僻词汇和成语典故</div>
+                </div>
+            </div>
+            
+            <div class="ai-chat">
+                <div class="ai-chat-title">💬 与AI对话</div>
+                <div class="ai-messages" id="aiMessages">
+                    <div class="ai-message ai">你好！我是AI阅读助手，可以帮你总结内容、解答疑问、推荐书籍。有什么我可以帮助你的吗？</div>
+                </div>
+                <div id="aiResultArea"></div>
+            </div>
+        </div>
+        <div class="ai-input-area">
+            <input type="text" class="ai-input" id="aiInput" placeholder="输入你的问题..." onkeypress="handleAIEnter(event)">
+            <button class="ai-send" onclick="sendAIMessage()">发送</button>
         </div>
     </div>
 
     <script>
-        // 阅读状态
         let currentChapter = 1;
         let totalChapters = 5;
-        let currentFontSize = 17;
-        let isNightMode = true;
-        let isFullscreen = false;
-        let selectedText = '';
-
-        const chapters = [
-            "第一章 暮色",
-            "第二章 启程",
-            "第三章 城市",
-            "第四章 挣扎",
-            "第五章 回响"
-        ];
-
-        // 窗口控制
-        function closeWindow() {
-            window.close();
+        let fontSize = 17;
+        let isDark = false;
+        const chapters = ['第一章 暮色', '第二章 启程', '第三章 城市', '第四章 挣扎', '第五章 回响'];
+        
+        function goBack() { window.history.back(); }
+        
+        function toggleAIPanel() {
+            document.getElementById('aiPanel').classList.add('open');
+            document.getElementById('overlay').classList.add('show');
         }
-
-        function minimizeWindow() {
-            if (window.chrome || window.opera) {
-                alert('最小化功能需要浏览器支持');
+        
+        function closeAIPanel() {
+            document.getElementById('aiPanel').classList.remove('open');
+            document.getElementById('overlay').classList.remove('show');
+        }
+        
+        function toggleSettings() {
+            alert('设置功能：\n• 字体大小调节\n• 阅读主题切换\n• 翻页模式设置\n• 阅读进度同步');
+        }
+        
+        function adjustFont(delta) {
+            fontSize = Math.max(14, Math.min(24, fontSize + delta));
+            document.getElementById('readerContent').style.fontSize = fontSize + 'px';
+        }
+        
+        function toggleTheme() {
+            isDark = !isDark;
+            const content = document.getElementById('readerContent');
+            const themeBtn = document.getElementById('themeBtn');
+            if (isDark) {
+                document.body.style.background = '#1a1a1a';
+                content.style.background = '#1a1a1a';
+                content.style.color = '#ccc';
+                themeBtn.textContent = '☀️';
             } else {
-                window.resizeTo(100, 100);
+                document.body.style.background = '#f5f5f5';
+                content.style.background = 'white';
+                content.style.color = '#333';
+                themeBtn.textContent = '🌙';
             }
         }
-
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-                isFullscreen = true;
-            } else {
-                document.exitFullscreen();
-                isFullscreen = false;
-            }
+        
+        function showChapters() {
+            alert('章节目录：\n\n' + chapters.map((c, i) => `${i+1}. ${c}`).join('\n'));
         }
-
-        // 阅读功能
-        function goBack() {
-            window.history.back();
-        }
-
-        function toggleFavorite() {
-            alert('❤️ 已加入我的书架');
-        }
-
-        function showShare() {
-            alert('分享链接已复制到剪贴板！');
-        }
-
-        function nextChapter() {
-            if (currentChapter < totalChapters) {
-                currentChapter++;
-                updateProgress();
-                scrollToTop();
-            }
-        }
-
+        
         function prevChapter() {
             if (currentChapter > 1) {
                 currentChapter--;
                 updateProgress();
-                scrollToTop();
             }
         }
-
+        
+        function nextChapter() {
+            if (currentChapter < totalChapters) {
+                currentChapter++;
+                updateProgress();
+            }
+        }
+        
         function updateProgress() {
             const progress = (currentChapter / totalChapters) * 100;
-            document.getElementById('readerProgress').style.width = progress + '%';
-            document.getElementById('pageInfo').textContent = currentChapter + ' / ' + totalChapters;
-            document.getElementById('currentChapter').textContent = chapters[currentChapter - 1];
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('pageInfo').textContent = `${currentChapter} / ${totalChapters}`;
+            document.getElementById('chapterInfo').textContent = chapters[currentChapter - 1];
         }
-
-        function scrollToTop() {
-            document.getElementById('contentWrapper').scrollTop = 0;
-        }
-
-        function jumpToProgress(event) {
-            const bar = event.currentTarget;
-            const rect = bar.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const percentage = x / rect.width;
-            currentChapter = Math.max(1, Math.min(totalChapters, Math.ceil(percentage * totalChapters)));
+        
+        function jumpProgress(e) {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            currentChapter = Math.max(1, Math.min(totalChapters, Math.ceil(percent * totalChapters)));
             updateProgress();
-            scrollToTop();
         }
-
-        function adjustFontSize(delta) {
-            const content = document.getElementById('readerContent');
-            currentFontSize = Math.max(14, Math.min(24, currentFontSize + delta));
-            content.style.fontSize = currentFontSize + 'px';
+        
+        function aiSummarize() {
+            const result = `<div class="ai-result">
+                <div class="ai-result-title">📝 章节总结</div>
+                <div class="ai-result-content">
+                    本章描绘了主人公陈默离乡的场景。暮色中的群山、老槐树、蜿蜒的土路构成了充满诗意的画面，暗示着主人公即将踏上一段未知的人生旅程。"该走了"这句简短的对白，既是行动的开始，也是对故乡的告别，充满了淡淡的忧伤与坚定。
+                </div>
+            </div>`;
+            document.getElementById('aiResultArea').innerHTML = result;
         }
-
-        function toggleNightMode() {
-            const body = document.body;
-            const icon = document.getElementById('modeIcon');
-            
-            if (isNightMode) {
-                body.classList.add('day-mode');
-                icon.textContent = '☀️';
-            } else {
-                body.classList.remove('day-mode');
-                icon.textContent = '🌙';
-            }
-            isNightMode = !isNightMode;
+        
+        function aiExplain() {
+            const result = `<div class="ai-result">
+                <div class="ai-result-title">💡 写作手法解析</div>
+                <div class="ai-result-content">
+                    <strong>比喻：</strong>"群山在暮色中起伏如兽脊" - 生动形象地描绘了山峦的形态。<br><br>
+                    <strong>象征：</strong>"老槐树"象征着故乡和根，是主人公情感的寄托。<br><br>
+                    <strong>对比：</strong>夕阳的温暖与主人公内心的孤独形成对比，增强了情感张力。
+                </div>
+            </div>`;
+            document.getElementById('aiResultArea').innerHTML = result;
         }
-
-        function showChapterList() {
-            let chapterList = chapters.map((ch, i) => (i + 1) + '. ' + ch).join('\n');
-            alert('章节列表:\n\n' + chapterList);
+        
+        function aiRecommend() {
+            const result = `<div class="ai-result">
+                <div class="ai-result-title">📚 相似作品推荐</div>
+                <div class="ai-result-content">
+                    • 《平凡的世界》路遥 - 同样讲述农村青年奋斗的故事<br>
+                    • 《活着》余华 - 深刻的人生感悟与命运思考<br>
+                    • 《边城》沈从文 - 优美的乡土文学经典<br>
+                    • 《人生》路遥 - 城乡变迁中的人生抉择
+                </div>
+            </div>`;
+            document.getElementById('aiResultArea').innerHTML = result;
         }
-
-        // 侧边栏切换
-        function switchSidebar(tab) {
-            document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            document.getElementById('notesPanel').style.display = tab === 'notes' ? 'block' : 'none';
-            document.getElementById('commentsPanel').style.display = tab === 'comments' ? 'block' : 'none';
-            
-            const input = document.getElementById('commentInput');
-            const btn = document.getElementById('submitBtn');
-            
-            if (tab === 'notes') {
-                input.placeholder = '添加笔记...';
-                btn.textContent = '添加';
-            } else {
-                input.placeholder = '写评论...';
-                btn.textContent = '发送';
-            }
+        
+        function aiVocabulary() {
+            const result = `<div class="ai-result">
+                <div class="ai-result-title">📖 词汇解析</div>
+                <div class="ai-result-content">
+                    <strong>暮色：</strong>傍晚时的天色，常用于营造忧伤、怀旧的氛围。<br><br>
+                    <strong>苍茫：</strong>辽阔无边、迷茫不清的样子，形容暮色中的大地。<br><br>
+                    <strong>光怪陆离：</strong>形容色彩斑斓、形态奇异，多用于描写繁华都市。
+                </div>
+            </div>`;
+            document.getElementById('aiResultArea').innerHTML = result;
         }
-
-        // 评论功能
-        function submitComment() {
-            const input = document.getElementById('commentInput');
-            const content = input.value.trim();
+        
+        function sendAIMessage() {
+            const input = document.getElementById('aiInput');
+            const message = input.value.trim();
+            if (!message) return;
             
-            if (!content) {
-                alert('请输入内容');
-                return;
-            }
-
-            const isNotes = document.querySelector('.sidebar-tab.active').textContent.includes('笔记');
+            const messagesDiv = document.getElementById('aiMessages');
+            messagesDiv.innerHTML += `<div class="ai-message user">${message}</div>`;
             
-            if (isNotes) {
-                addNote(content);
-            } else {
-                addComment(content);
-            }
+            setTimeout(() => {
+                let response = '我理解你的问题。作为AI阅读助手，我可以帮你：\n• 总结章节内容\n• 解析写作手法\n• 推荐相关书籍\n• 解释词汇含义\n\n请点击上方的功能按钮，或继续提问！';
+                
+                if (message.includes('总结') || message.includes('概括')) {
+                    response = '本章主要描写主人公陈默在暮色中离开故乡的场景，通过细腻的环境描写和内心独白，展现了对故乡的眷恋和对未来的迷茫与期待。';
+                } else if (message.includes('主题') || message.includes('中心')) {
+                    response = '本文的主题是"离乡与归乡"，通过主人公陈默的经历，探讨了城市化进程中农村青年的命运、梦想与乡愁，以及个人成长与故乡情感的复杂关系。';
+                } else if (message.includes('人物')) {
+                    response = '主人公陈默是一个有梦想、有毅力的农村青年。他虽然学历不高，但通过不懈努力最终实现了作家梦。他的形象代表了无数奋斗在城市的农村青年。';
+                }
+                
+                messagesDiv.innerHTML += `<div class="ai-message ai">${response}</div>`;
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }, 500);
             
             input.value = '';
         }
-
-        function addComment(content) {
-            const commentsList = document.getElementById('commentsList');
-            const newComment = `
-                <div class="comment-item">
-                    <div class="comment-header">
-                        <div class="comment-avatar">${currentUser?.username?.charAt(0) || '用'}</div>
-                        <div>
-                            <div class="comment-author">${currentUser?.username || '用户'}</div>
-                            <div class="comment-time">刚刚</div>
-                        </div>
-                    </div>
-                    <div class="comment-content">${content}</div>
-                    <div class="comment-actions">
-                        <span class="comment-action">👍 有用</span>
-                        <span class="comment-action">💬 回复</span>
-                    </div>
-                </div>
-            `;
-            commentsList.innerHTML = newComment + commentsList.innerHTML;
-            alert('✅ 评论发布成功');
+        
+        function handleAIEnter(e) {
+            if (e.key === 'Enter') sendAIMessage();
         }
-
-        // 笔记功能
-        function handleTextSelection() {
-            const selection = window.getSelection();
-            selectedText = selection.toString().trim();
-            
-            if (selectedText.length > 0 && selectedText.length < 500) {
-                setTimeout(() => {
-                    if (selectedText) {
-                        document.getElementById('selectedText').textContent = selectedText;
-                        document.getElementById('noteModal').classList.add('active');
-                    }
-                }, 300);
-            }
-        }
-
-        function closeNoteModal() {
-            document.getElementById('noteModal').classList.remove('active');
-            selectedText = '';
-            document.getElementById('noteTextarea').value = '';
-            window.getSelection().removeAllRanges();
-        }
-
-        function saveNote() {
-            const noteContent = document.getElementById('noteTextarea').value.trim();
-            
-            if (!noteContent) {
-                alert('请输入笔记内容');
-                return;
-            }
-
-            const notesList = document.getElementById('notesList');
-            const newNote = `
-                <div class="note-item">
-                    <div class="note-highlight">${selectedText}</div>
-                    <div class="note-text">${noteContent}</div>
-                    <div class="note-meta">
-                        <span>第${currentChapter}章</span>
-                        <span>${new Date().toISOString().split('T')[0]}</span>
-                    </div>
-                </div>
-            `;
-            notesList.innerHTML = newNote + notesList.innerHTML;
-            
-            closeNoteModal();
-            alert('✅ 笔记保存成功');
-        }
-
-        function addNote(content) {
-            const notesList = document.getElementById('notesList');
-            const newNote = `
-                <div class="note-item">
-                    <div class="note-text">${content}</div>
-                    <div class="note-meta">
-                        <span>第${currentChapter}章</span>
-                        <span>${new Date().toISOString().split('T')[0]}</span>
-                    </div>
-                </div>
-            `;
-            notesList.innerHTML = newNote + notesList.innerHTML;
-            alert('✅ 笔记添加成功');
-        }
-
-        function handleEnter(event) {
-            if (event.key === 'Enter') {
-                submitComment();
-            }
-        }
-
-        // 模拟当前用户
-        const currentUser = { username: '读者' };
-
-        // 初始化
+        
         updateProgress();
     </script>
 </body>
