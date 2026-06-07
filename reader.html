@@ -72,6 +72,73 @@
         .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); z-index: 150; display: none; }
         .overlay.show { display: block; }
         
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 300; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 16px; padding: 25px; width: 90%; max-width: 450px; max-height: 80vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { font-size: 18px; font-weight: 600; color: #333; }
+        .modal-close { width: 32px; height: 32px; background: #f5f5f5; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; font-size: 18px; }
+        
+        .bookmarks-list { max-height: 300px; overflow-y: auto; }
+        .bookmark-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee; }
+        .bookmark-info h4 { font-size: 14px; color: #333; margin-bottom: 4px; }
+        .bookmark-info p { font-size: 12px; color: #999; }
+        .bookmark-actions { display: flex; gap: 8px; }
+        
+        .annotation-input { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 10px; font-size: 14px; resize: vertical; min-height: 80px; }
+        
+        .theme-options { display: flex; gap: 15px; flex-wrap: wrap; }
+        .theme-option { flex: 1; min-width: 100px; padding: 20px; border: 2px solid #eee; border-radius: 12px; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .theme-option:hover { border-color: #667eea; }
+        .theme-option.active { border-color: #667eea; }
+        .theme-preview { width: 100%; height: 80px; border-radius: 8px; margin-bottom: 10px; }
+        .theme-name { font-size: 14px; font-weight: 500; color: #333; }
+        
+        .word-definition { position: fixed; background: white; border-radius: 12px; padding: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); z-index: 400; max-width: 300px; }
+        .word-title { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 8px; }
+        .word-phonetic { font-size: 13px; color: #999; margin-bottom: 10px; }
+        .word-meaning { font-size: 14px; line-height: 1.6; color: #666; }
+        
+        .continue-reading { position: fixed; bottom: 80px; right: 20px; background: #667eea; color: white; padding: 12px 20px; border-radius: 24px; cursor: pointer; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); display: none; }
+        .continue-reading.show { display: flex; align-items: center; gap: 8px; }
+        
+        .text-selection-menu { position: absolute; background: white; border-radius: 8px; padding: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); z-index: 500; display: none; }
+        .selection-btn { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: none; background: none; cursor: pointer; font-size: 14px; color: #333; border-radius: 6px; }
+        .selection-btn:hover { background: #f5f5f5; }
+        
+        .reader-container.night-mode,
+        .reader-container.night-mode .reader-content { background: #1a1a1a; }
+        .reader-container.night-mode .reader-header,
+        .reader-container.night-mode .reader-footer { background: #222; border-color: #333; }
+        .reader-container.night-mode .reader-content { color: #ccc; }
+        .reader-container.night-mode .reader-content h2 { color: #eee; }
+        .reader-container.night-mode .book-title,
+        .reader-container.night-mode .nav-btn { color: #ccc; }
+        .reader-container.night-mode .chapter-info,
+        .reader-container.night-mode .page-info { color: #666; }
+        .reader-container.night-mode .header-btn,
+        .reader-container.night-mode .tool-btn { background: #333; }
+        .reader-container.night-mode .nav-btn { background: #333; }
+        .reader-container.night-mode .progress-bar { background: #333; }
+        
+        .reader-container.yellow-mode,
+        .reader-container.yellow-mode .reader-content { background: #fdf6e3; }
+        .reader-container.yellow-mode .reader-header,
+        .reader-container.yellow-mode .reader-footer { background: #faf0e1; border-color: #e8dcc8; }
+        .reader-container.yellow-mode .reader-content { color: #3d3d3d; }
+        .reader-container.yellow-mode .reader-content h2 { color: #2d2d2d; }
+        
+        .reader-container.gray-mode,
+        .reader-container.gray-mode .reader-content { background: #3d3d3d; }
+        .reader-container.gray-mode .reader-header,
+        .reader-container.gray-mode .reader-footer { background: #4a4a4a; border-color: #555; }
+        .reader-container.gray-mode .reader-content { color: #e0e0e0; }
+        .reader-container.gray-mode .reader-content h2 { color: #f0f0f0; }
+        .reader-container.gray-mode .book-title,
+        .reader-container.gray-mode .nav-btn { color: #e0e0e0; }
+        .reader-container.gray-mode .chapter-info,
+        .reader-container.gray-mode .page-info { color: #888; }
+        
         @media (max-width: 768px) {
             .reader-container { max-width: 100%; }
             .reader-content { padding: 24px 16px; }
@@ -81,7 +148,7 @@
     </style>
 </head>
 <body>
-    <div class="reader-container">
+    <div class="reader-container" id="readerContainer">
         <header class="reader-header">
             <div class="header-left">
                 <button class="back-btn" onclick="goBack()">←</button>
@@ -100,7 +167,7 @@
             </div>
         </header>
         
-        <main class="reader-content" id="readerContent">
+        <main class="reader-content" id="readerContent" onmouseup="handleSelection()">
             <h2>第一章：暮色</h2>
             <p>群山在暮色中起伏如兽脊，陈默站在村口的老槐树下，望着蜿蜒消失在群山深处的土路。夕阳把他的影子拉得很长，像一根孤独的木桩钉在苍茫的大地上。</p>
             <p>"该走了。"他轻声对自己说，声音被呼啸的山风卷走，消散在空旷的山谷中。背包已经收拾妥当，里面装着几件换洗衣物、一本翻旧的笔记本，还有母亲塞给他的几个煮鸡蛋。</p>
@@ -135,7 +202,9 @@
     <div class="tool-bar">
         <button class="tool-btn" onclick="adjustFont(1)" title="增大字体">A+</button>
         <button class="tool-btn" onclick="adjustFont(-1)" title="减小字体">A-</button>
-        <button class="tool-btn" onclick="toggleTheme()" title="切换主题" id="themeBtn">🌙</button>
+        <button class="tool-btn" onclick="toggleThemeModal()" title="主题" id="themeBtn">🌙</button>
+        <button class="tool-btn" onclick="showBookmarks()" title="书签">📑</button>
+        <button class="tool-btn" onclick="showHighlights()" title="批注">✏️</button>
         <button class="tool-btn" onclick="showChapters()" title="目录">☰</button>
     </div>
     
@@ -185,13 +254,80 @@
             <button class="ai-send" onclick="sendAIMessage()">发送</button>
         </div>
     </div>
-
+    
+    <div class="modal" id="themeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">选择主题</h3>
+                <button class="modal-close" onclick="closeThemeModal()">×</button>
+            </div>
+            <div class="theme-options">
+                <div class="theme-option" onclick="setTheme('default')">
+                    <div class="theme-preview" style="background: white;"></div>
+                    <div class="theme-name">默认白</div>
+                </div>
+                <div class="theme-option" onclick="setTheme('yellow')">
+                    <div class="theme-preview" style="background: #fdf6e3;"></div>
+                    <div class="theme-name">护眼黄</div>
+                </div>
+                <div class="theme-option" onclick="setTheme('gray')">
+                    <div class="theme-preview" style="background: #3d3d3d;"></div>
+                    <div class="theme-name">浅灰</div>
+                </div>
+                <div class="theme-option" onclick="setTheme('night')">
+                    <div class="theme-preview" style="background: #1a1a1a;"></div>
+                    <div class="theme-name">深黑</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="bookmarkModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">我的书签</h3>
+                <button class="modal-close" onclick="closeBookmarkModal()">×</button>
+            </div>
+            <div class="bookmarks-list" id="bookmarksList">
+                <div style="text-align: center; padding: 40px; color: #999;">暂无书签</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="highlightModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">我的批注</h3>
+                <button class="modal-close" onclick="closeHighlightModal()">×</button>
+            </div>
+            <div style="text-align: center; padding: 40px; color: #999;">暂无批注</div>
+        </div>
+    </div>
+    
+    <div class="word-definition" id="wordDefinition" style="display: none;">
+        <div class="word-title" id="wordTitle"></div>
+        <div class="word-phonetic" id="wordPhonetic"></div>
+        <div class="word-meaning" id="wordMeaning"></div>
+    </div>
+    
+    <div class="continue-reading" id="continueBtn" onclick="continueReading()">
+        <span>📖</span> 继续阅读
+    </div>
+    
+    <div class="text-selection-menu" id="selectionMenu">
+        <button class="selection-btn" onclick="copyText()">📋 复制</button>
+        <button class="selection-btn" onclick="addBookmark()">📑 添加书签</button>
+        <button class="selection-btn" onclick="addHighlight()">✏️ 添加批注</button>
+        <button class="selection-btn" onclick="defineWord()">🔍 生词释义</button>
+    </div>
+    
     <script>
         let currentChapter = 1;
         let totalChapters = 5;
         let fontSize = 17;
-        let isDark = false;
+        let currentTheme = 'default';
         const chapters = ['第一章 暮色', '第二章 启程', '第三章 城市', '第四章 挣扎', '第五章 回响'];
+        let bookmarks = [];
         
         function goBack() { window.history.back(); }
         
@@ -206,29 +342,37 @@
         }
         
         function toggleSettings() {
-            alert('设置功能：\n• 字体大小调节\n• 阅读主题切换\n• 翻页模式设置\n• 阅读进度同步');
+            toggleThemeModal();
+        }
+        
+        function toggleThemeModal() {
+            document.getElementById('themeModal').classList.add('active');
+        }
+        
+        function closeThemeModal() {
+            document.getElementById('themeModal').classList.remove('active');
+        }
+        
+        function setTheme(theme) {
+            document.getElementById('readerContainer').className = `reader-container ${theme}-mode`;
+            currentTheme = theme;
+            const themeBtn = document.getElementById('themeBtn');
+            themeBtn.textContent = theme === 'night' ? '☀️' : theme === 'yellow' ? '🌼' : theme === 'gray' ? '🌑' : '🌙';
+            localStorage.setItem('readerTheme', theme);
+            closeThemeModal();
         }
         
         function adjustFont(delta) {
             fontSize = Math.max(14, Math.min(24, fontSize + delta));
             document.getElementById('readerContent').style.fontSize = fontSize + 'px';
+            localStorage.setItem('readerFontSize', fontSize);
         }
         
         function toggleTheme() {
-            isDark = !isDark;
-            const content = document.getElementById('readerContent');
-            const themeBtn = document.getElementById('themeBtn');
-            if (isDark) {
-                document.body.style.background = '#1a1a1a';
-                content.style.background = '#1a1a1a';
-                content.style.color = '#ccc';
-                themeBtn.textContent = '☀️';
-            } else {
-                document.body.style.background = '#f5f5f5';
-                content.style.background = 'white';
-                content.style.color = '#333';
-                themeBtn.textContent = '🌙';
-            }
+            const themes = ['default', 'yellow', 'gray', 'night'];
+            const currentIndex = themes.indexOf(currentTheme);
+            const nextIndex = (currentIndex + 1) % themes.length;
+            setTheme(themes[nextIndex]);
         }
         
         function showChapters() {
@@ -254,6 +398,7 @@
             document.getElementById('progressFill').style.width = progress + '%';
             document.getElementById('pageInfo').textContent = `${currentChapter} / ${totalChapters}`;
             document.getElementById('chapterInfo').textContent = chapters[currentChapter - 1];
+            localStorage.setItem('readingProgress', JSON.stringify({ chapter: currentChapter, progress }));
         }
         
         function jumpProgress(e) {
@@ -340,7 +485,172 @@
             if (e.key === 'Enter') sendAIMessage();
         }
         
-        updateProgress();
+        function showBookmarks() {
+            document.getElementById('bookmarkModal').classList.add('active');
+            const bookmarksList = document.getElementById('bookmarksList');
+            if (bookmarks.length === 0) {
+                bookmarksList.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">暂无书签</div>';
+            } else {
+                bookmarksList.innerHTML = bookmarks.map((b, i) => `
+                    <div class="bookmark-item">
+                        <div class="bookmark-info">
+                            <h4>${b.chapter}</h4>
+                            <p>${b.note || '点击跳转'}</p>
+                        </div>
+                        <div class="bookmark-actions">
+                            <button class="btn-edit" style="padding: 6px 12px;">跳转</button>
+                            <button class="btn-danger" style="padding: 6px 12px;" onclick="removeBookmark(${i})">删除</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        function closeBookmarkModal() {
+            document.getElementById('bookmarkModal').classList.remove('active');
+        }
+        
+        function addBookmark() {
+            const selection = window.getSelection();
+            if (selection && selection.toString().trim()) {
+                const bookmark = {
+                    chapter: chapters[currentChapter - 1],
+                    position: selection.anchorOffset,
+                    note: prompt('添加批注：'),
+                    text: selection.toString().trim().substring(0, 50)
+                };
+                bookmarks.push(bookmark);
+                localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+                alert('书签添加成功！');
+            }
+            hideSelectionMenu();
+        }
+        
+        function removeBookmark(index) {
+            bookmarks.splice(index, 1);
+            localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+            showBookmarks();
+        }
+        
+        function showHighlights() {
+            document.getElementById('highlightModal').classList.add('active');
+        }
+        
+        function closeHighlightModal() {
+            document.getElementById('highlightModal').classList.remove('active');
+        }
+        
+        function addHighlight() {
+            const selection = window.getSelection();
+            if (selection && selection.toString().trim()) {
+                const note = prompt('添加批注：');
+                if (note) {
+                    alert('批注添加成功！');
+                }
+            }
+            hideSelectionMenu();
+        }
+        
+        function defineWord() {
+            const selection = window.getSelection();
+            if (selection && selection.toString().trim()) {
+                const word = selection.toString().trim();
+                const definitions = {
+                    '暮色': { phonetic: '/mù sè/', meaning: '傍晚时分的天色，通常呈现出柔和的橙红色调，常用于营造温馨或忧伤的氛围。' },
+                    '苍茫': { phonetic: '/cāng máng/', meaning: '形容辽阔无边、视野模糊不清的样子，常用于描写大地、海洋或天空。' },
+                    '光怪陆离': { phonetic: '/guāng guài lù lí/', meaning: '形容色彩斑斓、形态奇异，多用于描写繁华都市或奇幻景象。' },
+                    '蜿蜒': { phonetic: '/wān yán/', meaning: '形容道路、河流等弯曲延伸的样子。' },
+                    '眷恋': { phonetic: '/juàn liàn/', meaning: '深切地留恋、依恋，常用于表达对故乡、亲人或美好事物的感情。' }
+                };
+                const def = definitions[word] || { phonetic: '', meaning: '暂无释义，正在搜索中...' };
+                showWordDefinition(word, def.phonetic, def.meaning);
+            }
+            hideSelectionMenu();
+        }
+        
+        function showWordDefinition(word, phonetic, meaning) {
+            const defDiv = document.getElementById('wordDefinition');
+            document.getElementById('wordTitle').textContent = word;
+            document.getElementById('wordPhonetic').textContent = phonetic;
+            document.getElementById('wordMeaning').textContent = meaning;
+            defDiv.style.display = 'block';
+            defDiv.style.left = '50%';
+            defDiv.style.top = '50%';
+            setTimeout(() => defDiv.style.display = 'none', 5000);
+        }
+        
+        function copyText() {
+            const selection = window.getSelection();
+            if (selection && selection.toString().trim()) {
+                navigator.clipboard.writeText(selection.toString());
+                alert('已复制到剪贴板');
+            }
+            hideSelectionMenu();
+        }
+        
+        function handleSelection() {
+            const selection = window.getSelection();
+            if (selection && selection.toString().trim()) {
+                const range = selection.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+                const menu = document.getElementById('selectionMenu');
+                menu.style.display = 'block';
+                menu.style.left = rect.left + 'px';
+                menu.style.top = rect.bottom + 10 + 'px';
+            } else {
+                hideSelectionMenu();
+            }
+        }
+        
+        function hideSelectionMenu() {
+            document.getElementById('selectionMenu').style.display = 'none';
+        }
+        
+        function continueReading() {
+            const saved = localStorage.getItem('readingProgress');
+            if (saved) {
+                const progress = JSON.parse(saved);
+                currentChapter = progress.chapter;
+                updateProgress();
+            }
+            document.getElementById('continueBtn').classList.remove('show');
+        }
+        
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.text-selection-menu')) {
+                hideSelectionMenu();
+            }
+        });
+        
+        window.addEventListener('load', () => {
+            const savedTheme = localStorage.getItem('readerTheme');
+            if (savedTheme) {
+                setTheme(savedTheme);
+            }
+            
+            const savedFontSize = localStorage.getItem('readerFontSize');
+            if (savedFontSize) {
+                fontSize = parseInt(savedFontSize);
+                document.getElementById('readerContent').style.fontSize = fontSize + 'px';
+            }
+            
+            const savedBookmarks = localStorage.getItem('bookmarks');
+            if (savedBookmarks) {
+                bookmarks = JSON.parse(savedBookmarks);
+            }
+            
+            const savedProgress = localStorage.getItem('readingProgress');
+            if (savedProgress) {
+                const progress = JSON.parse(savedProgress);
+                if (progress.chapter > 1) {
+                    setTimeout(() => {
+                        document.getElementById('continueBtn').classList.add('show');
+                    }, 1000);
+                }
+            }
+            
+            updateProgress();
+        });
     </script>
 </body>
 </html>

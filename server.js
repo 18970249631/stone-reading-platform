@@ -12,13 +12,15 @@ app.use(express.static(path.join(__dirname)));
 
 const db = new Database('shuyic.db');
 
+const codeStore = {};
+
 function initDatabase() {
     db.exec(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL,
-            phone TEXT,
-            email TEXT,
+            phone TEXT UNIQUE,
+            email TEXT UNIQUE,
             password TEXT DEFAULT '',
             role TEXT DEFAULT '普通用户',
             status TEXT DEFAULT '正常',
@@ -118,6 +120,47 @@ function initDatabase() {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id)
         );
+
+        CREATE TABLE IF NOT EXISTS cart (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            book_id INTEGER,
+            quantity INTEGER DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (book_id) REFERENCES books(id)
+        );
+
+        CREATE TABLE IF NOT EXISTS favorites (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            book_id INTEGER,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (book_id) REFERENCES books(id)
+        );
+
+        CREATE TABLE IF NOT EXISTS reading_progress (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            book_id INTEGER,
+            progress REAL DEFAULT 0,
+            last_read DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (book_id) REFERENCES books(id)
+        );
+
+        CREATE TABLE IF NOT EXISTS bookmarks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            book_id INTEGER,
+            chapter TEXT,
+            position INTEGER,
+            note TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (book_id) REFERENCES books(id)
+        );
     `);
 
     const adminExists = db.prepare('SELECT COUNT(*) as count FROM admin').get();
@@ -187,6 +230,255 @@ app.post('/api/admin/login', (req, res) => {
     } else {
         res.json({ success: false, message: '用户名或密码错误' });
     }
+});
+
+app.post('/api/user/code/send', (req, res) => {
+    const { phone } = req.body;
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    codeStore[phone] = { code, expire: Date.now() + 180000 };
+    console.log(`验证码发送成功: ${phone} -> ${code}`);
+    res.json({ success: true, message: '验证码已发送' });
+});
+
+app.post('/api/user/login', (req, res) => {
+    const { account, password } = req.body;
+    let user = db.prepare('SELECT * FROM users WHERE phone = ? AND password = ?').get(account, password);
+    if (!user) {
+        user = db.prepare('SELECT * FROM users WHERE email = ? AND password = ?').get(account, password);
+    }
+    if (!user) {
+        user = db.prepare('SELECT * FROM users WHERE username = ? AND password = ?').get(account, password);
+    }
+    if (user && user.status === '正常') {
+        res.json({ success: true, user: { id: user.id, username: user.username, phone: user.phone, role: user.role } });
+    } else {
+        res.json({ success: false, message: '账号或密码错误' });
+    }
+});
+
+app.post('/api/user/login/code', (req, res) => {
+    const { phone, code } = req.body;
+    const stored = codeStore[phone];
+    if (stored && stored.code === code && Date.now() < stored.expire) {
+        let user = db.prepare('SELECT * FROM users WHERE phone = ?').get(phone);
+        if (!user) {
+            const result = db.prepare('INSERT INTO users (username, phone, role) VALUES (?, ?, "普通用户")').run('用户_' + phone.slice(-4), phone);
+            user = { id: result.lastInsertRowid, username: '用户_' + phone.slice(-4), phone, role: '普通用户' };
+        }
+        res.json({ success: true, user: { id: user.id, username: user.username, phone: user.phone, role: user.role } });
+    } else {
+        res.json({ success: false, message: '验证码错误或已过期' });
+    }
+});
+
+app.post('/api/user/register', (req, res) => {
+    const { phone, code, password } = req.body;
+    const stored = codeStore[phone];
+    if (!stored || stored.code !== code || Date.now() >= stored.expire) {
+        res.json({ success: false, message: '验证码错误或已过期' });
+        return;
+    }
+    const exists = db.prepare('SELECT * FROM users WHERE phone = ?').get(phone);
+    if (exists) {
+        res.json({ success: false, message: '该手机号已注册' });
+        return;
+    }
+    const result = db.prepare('INSERT INTO users (username, phone, password, role) VALUES (?, ?, ?, "普通用户")').run('用户_' + phone.slice(-4), phone, password);
+    res.json({ success: true, id: result.lastInsertRowid });
+});
+
+app.post('/api/user/password/reset', (req, res) => {
+    const { phone, code, password } = req.body;
+    const stored = codeStore[phone];
+    if (!stored || stored.code !== code || Date.now() >= stored.expire) {
+        res.json({ success: false, message: '验证码错误或已过期' });
+        return;
+    }
+    db.prepare('UPDATE users SET password = ? WHERE phone = ?').run(password, phone);
+    res.json({ success: true });
+});
+
+app.put('/api/user/bind/phone', (req, res) => {
+    const { id, phone, code } = req.body;
+    const stored = codeStore[phone];
+    if (!stored || stored.code !== code || Date.now() >= stored.expire) {
+        res.json({ success: false, message: '验证码错误或已过期' });
+        return;
+    }
+    db.prepare('UPDATE users SET phone = ? WHERE id = ?').run(phone, id);
+    res.json({ success: true });
+});
+
+app.delete('/api/user/logout', (req, res) => {
+    res.json({ success: true });
+});
+
+app.get('/api/user/info/:id', (req, res) => {
+    const { id } = req.params;
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+    if (user) {
+        const vip = db.prepare('SELECT * FROM vip_members WHERE user_id = ?').get(id);
+        res.json({ ...user, vip });
+    } else {
+        res.json(null);
+    }
+});
+
+app.get('/api/cart/:userId', (req, res) => {
+    const { userId } = req.params;
+    const cart = db.prepare(`
+        SELECT c.*, b.title, b.author, b.price, b.cover_url 
+        FROM cart c 
+        LEFT JOIN books b ON c.book_id = b.id 
+        WHERE c.user_id = ?
+    `).all(userId);
+    res.json(cart);
+});
+
+app.post('/api/cart/add', (req, res) => {
+    const { userId, bookId, quantity } = req.body;
+    const exists = db.prepare('SELECT * FROM cart WHERE user_id = ? AND book_id = ?').get(userId, bookId);
+    if (exists) {
+        db.prepare('UPDATE cart SET quantity = quantity + ? WHERE id = ?').run(quantity || 1, exists.id);
+    } else {
+        db.prepare('INSERT INTO cart (user_id, book_id, quantity) VALUES (?, ?, ?)').run(userId, bookId, quantity || 1);
+    }
+    res.json({ success: true });
+});
+
+app.put('/api/cart/update', (req, res) => {
+    const { id, quantity } = req.body;
+    if (quantity <= 0) {
+        db.prepare('DELETE FROM cart WHERE id = ?').run(id);
+    } else {
+        db.prepare('UPDATE cart SET quantity = ? WHERE id = ?').run(quantity, id);
+    }
+    res.json({ success: true });
+});
+
+app.delete('/api/cart/remove/:id', (req, res) => {
+    const { id } = req.params;
+    db.prepare('DELETE FROM cart WHERE id = ?').run(id);
+    res.json({ success: true });
+});
+
+app.delete('/api/cart/clear/:userId', (req, res) => {
+    const { userId } = req.params;
+    db.prepare('DELETE FROM cart WHERE user_id = ?').run(userId);
+    res.json({ success: true });
+});
+
+app.get('/api/favorites/:userId', (req, res) => {
+    const { userId } = req.params;
+    const favorites = db.prepare(`
+        SELECT f.*, b.title, b.author, b.price, b.cover_url 
+        FROM favorites f 
+        LEFT JOIN books b ON f.book_id = b.id 
+        WHERE f.user_id = ?
+    `).all(userId);
+    res.json(favorites);
+});
+
+app.post('/api/favorites/add', (req, res) => {
+    const { userId, bookId } = req.body;
+    const exists = db.prepare('SELECT * FROM favorites WHERE user_id = ? AND book_id = ?').get(userId, bookId);
+    if (!exists) {
+        db.prepare('INSERT INTO favorites (user_id, book_id) VALUES (?, ?)').run(userId, bookId);
+    }
+    res.json({ success: true });
+});
+
+app.delete('/api/favorites/remove/:userId/:bookId', (req, res) => {
+    const { userId, bookId } = req.params;
+    db.prepare('DELETE FROM favorites WHERE user_id = ? AND book_id = ?').run(userId, bookId);
+    res.json({ success: true });
+});
+
+app.get('/api/reading/progress/:userId', (req, res) => {
+    const { userId } = req.params;
+    const progress = db.prepare(`
+        SELECT r.*, b.title, b.author 
+        FROM reading_progress r 
+        LEFT JOIN books b ON r.book_id = b.id 
+        WHERE r.user_id = ? 
+        ORDER BY r.last_read DESC
+    `).all(userId);
+    res.json(progress);
+});
+
+app.post('/api/reading/progress/save', (req, res) => {
+    const { userId, bookId, progress } = req.body;
+    const exists = db.prepare('SELECT * FROM reading_progress WHERE user_id = ? AND book_id = ?').get(userId, bookId);
+    if (exists) {
+        db.prepare('UPDATE reading_progress SET progress = ?, last_read = CURRENT_TIMESTAMP WHERE id = ?').run(progress, exists.id);
+    } else {
+        db.prepare('INSERT INTO reading_progress (user_id, book_id, progress) VALUES (?, ?, ?)').run(userId, bookId, progress);
+    }
+    res.json({ success: true });
+});
+
+app.get('/api/bookmarks/:userId', (req, res) => {
+    const { userId } = req.params;
+    const bookmarks = db.prepare(`
+        SELECT bm.*, b.title 
+        FROM bookmarks bm 
+        LEFT JOIN books b ON bm.book_id = b.id 
+        WHERE bm.user_id = ? 
+        ORDER BY bm.created_at DESC
+    `).all(userId);
+    res.json(bookmarks);
+});
+
+app.post('/api/bookmarks/add', (req, res) => {
+    const { userId, bookId, chapter, position, note } = req.body;
+    db.prepare('INSERT INTO bookmarks (user_id, book_id, chapter, position, note) VALUES (?, ?, ?, ?, ?)').run(userId, bookId, chapter, position, note);
+    res.json({ success: true });
+});
+
+app.delete('/api/bookmarks/remove/:id', (req, res) => {
+    const { id } = req.params;
+    db.prepare('DELETE FROM bookmarks WHERE id = ?').run(id);
+    res.json({ success: true });
+});
+
+app.get('/api/search', (req, res) => {
+    const { q, type } = req.query;
+    let results = [];
+    
+    if (!type || type === 'books') {
+        const books = db.prepare('SELECT * FROM books WHERE status = "在售" AND (title LIKE ? OR author LIKE ?)').all(`%${q}%`, `%${q}%`);
+        results = results.concat(books.map(b => ({ ...b, type: 'book' })));
+    }
+    
+    if (!type || type === 'articles') {
+        const articles = db.prepare('SELECT * FROM articles WHERE status = "已发布" AND (title LIKE ? OR content LIKE ?)').all(`%${q}%`, `%${q}%`);
+        results = results.concat(articles.map(a => ({ ...a, type: 'article' })));
+    }
+    
+    res.json(results);
+});
+
+app.get('/api/user/orders/:userId', (req, res) => {
+    const { userId } = req.params;
+    const orders = db.prepare(`
+        SELECT o.*, u.username 
+        FROM orders o 
+        LEFT JOIN users u ON o.user_id = u.id 
+        WHERE o.user_id = ? 
+        ORDER BY o.created_at DESC
+    `).all(userId);
+    
+    const ordersWithItems = orders.map(order => {
+        const items = db.prepare(`
+            SELECT oi.*, b.title, b.author 
+            FROM order_items oi 
+            LEFT JOIN books b ON oi.book_id = b.id 
+            WHERE oi.order_id = ?
+        `).all(order.id);
+        return { ...order, items };
+    });
+    
+    res.json(ordersWithItems);
 });
 
 app.get('/api/stats', (req, res) => {
