@@ -46,6 +46,10 @@
         .price { font-size: 16px; font-weight: 600; color: #ff4757; }
         .price-old { font-size: 12px; color: #999; text-decoration: line-through; }
         
+        .loading { text-align: center; padding: 60px; color: #999; }
+        .loading::after { content: ''; display: inline-block; width: 20px; height: 20px; border: 2px solid #ddd; border-top-color: #667eea; border-radius: 50%; animation: spin 0.8s linear infinite; margin-left: 10px; vertical-align: middle; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
         .footer { background: white; border-top: 1px solid #eee; padding: 24px; margin-top: 40px; text-align: center; }
         .footer-text { font-size: 13px; color: #999; }
         
@@ -83,246 +87,14 @@
         
         <div class="category-tabs">
             <button class="category-tab active" onclick="filterBooks('all', this)">全部</button>
-            <button class="category-tab" onclick="filterBooks('tech', this)">编程技术</button>
-            <button class="category-tab" onclick="filterBooks('novel', this)">文学小说</button>
-            <button class="category-tab" onclick="filterBooks('business', this)">经管励志</button>
-            <button class="category-tab" onclick="filterBooks('education', this)">教育考试</button>
+            <button class="category-tab" onclick="filterBooks('编程技术', this)">编程技术</button>
+            <button class="category-tab" onclick="filterBooks('文学小说', this)">文学小说</button>
+            <button class="category-tab" onclick="filterBooks('经管励志', this)">经管励志</button>
+            <button class="category-tab" onclick="filterBooks('教育考试', this)">教育考试</button>
         </div>
         
         <div class="books-grid" id="booksGrid">
-            <div class="book-card" data-category="tech" onclick="openBook('Python编程从入门到精通')">
-                <div class="book-cover">
-                    <span class="book-badge">畅销</span>
-                    <img src="https://picsum.photos/200/300?random=101" alt="Python编程">
-                </div>
-                <div class="book-info">
-                    <div class="book-title">Python编程从入门到精通</div>
-                    <div class="book-author">Python大师</div>
-                    <div class="book-price">
-                        <span class="price">¥29.9</span>
-                        <span class="price-old">¥59.9</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="book-card" data-category="tech" onclick="openBook('JavaScript高级编程')">
-                <div class="book-cover">
-                    <span class="book-badge vip">VIP</span>
-                    <img src="https://picsum.photos/200/300?random=102" alt="JavaScript">
-                </div>
-                <div class="book-info">
-                    <div class="book-title">JavaScript高级编程</div>
-                    <div class="book-author">前端专家</div>
-                    <div class="book-price">
-                        <span class="price">¥39.9</span>
-                        <span class="price-old">¥79.9</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="book-card" data-category="tech" onclick="openBook('Java核心技术')">
-                <div class="book-cover">
-                    <img src="https://picsum.photos/200/300?random=107" alt="Java">
-                </div>
-                <div class="book-info">
-                    <div class="book-title">Java核心技术卷I</div>
-                    <div class="book-author">Cay S. Horstmann</div>
-                    <div class="book-price">
-                        <span class="price">¥49.9</span>
-                        <span class="price-old">¥99.9</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="book-card" data-category="tech" onclick="openBook('数据结构与算法')">
-                <div class="book-cover">
-                    <span class="book-badge new">新品</span>
-                    <img src="https://picsum.photos/200/300?random=108" alt="算法">
-                </div>
-                <div class="book-info">
-                    <div class="book-title">数据结构与算法分析</div>
-                    <div class="book-author">Robert Sedgewick</div>
-                    <div class="book-price">
-                        <span class="price">¥44.9</span>
-                        <span class="price-old">¥89.9</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="book-card" data-category="novel" onclick="openBook('百年孤独')">
-                <div class="book-cover">
-                    <img src="https://picsum.photos/200/300?random=103" alt="百年孤独">
-                </div>
-                <div class="book-info">
-                    <div class="book-title">百年孤独</div>
-                    <div class="book-author">马尔克斯</div>
-                    <div class="book-price">
-                        <span class="price">¥19.9</span>
-                        <span class="price-old">¥39.9</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="book-card" data-category="novel" onclick="openBook('活着')">
-                <div class="book-cover">
-                    <span class="book-badge">畅销</span>
-                    <img src="https://picsum.photos/200/300?random=109" alt="活着">
-                </div>
-                <div class="book-info">
-                    <div class="book-title">活着</div>
-                    <div class="book-author">余华</div>
-                    <div class="book-price">
-                        <span class="price">¥24.9</span>
-                        <span class="price-old">¥49.9</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="book-card" data-category="novel" onclick="openBook('平凡的世界')">
-                <div class="book-cover">
-                    <span class="book-badge vip">VIP</span>
-                    <img src="https://picsum.photos/200/300?random=110" alt="平凡的世界">
-                </div>
-                <div class="book-info">
-                    <div class="book-title">平凡的世界</div>
-                    <div class="book-author">路遥</div>
-                    <div class="book-price">
-                        <span class="price">¥34.9</span>
-                        <span class="price-old">¥69.9</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="book-card" data-category="novel" onclick="openBook('围城')">
-                <div class="book-cover">
-                    <img src="https://picsum.photos/200/300?random=111" alt="围城">
-                </div>
-                <div class="book-info">
-                    <div class="book-title">围城</div>
-                    <div class="book-author">钱钟书</div>
-                    <div class="book-price">
-                        <span class="price">¥22.9</span>
-                        <span class="price-old">¥45.9</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="book-card" data-category="business" onclick="openBook('穷爸爸富爸爸')">
-                <div class="book-cover">
-                    <span class="book-badge new">新品</span>
-                    <img src="https://picsum.photos/200/300?random=104" alt="穷爸爸富爸爸">
-                </div>
-                <div class="book-info">
-                    <div class="book-title">穷爸爸富爸爸</div>
-                    <div class="book-author">清崎</div>
-                    <div class="book-price">
-                        <span class="price">¥24.9</span>
-                        <span class="price-old">¥49.9</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="book-card" data-category="business" onclick="openBook('原则')">
-                <div class="book-cover">
-                    <img src="https://picsum.photos/200/300?random=112" alt="原则">
-                </div>
-                <div class="book-info">
-                    <div class="book-title">原则</div>
-                    <div class="book-author">瑞·达利欧</div>
-                    <div class="book-price">
-                        <span class="price">¥39.9</span>
-                        <span class="price-old">¥79.9</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="book-card" data-category="business" onclick="openBook('思考快与慢')">
-                <div class="book-cover">
-                    <span class="book-badge">畅销</span>
-                    <img src="https://picsum.photos/200/300?random=113" alt="思考快与慢">
-                </div>
-                <div class="book-info">
-                    <div class="book-title">思考，快与慢</div>
-                    <div class="book-author">丹尼尔·卡尼曼</div>
-                    <div class="book-price">
-                        <span class="price">¥34.9</span>
-                        <span class="price-old">¥69.9</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="book-card" data-category="business" onclick="openBook('高效能人士的七个习惯')">
-                <div class="book-cover">
-                    <span class="book-badge vip">VIP</span>
-                    <img src="https://picsum.photos/200/300?random=114" alt="七个习惯">
-                </div>
-                <div class="book-info">
-                    <div class="book-title">高效能人士的七个习惯</div>
-                    <div class="book-author">史蒂芬·柯维</div>
-                    <div class="book-price">
-                        <span class="price">¥29.9</span>
-                        <span class="price-old">¥59.9</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="book-card" data-category="education" onclick="openBook('考研英语词汇速记')">
-                <div class="book-cover">
-                    <img src="https://picsum.photos/200/300?random=105" alt="考研英语">
-                </div>
-                <div class="book-info">
-                    <div class="book-title">考研英语词汇速记</div>
-                    <div class="book-author">新东方</div>
-                    <div class="book-price">
-                        <span class="price">¥34.9</span>
-                        <span class="price-old">¥69.9</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="book-card" data-category="education" onclick="openBook('CPA注会通关宝典')">
-                <div class="book-cover">
-                    <span class="book-badge new">新品</span>
-                    <img src="https://picsum.photos/200/300?random=115" alt="CPA">
-                </div>
-                <div class="book-info">
-                    <div class="book-title">CPA注会通关宝典</div>
-                    <div class="book-author">会计名师</div>
-                    <div class="book-price">
-                        <span class="price">¥49.9</span>
-                        <span class="price-old">¥99.9</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="book-card" data-category="education" onclick="openBook('公务员考试行测')">
-                <div class="book-cover">
-                    <img src="https://picsum.photos/200/300?random=116" alt="公务员">
-                </div>
-                <div class="book-info">
-                    <div class="book-title">公务员考试行测</div>
-                    <div class="book-author">华图教育</div>
-                    <div class="book-price">
-                        <span class="price">¥39.9</span>
-                        <span class="price-old">¥79.9</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="book-card" data-category="education" onclick="openBook('雅思阅读高分技巧')">
-                <div class="book-cover">
-                    <span class="book-badge vip">VIP</span>
-                    <img src="https://picsum.photos/200/300?random=117" alt="雅思">
-                </div>
-                <div class="book-info">
-                    <div class="book-title">雅思阅读高分技巧</div>
-                    <div class="book-author">环球雅思</div>
-                    <div class="book-price">
-                        <span class="price">¥44.9</span>
-                        <span class="price-old">¥89.9</span>
-                    </div>
-                </div>
-            </div>
+            <div class="loading">加载中...</div>
         </div>
     </main>
     
@@ -331,17 +103,68 @@
     </footer>
     
     <script>
+        const API_BASE = '';
+        let allBooks = [];
+        
+        async function loadBooks() {
+            try {
+                const response = await fetch(API_BASE + '/api/ebook/books');
+                allBooks = await response.json();
+                renderBooks(allBooks);
+            } catch (error) {
+                document.getElementById('booksGrid').innerHTML = '<div class="loading">加载失败，请刷新重试</div>';
+            }
+        }
+        
+        function renderBooks(books) {
+            const grid = document.getElementById('booksGrid');
+            if (books.length === 0) {
+                grid.innerHTML = '<div class="loading">暂无书籍</div>';
+                return;
+            }
+            
+            grid.innerHTML = books.map(book => {
+                const badge = getBadge(book);
+                const originalPrice = book.original_price ? `<span class="price-old">¥${book.original_price}</span>` : '';
+                return `
+                    <div class="book-card" onclick="openBook('${book.title}')">
+                        <div class="book-cover">
+                            ${badge}
+                            <img src="${book.cover_url || 'https://picsum.photos/200/300?random=' + book.id}" alt="${book.title}">
+                        </div>
+                        <div class="book-info">
+                            <div class="book-title">${book.title}</div>
+                            <div class="book-author">${book.author}</div>
+                            <div class="book-price">
+                                <span class="price">¥${book.price}</span>
+                                ${originalPrice}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function getBadge(book) {
+            if (book.is_vip_only) {
+                return '<span class="book-badge vip">VIP</span>';
+            }
+            if (book.status === '预售') {
+                return '<span class="book-badge new">预售</span>';
+            }
+            return '<span class="book-badge">在售</span>';
+        }
+        
         function filterBooks(category, btn) {
             document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
             btn.classList.add('active');
             
-            document.querySelectorAll('.book-card').forEach(card => {
-                if (category === 'all' || card.dataset.category === category) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
+            if (category === 'all') {
+                renderBooks(allBooks);
+            } else {
+                const filtered = allBooks.filter(b => b.category === category);
+                renderBooks(filtered);
+            }
         }
         
         function openBook(title) {
@@ -352,12 +175,20 @@
         
         function handleSearch(e) {
             if (e.key === 'Enter') {
-                const query = document.getElementById('searchInput').value;
+                const query = document.getElementById('searchInput').value.toLowerCase();
                 if (query) {
-                    alert(`正在搜索：${query}`);
+                    const filtered = allBooks.filter(b => 
+                        b.title.toLowerCase().includes(query) || 
+                        b.author.toLowerCase().includes(query)
+                    );
+                    renderBooks(filtered);
+                } else {
+                    renderBooks(allBooks);
                 }
             }
         }
+        
+        loadBooks();
     </script>
 </body>
 </html>
